@@ -1,10 +1,10 @@
-export type AgendamentoStatus = 'PENDENTE' | 'CONFIRMADO' | 'CANCELADO';
+export type AgendamentoStatus = 'CONCLUIDO' | 'CONFIRMADO' | 'CANCELADO';
 
 export interface Agendamento {
     id: number;
     clienteId: number;
     dataHora: string; 
-    servico: string;
+    servicosId: number[];
     status: AgendamentoStatus;
     observacoes?: string;
 }

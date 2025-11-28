@@ -1,0 +1,32 @@
+{
+  "name": "Agenda Barbearia Pro",
+  "short_name": "Barbearia",
+  "description": "Gerenciamento de agendamentos offline para barbearias.",
+  "id": "/",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "icons": [],
+  "shortcuts": [
+    {
+      "name": "Novo Agendamento",
+      "short_name": "Agendar",
+      "description": "Adicionar cliente rapidamente",
+      "url": "/agendar?action=novo",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "categories": [
+    "productivity",
+    "business"
+  ],
+  "lang": "pt-BR",
+  "dir": "ltr"
+}

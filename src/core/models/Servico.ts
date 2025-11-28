@@ -1,6 +1,6 @@
-export interface servico {
-    id: number;
-    nome: string;
-    duracaoMinutos: number;
-    preco?: number;
+export interface Servico {
+  id: number;
+  nome: string;
+  duracaoMinutos: number;
+  preco?: number;
 }

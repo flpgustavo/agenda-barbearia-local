@@ -36,13 +36,15 @@ export default function Home() {
 
         <CardContent className="grid gap-4">
 
-          <Button
-            className="w-full h-12 text-base"
-            size="lg"
-          >
-            <UserPlus className="mr-2 h-5 w-5" />
-            Criar nova conta
-          </Button>
+          <Link href="/register">
+            <Button
+              className="w-full h-12 text-base"
+              size="lg"
+            >
+              <UserPlus className="mr-2 h-5 w-5" />
+              Criar nova conta
+            </Button>
+          </Link>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

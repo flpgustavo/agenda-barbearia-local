@@ -17,10 +17,12 @@ import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } 
 import { Input } from "@/components/ui/input";
 import { Usuario } from "@/core/models/Usuario";
 import Link from "next/link";
+import { UsuarioService } from "@/core/services/UsuarioService";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
 
-    const { create } = useUsuario();
+    const navigate = useRouter()
 
     async function handleRegister(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -30,19 +32,23 @@ export default function Register() {
             nome: formData.get('nome') as string,
             inicio: formData.get('inicio') as string,
             fim: formData.get('fim') as string,
-            intervaloInicio: formData.get('intervaloInicio') as string, 
+            intervaloInicio: formData.get('intervaloInicio') as string,
             intervaloFim: formData.get('intervaloFim') as string
         };
 
-        // 5. Executar o Toast com Promessa
-        toast.promise(create(dados), {
-            loading: 'Criando conta...',
-            success: () => {
-                event.currentTarget.reset(); 
-                return 'Conta criada com sucesso!';
-            },
-            error: 'Erro ao criar conta. Verifique os dados.',
-        });
+        toast.promise(
+            (async () => {
+                return await UsuarioService.create(dados);
+            })(),
+            {
+                loading: 'Configurando sua conta ...',
+                success: () => {
+                    navigate.push('/')
+                    return 'Conta criada com sucesso!'
+                },
+                error: (err) => `Erro: ${err.message || 'Falha ao criar conta'}`,
+            }
+        );
     }
 
     return (
@@ -88,7 +94,7 @@ export default function Register() {
                                     <Input name="fim" type="time" required />
                                 </Field>
                             </FieldSet>
-                            
+
                             <div className="pt-4">
                                 <Button type="submit" className="w-full">Cadastrar</Button>
                             </div>

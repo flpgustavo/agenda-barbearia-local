@@ -3,9 +3,8 @@
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, User, Home, Settings, LogOut, Loader2, Sun, Moon } from "lucide-react";
+import { Menu, User, Home, Settings, LogOut, Loader2, Sun, Moon, LayoutList, CalendarDaysIcon } from "lucide-react";
 
-// Imports do Shadcn
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -14,6 +13,7 @@ import {
     SheetHeader,
     SheetTitle,
     SheetTrigger,
+    SheetClose
 } from "@/components/ui/sheet";
 import {
     DropdownMenu,
@@ -31,6 +31,19 @@ import { useTheme } from "next-themes";
 interface AppLayoutProps {
     children: ReactNode;
 }
+
+const menuItems = [
+    {
+        label: "Agenda",
+        href: "/agendamentos",
+        icon: CalendarDaysIcon
+    },
+    {
+        label: "Seus Serviços",
+        href: "/servicos", 
+        icon: LayoutList
+    },
+];
 
 export function AppLayout({ children }: AppLayoutProps) {
     const pathname = usePathname();
@@ -110,22 +123,34 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 <Menu className="h-6 w-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left">
-                            <SheetHeader>
-                                <SheetTitle>Menu Principal</SheetTitle>
+                        <SheetContent side="left" className="px-4">
+                            <SheetHeader className="pl-0 pb-0">
+                                <SheetTitle>Menu</SheetTitle>
                             </SheetHeader>
-                            <nav className="flex flex-col gap-4 mt-8">
-                                <Link href="/dashboard" className="flex items-center gap-2 text-lg hover:text-primary transition-colors">
-                                    <Home className="h-5 w-5" />
-                                    Início
-                                </Link>
+                            <nav className="flex flex-col gap-4 mt-0">
+                                {menuItems.map((item) => {
+                                    const isActive = pathname === item.href;
+
+                                    return (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`flex items-center gap-2 text-lg transition-colors p-2 rounded-md hover:bg-muted ${isActive
+                                                    ? "text-primary font-semibold bg-primary/10"
+                                                    : "text-muted-foreground"
+                                                }`}
+                                        >
+                                            <item.icon className="h-5 w-5" />
+                                            {item.label}
+                                        </Link>
+                                    );
+                                })}
                             </nav>
+
                         </SheetContent>
                     </Sheet>
-                    <h1 className="text-xl font-bold">Minha App</h1>
+                    <h1 className="text-xl font-bold">NoteBarber</h1>
                 </div>
-
-
 
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={toggleTheme}>

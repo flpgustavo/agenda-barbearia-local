@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950">
 
-      <Card className="w-full max-w-md shadow-lg">
+      <Card className="w-full max-w-md shadow-lg animate-enter">
 
         <CardHeader className="space-y-1 text-center">
           <div className="w-full flex items-center justify-center">
@@ -38,7 +38,7 @@ export default function Home() {
 
           <Link href="/register">
             <Button
-              className="w-full h-12 text-base"
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-neon w-full"
               size="lg"
             >
               <UserPlus className="mr-2 h-5 w-5" />

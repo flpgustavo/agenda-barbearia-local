@@ -1,5 +1,9 @@
 'use client'
 
+import { FormEvent } from "react";
+import { toast } from "sonner"; // 1. Importar o Sonner
+import { useUsuario } from "@/hooks/useUsuario"; // 2. Importar o Hook (ajuste o caminho se necessário)
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,40 +13,41 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Usuario } from "@/core/models/Usuario";
-import { UsuarioService } from "@/core/services/UsuarioService";
-import { Download, UserPlus } from "lucide-react"; // Ícones
-import Image from "next/image";
-import Link from "next/link"; // Para navegação, se necessário
+import Link from "next/link";
 
 export default function Register() {
-    async function salvar(formData: FormData) {
 
-        const dados: Usuario = {
+    const { create } = useUsuario();
+
+    async function handleRegister(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+
+        const dados: Omit<Usuario, 'id'> = {
             nome: formData.get('nome') as string,
             inicio: formData.get('inicio') as string,
             fim: formData.get('fim') as string,
-            intervaloInicio: formData.get('intervaloInicio') as string,
+            intervaloInicio: formData.get('intervaloInicio') as string, 
             intervaloFim: formData.get('intervaloFim') as string
         };
 
-        try {
-            await UsuarioService.create(dados);
-            alert("Salvo com sucesso!");
-            // Resetar form ou redirecionar
-        } catch (erro) {
-            console.error(erro);
-            alert("Erro ao salvar no dispositivo");
-        }
+        // 5. Executar o Toast com Promessa
+        toast.promise(create(dados), {
+            loading: 'Criando conta...',
+            success: () => {
+                event.currentTarget.reset(); 
+                return 'Conta criada com sucesso!';
+            },
+            error: 'Erro ao criar conta. Verifique os dados.',
+        });
     }
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950">
-
             <Card className="w-full max-w-md shadow-lg">
-
                 <CardHeader className="space-y-1 text-center">
                     <CardTitle className="text-2xl font-bold tracking-tight">
                         Registre-se
@@ -53,10 +58,7 @@ export default function Register() {
                 </CardHeader>
 
                 <CardContent className="grid gap-4">
-
-                    <form
-                        action={salvar}
-                    >
+                    <form onSubmit={handleRegister}>
                         <FieldGroup>
                             <FieldSet>
                                 <Field>
@@ -65,35 +67,33 @@ export default function Register() {
                                 </Field>
                                 <FieldSeparator />
                                 <FieldSet>
-                                    <FieldLegend variant="label" className="text-center">
+                                    <FieldLegend className="text-center text-sm font-medium">
                                         Informações sobre seu horário de Atendimento
                                     </FieldLegend>
                                 </FieldSet>
                                 <Field>
-                                    <FieldLabel>Inicío *</FieldLabel>
+                                    <FieldLabel>Início *</FieldLabel>
                                     <Input name="inicio" type="time" required />
                                 </Field>
                                 <Field>
-                                    <FieldLabel>Inicío de Intervalo</FieldLabel>
-                                    <Input name="inicio_intervalo" type="time" />
+                                    <FieldLabel>Início de Intervalo</FieldLabel>
+                                    <Input name="intervaloInicio" type="time" />
                                 </Field>
                                 <Field>
                                     <FieldLabel>Fim de Intervalo</FieldLabel>
-                                    <Input name="fim_intervalo" type="time" />
+                                    <Input name="intervaloFim" type="time" />
                                 </Field>
                                 <Field>
                                     <FieldLabel>Fim *</FieldLabel>
                                     <Input name="fim" type="time" required />
                                 </Field>
-
-
                             </FieldSet>
-                            <Field orientation="horizontal" className="flex justify-center w-full">
+                            
+                            <div className="pt-4">
                                 <Button type="submit" className="w-full">Cadastrar</Button>
-                            </Field>
+                            </div>
                         </FieldGroup>
                     </form>
-
                 </CardContent>
 
                 <CardFooter className="justify-center">
@@ -105,6 +105,6 @@ export default function Register() {
                     </p>
                 </CardFooter>
             </Card>
-        </div >
+        </div>
     );
 }

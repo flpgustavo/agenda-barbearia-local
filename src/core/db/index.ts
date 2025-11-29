@@ -13,7 +13,7 @@ export class Database extends Dexie {
     constructor() {
         super("agenda-barbearia");
 
-        this.version(1).stores({
+        this.version(2).stores({
             clientes: "++id, nome, telefone, createdAt, updatedAt",
             servicos: "++id, nome, duracaoMinutos, preco, createdAt, updatedAt",
             usuarios: "++id, nome, inicio, fim, intervaloInicio, intervaloFim, createdAt, updatedAt",

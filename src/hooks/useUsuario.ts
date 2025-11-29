@@ -25,12 +25,12 @@ export function useUsuario() {
     await load();
   }
 
-  async function update(id: number, patch: Partial<Usuario>) {
+  async function update(id: string, patch: Partial<Usuario>) {
     await UsuarioService.update(id, patch);
     await load();
   }
 
-  async function remove(id: number) {
+  async function remove(id: string) {
     await UsuarioService.remove(id);
     await load();
   }

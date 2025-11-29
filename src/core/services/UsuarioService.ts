@@ -1,59 +1,79 @@
 import { BaseService } from "./BaseService";
-import { Usuario } from "../models/Usuario";
+import { Servico } from "../models/Servico";
+import { db } from "../db";
 
-class UsuarioServiceClass extends BaseService<Usuario> {
+class ServicoServiceClass extends BaseService<Servico> {
     constructor() {
-        super('usuarios');
+        super('servicos' as keyof typeof db);
     }
 
-    // Padroniza hora para "HH:MM"
-    private normalizarHora(hora: string) {
-        const [h, m] = hora.split(":");
-        return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
-    }
+    //-----------------------------
+    // 🔍 VALIDAÇÕES DO SERVIÇO
+    //-----------------------------
+    private async validarServico(data: Omit<Servico, "id" | "createdAt" | "updatedAt">) {
+        const { nome, duracaoMinutos, preco } = data;
 
-   private validarHorarios(usuario: Omit<Usuario, "id" | "createdAt" | "updatedAt">) {
+        // Nome obrigatório
+        if (!nome || nome.trim().length === 0) {
+            throw new Error("O nome do serviço é obrigatório.");
+        }
 
-    const inicio = this.toMinutes(usuario.inicio);
-    const fim = this.toMinutes(usuario.fim);
-    const intervaloInicio = this.toMinutes(usuario.intervaloInicio);
-    const intervaloFim = this.toMinutes(usuario.intervaloFim);
+        // Nome mínimo
+        if (nome.trim().length < 3) {
+            throw new Error("O nome do serviço deve ter pelo menos 3 caracteres.");
+        }
 
-    if (inicio >= fim) {
-        throw new Error("Horário de início deve ser antes do horário de fim.");
-    }
+        // Duração obrigatória
+        if (!duracaoMinutos || duracaoMinutos <= 0) {
+            throw new Error("A duração do serviço deve ser maior que 0.");
+        }
 
-    if (intervaloInicio >= intervaloFim) {
-        throw new Error("Intervalo de início deve ser antes do intervalo de fim.");
-    }
+        // Preço não pode ser negativo
+        if (preco !== undefined && preco < 0) {
+            throw new Error("O preço não pode ser negativo.");
+        }
 
-    if (intervaloInicio < inicio || intervaloFim > fim) {
-        throw new Error("O intervalo deve estar dentro do horário de trabalho.");
-    }
-}
-    toMinutes(inicio: string) {
-        throw new Error("Method not implemented.");
-    }
-
-
-    // ⚠️ Apenas um usuário permitido
-    private async validarDuplicidade() {
-        const total = await this.table.count();
-        if (total > 0) {
-            throw new Error("Já existe um usuário cadastrado.");
+        // Nome único
+        const existe = await this.table.where("nome").equalsIgnoreCase(nome.trim()).first();
+        if (existe) {
+            throw new Error("Já existe um serviço com esse nome.");
         }
     }
 
-    async create(data: Omit<Usuario, "id" | "createdAt" | "updatedAt">): Promise<string> {
-        try {
-            await this.validarHorarios(data);
-            await this.validarDuplicidade();
+    //------------------------------------------
+    // 🟢 CREATE COM VALIDAÇÕES ANTES DE SALVAR
+    //------------------------------------------
+    async create(data: Omit<Servico, "id" | "createdAt" | "updatedAt">): Promise<string> {
+        await this.validarServico(data);
+        return super.create(data);
+    }
 
-            return super.create(data);
-        } catch (err) {
-            throw err;
+    //------------------------------------------
+    // 🟡 UPDATE COM VALIDAÇÃO (exceto nome único do próprio registro)
+    //------------------------------------------
+    async update(id: string, data: Partial<Servico>): Promise<void> {
+
+        if (data.nome) {
+            const outro = await this.table
+                .where("nome")
+                .equalsIgnoreCase(data.nome.trim())
+                .first();
+
+            if (outro && outro.id !== id) {
+                throw new Error("Já existe outro serviço com esse nome.");
+            }
         }
+
+        if (data.duracaoMinutos !== undefined && data.duracaoMinutos <= 0) {
+            throw new Error("A duração do serviço deve ser maior que 0.");
+        }
+
+        if (data.preco !== undefined && data.preco < 0) {
+            throw new Error("O preço não pode ser negativo.");
+        }
+
+        return super.update(id, data);
     }
 }
 
-export const UsuarioService = new UsuarioServiceClass();
+export const ServicoService = new ServicoServiceClass();

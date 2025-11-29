@@ -11,7 +11,7 @@ export class ClienteService extends BaseService<Cliente> {
     get = super.get;
     create = super.create;
     update = super.update;
-    remove = super.delete;
+    remove = super.remove;
 
 
 }

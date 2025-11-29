@@ -1,25 +1,25 @@
-import Dexie, { Table } from 'dexie';
-import { Usuario } from '../models/Usuario';
-import { Cliente } from '../models/Cliente';
-import { Servico } from '../models/Servico';
-import { Agendamento } from '../models/Agendamento';
+import Dexie, { Table } from "dexie";
+import { Cliente } from "../models/Cliente";
+import { Servico } from "../models/Servico";
+import { Usuario } from "../models/Usuario";
+import { Agendamento } from "../models/Agendamento";
 
-export class AppDB extends Dexie {
-  usuarios!: Table<Usuario, number>;
-  clientes!: Table<Cliente, number>;
-  servicos!: Table<Servico, number>;
-  agendamentos!: Table<Agendamento, number>;
+export class Database extends Dexie {
+    clientes!: Table<Cliente, number>;
+    servicos!: Table<Servico, number>;
+    usuarios!: Table<Usuario, number>;
+    agendamentos!: Table<Agendamento, number>;
 
-  constructor() {
-    super('NoteBarberDB');
+    constructor() {
+        super("agenda-barbearia");
 
-    this.version(1).stores({
-      usuarios: '++id, nome',
-      clientes: '++id, nome, telefone',
-      servicos: '++id, nome, duracaoMinutos',
-      agendamentos: '++id, clienteId, dataHora, status'
-    });
-  }
+        this.version(1).stores({
+            clientes: "++id, nome, telefone, createdAt, updatedAt",
+            servicos: "++id, nome, duracaoMinutos, preco, createdAt, updatedAt",
+            usuarios: "++id, nome, inicio, fim, intervaloInicio, intervaloFim, createdAt, updatedAt",
+            agendamentos: "++id, clienteId, dataHora, status, createdAt, updatedAt"
+        });
+    }
 }
 
-export const db = new AppDB();
+export const db = new Database();

@@ -1,42 +1,44 @@
-import { db } from '../db';
+import { db } from "../db";
+import { Crypto } from "../utils/Crypto";
 
 export const BackupService = {
-  async generateBackupJSON(): Promise<string> {
-    const backup = {
-      usuarios: await db.usuarios.toArray(),
-      clientes: await db.clientes.toArray(),
-      servicos: await db.servicos.toArray(),
-      agendamentos: await db.agendamentos.toArray()
-    };
 
-    return JSON.stringify(backup, null, 2);
-  },
+    async export(password: string): Promise<void> {
+        const data = {
+            clientes: await db.clientes.toArray(),
+            servicos: await db.servicos.toArray(),
+            usuarios: await db.usuarios.toArray(),
+            agendamentos: await db.agendamentos.toArray(),
+        };
 
-  /**
-   * Restaura o banco (sobrescreve tudo).
-   * json: string com o mesmo formato gerado por generateBackupJSON
-   */
-  async restoreFromJSON(json: string): Promise<void> {
-    const data = JSON.parse(json);
+        const encryptedBlob = await Crypto.encrypt(password, data);
 
-    await db.transaction('rw', db.usuarios, db.clientes, db.servicos, db.agendamentos, async () => {
-      await db.usuarios.clear();
-      await db.clientes.clear();
-      await db.servicos.clear();
-      await db.agendamentos.clear();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(encryptedBlob);
+        link.download = `barbearia-backup-${new Date().toISOString()}.backup`;
+        link.click();
+    },
 
-      if (Array.isArray(data.usuarios) && data.usuarios.length) {
-        await db.usuarios.bulkAdd(data.usuarios);
-      }
-      if (Array.isArray(data.clientes) && data.clientes.length) {
-        await db.clientes.bulkAdd(data.clientes);
-      }
-      if (Array.isArray(data.servicos) && data.servicos.length) {
-        await db.servicos.bulkAdd(data.servicos);
-      }
-      if (Array.isArray(data.agendamentos) && data.agendamentos.length) {
-        await db.agendamentos.bulkAdd(data.agendamentos);
-      }
-    });
-  }
+    async import(file: File, password: string): Promise<void> {
+        const decrypted = await Crypto.decrypt(password, file);
+
+        await db.transaction('rw',
+            db.clientes,
+            db.servicos,
+            db.usuarios,
+            db.agendamentos,
+            async () => {
+
+                await db.clientes.clear();
+                await db.servicos.clear();
+                await db.usuarios.clear();
+                await db.agendamentos.clear();
+
+                await db.clientes.bulkAdd(decrypted.clientes || []);
+                await db.servicos.bulkAdd(decrypted.servicos || []);
+                await db.usuarios.bulkAdd(decrypted.usuarios || []);
+                await db.agendamentos.bulkAdd(decrypted.agendamentos || []);
+            }
+        );
+    }
 };

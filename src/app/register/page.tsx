@@ -2,8 +2,6 @@
 
 import { FormEvent } from "react";
 import { toast } from "sonner"; // 1. Importar o Sonner
-import { useUsuario } from "@/hooks/useUsuario"; // 2. Importar o Hook (ajuste o caminho se necessário)
-
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -19,10 +17,12 @@ import { Usuario } from "@/core/models/Usuario";
 import Link from "next/link";
 import { UsuarioService } from "@/core/services/UsuarioService";
 import { useRouter } from "next/navigation";
+import useUsuario from "@/hooks/useUsuario";
 
 export default function Register() {
 
     const navigate = useRouter()
+    const { criar } = useUsuario();    
 
     async function handleRegister(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -38,12 +38,12 @@ export default function Register() {
 
         toast.promise(
             (async () => {
-                return await UsuarioService.create(dados);
+                return await criar(dados);
             })(),
             {
                 loading: 'Configurando sua conta ...',
                 success: () => {
-                    navigate.push('/')
+                    navigate.push('/agendamentos')
                     return 'Conta criada com sucesso!'
                 },
                 error: (err) => `Erro: ${err.message || 'Falha ao criar conta'}`,

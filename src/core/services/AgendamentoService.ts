@@ -1,86 +1,119 @@
-import { db } from '../db';
-import { Agendamento } from '../models/Agendamento';
-import { Servico } from '../models/Servico';
+// src/core/services/AgendamentoService.ts
+import { BaseService } from "./BaseService";
+import { Agendamento } from "../models/Agendamento";
+import { db } from "../db";
+import { Servico } from "../models/Servico";
+import { UsuarioService } from "./UsuarioService";
 
-/**
- * Serviços expostos:
- * - list(): todos os agendamentos
- * - listByDate(dateISO): agendamentos do dia
- * - get(id)
- * - create(Agendamento sem id) -> adiciona id automaticamente
- * - update(id, patch)
- * - remove(id)
- * - updateStatus(id, status)
- *
- * Regras:
- * - Verificar conflito ao criar (sobreposição real considerando duração dos serviços)
- */
-
-export const AgendamentoService = {
-  async list(): Promise<Agendamento[]> {
-    return db.agendamentos.orderBy('dataHora').toArray();
-  },
-
-  async listByDate(dateISO: string): Promise<Agendamento[]> {
-    const inicio = dateISO + 'T00:00:00';
-    const fim = dateISO + 'T23:59:59';
-    return db.agendamentos
-      .filter(a => a.dataHora >= inicio && a.dataHora <= fim)
-      .toArray();
-  },
-
-  async get(id: string): Promise<Agendamento | undefined> {
-    return db.agendamentos.get(id);
-  },
-
-  async create(data: Omit<Agendamento, 'id'>): Promise<string> {
-    const conflito = await this.hasConflict(data.dataHora, data.servicosId);
-    if (conflito) throw new Error('Horário em conflito com outro agendamento.');
-    return db.agendamentos.add(data as Agendamento);
-  },
-
-  async update(id: string, patch: Partial<Agendamento>): Promise<string | undefined> {
-    await db.agendamentos.update(id, patch);
-    return id;
-  },
-
-  async remove(id: string): Promise<void> {
-    await db.agendamentos.delete(id);
-  },
-
-  async updateStatus(id: string, status: Agendamento['status']): Promise<string | undefined> {
-    await db.agendamentos.update(id, { status });
-    return id;
-  },
-
-  /**
-   * Verifica conflito real considerando duração dos serviços (minutos).
-   * dataHora: ISO string de início (ex: 2025-11-30T10:00:00.000Z ou sem Z local)
-   * servicosIds: ids dos serviços que compõe o novo agendamento
-   */
-  async hasConflict(dataHora: string, servicosIds: string[]): Promise<boolean> {
-    const servicos: Servico[] = await db.servicos.where('id').anyOf(servicosIds).toArray();
-    const duracoes = servicos.reduce((acc, s) => acc + (s.duracaoMinutos || 0), 0);
-
-    const inicioNovo = new Date(dataHora);
-    const fimNovo = new Date(inicioNovo.getTime() + duracoes * 60_000);
-
-    // percorre todos os agendamentos existentes e calcula duração de cada
-    const todos = await db.agendamentos.toArray();
-    for (const ag of todos) {
-      const inicioAg = new Date(ag.dataHora);
-      const servsAg: Servico[] = await db.servicos.where('id').anyOf(ag.servicosId).toArray();
-      const durAg = servsAg.reduce((acc, s) => acc + (s.duracaoMinutos || 0), 0);
-      const fimAg = new Date(inicioAg.getTime() + durAg * 60_000);
-
-      const sobrepoe =
-        (inicioNovo >= inicioAg && inicioNovo < fimAg) ||
-        (fimNovo > inicioAg && fimNovo <= fimAg) ||
-        (inicioAg >= inicioNovo && inicioAg < fimNovo);
-
-      if (sobrepoe) return true;
+class _AgendamentoService extends BaseService<Agendamento> {
+    constructor() {
+        super("agendamentos");
     }
 
-    return false;
-  }
-};
+    /**
+     * Regras extra ao criar agendamentos
+     */
+    async create(data: Omit<Agendamento, "id" | "createdAt" | "updatedAt">): Promise<string> {
+        // 1) Validar horário permitido
+        await this.validateHorario(data);
+
+        // 2) Validar conflito
+        const conflito = await this.hasConflict(data.dataHora, data.servicosId);
+        if (conflito) {
+            throw new Error("Horário indisponível — existe outro agendamento no período.");
+        }
+
+        // 3) Criar via BaseService
+        return super.create(data);
+    }
+
+    /**
+     * Regra extra ao atualizar
+     */
+    async update(id: string, patch: Partial<Agendamento>): Promise<void> {
+        if (patch.dataHora || patch.servicosId) {
+            const atual = await this.get(id);
+            if (!atual) throw new Error("Agendamento não encontrado.");
+
+            const novo = {
+                ...atual,
+                ...patch
+            };
+
+            await this.validateHorario(novo);
+
+            const conflito = await this.hasConflict(novo.dataHora, novo.servicosId, id);
+            if (conflito) {
+                throw new Error("Horário indisponível — conflito com outro agendamento.");
+            }
+        }
+
+        return super.update(id, patch);
+    }
+
+    /**
+     * Validação de expediente + intervalos de almoço
+     */
+    private async validateHorario(ag: Agendamento): Promise<void> {
+        const usuario = await UsuarioService.get("1"); // único usuário do sistema
+
+        if (!usuario) return;
+
+        const inicioExpediente = new Date(`${ag.dataHora.split("T")[0]}T${usuario.inicio}`);
+        const fimExpediente    = new Date(`${ag.dataHora.split("T")[0]}T${usuario.fim}`);
+
+        const inicioAg = new Date(ag.dataHora);
+
+        if (inicioAg < inicioExpediente || inicioAg > fimExpediente) {
+            throw new Error("Horário fora do expediente.");
+        }
+
+        // Intervalo opcional
+        if (usuario.intervaloInicio && usuario.intervaloFim) {
+            const inicioInt = new Date(`${ag.dataHora.split("T")[0]}T${usuario.intervaloInicio}`);
+            const fimInt    = new Date(`${ag.dataHora.split("T")[0]}T${usuario.intervaloFim}`);
+
+            if (inicioAg >= inicioInt && inicioAg < fimInt) {
+                throw new Error("Horário dentro do intervalo (almoço).");
+            }
+        }
+    }
+
+    /**
+     * Verifica conflito real entre agendamentos
+     */
+    async hasConflict(dataHora: string, servicosIds: string[], ignoreId?: string): Promise<boolean> {
+        const servicos: Servico[] = await db.servicos.where("id").anyOf(servicosIds).toArray();
+        const duracaoTotal = servicos.reduce((acc, s) => acc + s.duracaoMinutos, 0);
+
+        const inicioNovo = new Date(dataHora);
+        const fimNovo = new Date(inicioNovo.getTime() + duracaoTotal * 60000);
+
+        const todos = await db.agendamentos.toArray();
+
+        for (const ag of todos) {
+            if (ignoreId && ag.id === ignoreId) continue;
+
+            const servsAg: Servico[] = await db.servicos
+                .where("id")
+                .anyOf(ag.servicosId)
+                .toArray();
+
+            const durAg = servsAg.reduce((acc, s) => acc + s.duracaoMinutos, 0);
+
+            const inicioAg = new Date(ag.dataHora);
+            const fimAg = new Date(inicioAg.getTime() + durAg * 60000);
+
+            const conflita =
+                (inicioNovo >= inicioAg && inicioNovo < fimAg) ||
+                (fimNovo > inicioAg && fimNovo <= fimAg) ||
+                (inicioAg >= inicioNovo && inicioAg < fimNovo);
+
+            if (conflita) return true;
+        }
+
+        return false;
+    }
+}
+
+export const agendamentoService = new _AgendamentoService();

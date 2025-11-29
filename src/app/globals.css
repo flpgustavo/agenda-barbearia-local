@@ -56,14 +56,13 @@
   }
   @keyframes pulse-glow {
     0%, 100% { opacity: 1; box-shadow: 0 0 20px var(--primary); }
-    50% { opacity: .8; box-shadow: 0 0 5px var(--primary); }
+    50% { opacity: 1.9; box-shadow: 0 0 5px var(--primary); }
   }
 }
 
 :root {
   --radius: 0.625rem;
   
-  /* MODO CLARO (PREMIUM OFF-WHITE) */
   --background: #f0f4f8; 
   --foreground: #101318; 
   --card: #ffffff;

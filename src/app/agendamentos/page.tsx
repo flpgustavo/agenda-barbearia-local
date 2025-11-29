@@ -176,7 +176,7 @@ export default function AgendamentosPage() {
                 </Button>
             </div>
 
-            <Card className="card-hover">
+            <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle>Listagem</CardTitle>

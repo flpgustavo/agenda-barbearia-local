@@ -38,7 +38,7 @@ export default function Home() {
 
           <Link href="/register">
             <Button
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-neon w-full"
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-neon w-full animate-pulse-glow"
               size="lg"
             >
               <UserPlus className="mr-2 h-5 w-5" />

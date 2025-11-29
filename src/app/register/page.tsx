@@ -17,11 +17,10 @@ import { Download, UserPlus } from "lucide-react"; // Ícones
 import Image from "next/image";
 import Link from "next/link"; // Para navegação, se necessário
 
-export default function Home() {
+export default function Register() {
     async function salvar(formData: FormData) {
 
         const dados: Usuario = {
-            id: 0,
             nome: formData.get('nome') as string,
             inicio: formData.get('inicio') as string,
             fim: formData.get('fim') as string,

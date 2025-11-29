@@ -1,7 +1,7 @@
 // src/services/BaseService.ts
 import Dexie, { UpdateSpec } from "dexie";
 import { db } from "../db";
-
+import { v4 as uuidv4 } from 'uuid';
 export class BaseService<T extends { id?: number }> {
     protected table: Dexie.Table<T, number>;
 
@@ -23,6 +23,7 @@ export class BaseService<T extends { id?: number }> {
 
         const item = {
             ...data,
+            id: uuidv4,
             createdAt: now,
             updatedAt: now
         } as unknown as T;

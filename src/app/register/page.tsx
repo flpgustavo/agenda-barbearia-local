@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,11 +11,34 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Usuario } from "@/core/models/Usuario";
+import { UsuarioService } from "@/core/services/UsuarioService";
 import { Download, UserPlus } from "lucide-react"; // Ícones
 import Image from "next/image";
 import Link from "next/link"; // Para navegação, se necessário
 
 export default function Home() {
+    async function salvar(formData: FormData) {
+
+        const dados: Usuario = {
+            id: 0,
+            nome: formData.get('nome') as string,
+            inicio: formData.get('inicio') as string,
+            fim: formData.get('fim') as string,
+            intervaloInicio: formData.get('intervaloInicio') as string,
+            intervaloFim: formData.get('intervaloFim') as string
+        };
+
+        try {
+            await UsuarioService.create(dados);
+            alert("Salvo com sucesso!");
+            // Resetar form ou redirecionar
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro ao salvar no dispositivo");
+        }
+    }
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950">
 
@@ -31,8 +56,7 @@ export default function Home() {
                 <CardContent className="grid gap-4">
 
                     <form
-                        action='/api/usuario'
-                        method="POST"
+                        action={salvar}
                     >
                         <FieldGroup>
                             <FieldSet>

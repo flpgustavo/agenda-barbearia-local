@@ -10,7 +10,7 @@ export function useClientes() {
   async function load() {
     try {
       setLoading(true);
-      const data = await ClienteService.list();
+      const data = await new ClienteService().list();
       setClientes(data);
     } catch (err) {
       console.error(err);
@@ -21,17 +21,17 @@ export function useClientes() {
   }
 
   async function create(cliente: Omit<Cliente, 'id'>) {
-    await ClienteService.create(cliente);
+    await new ClienteService().create(cliente);
     await load();
   }
 
-  async function update(id: number, patch: Partial<Cliente>) {
-    await ClienteService.update(id, patch);
+  async function update(id: string, patch: Partial<Cliente>) {
+    await new ClienteService().update(id, patch);
     await load();
   }
 
-  async function remove(id: number) {
-    await ClienteService.remove(id);
+  async function remove(id: string) {
+    await new ClienteService().delete(id);
     await load();
   }
 
@@ -39,5 +39,5 @@ export function useClientes() {
     load();
   }, []);
 
-  return { clientes, loading, error, load, create, update, remove };
+  return { clientes, loading, error, load, create, update, remove};
 }

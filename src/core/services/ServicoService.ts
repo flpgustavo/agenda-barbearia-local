@@ -8,4 +8,5 @@ class ServicoServiceClass extends BaseService<Servico> {
     }
 }
 
+
 export const ServicoService = new ServicoServiceClass();

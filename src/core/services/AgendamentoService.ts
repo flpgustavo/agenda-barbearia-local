@@ -29,26 +29,26 @@ export const AgendamentoService = {
       .toArray();
   },
 
-  async get(id: number): Promise<Agendamento | undefined> {
+  async get(id: string): Promise<Agendamento | undefined> {
     return db.agendamentos.get(id);
   },
 
-  async create(data: Omit<Agendamento, 'id'>): Promise<number> {
+  async create(data: Omit<Agendamento, 'id'>): Promise<string> {
     const conflito = await this.hasConflict(data.dataHora, data.servicosId);
     if (conflito) throw new Error('Horário em conflito com outro agendamento.');
     return db.agendamentos.add(data as Agendamento);
   },
 
-  async update(id: number, patch: Partial<Agendamento>): Promise<number | undefined> {
+  async update(id: string, patch: Partial<Agendamento>): Promise<string | undefined> {
     await db.agendamentos.update(id, patch);
     return id;
   },
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await db.agendamentos.delete(id);
   },
 
-  async updateStatus(id: number, status: Agendamento['status']): Promise<number | undefined> {
+  async updateStatus(id: string, status: Agendamento['status']): Promise<string | undefined> {
     await db.agendamentos.update(id, { status });
     return id;
   },
@@ -58,7 +58,7 @@ export const AgendamentoService = {
    * dataHora: ISO string de início (ex: 2025-11-30T10:00:00.000Z ou sem Z local)
    * servicosIds: ids dos serviços que compõe o novo agendamento
    */
-  async hasConflict(dataHora: string, servicosIds: number[]): Promise<boolean> {
+  async hasConflict(dataHora: string, servicosIds: string[]): Promise<boolean> {
     const servicos: Servico[] = await db.servicos.where('id').anyOf(servicosIds).toArray();
     const duracoes = servicos.reduce((acc, s) => acc + (s.duracaoMinutos || 0), 0);
 

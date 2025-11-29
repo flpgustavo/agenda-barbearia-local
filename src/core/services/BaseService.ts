@@ -2,8 +2,8 @@
 import Dexie, { UpdateSpec } from "dexie";
 import { db } from "../db";
 
-export class BaseService<T extends { id?: number }> {
-    protected table: Dexie.Table<T, number>;
+export class BaseService<T extends { id?: string }> {
+    protected table: Dexie.Table<T, string>;
 
     constructor(tableName: keyof typeof db) {
         // @ts-ignore - acesso dinâmico ao Dexie
@@ -14,11 +14,11 @@ export class BaseService<T extends { id?: number }> {
         return await this.table.toArray();
     }
 
-    async get(id: number): Promise<T | undefined> {
+    async get(id: string): Promise<T | undefined> {
         return await this.table.get(id);
     }
 
-    async create(data: Omit<T, "id" | "createdAt" | "updatedAt">): Promise<number> {
+    async create(data: Omit<T, "id" | "createdAt" | "updatedAt">): Promise<string> {
         const now = new Date().toISOString();
 
         const item = {
@@ -30,7 +30,7 @@ export class BaseService<T extends { id?: number }> {
         return await this.table.add(item);
     }
 
-    async update(id: number, data: Partial<T>): Promise<void> {
+    async update(id: string, data: Partial<T>): Promise<void> {
         const now = new Date().toISOString();
 
         await this.table.update(id, {
@@ -39,7 +39,7 @@ export class BaseService<T extends { id?: number }> {
         } as UpdateSpec<T>);
     }
 
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         await this.table.delete(id);
     }
 }

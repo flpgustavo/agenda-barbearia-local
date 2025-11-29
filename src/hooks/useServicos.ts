@@ -25,13 +25,13 @@ export function useServicos() {
     await load();
   }
 
-  async function update(id: number, patch: Partial<Servico>) {
+  async function update(id: string, patch: Partial<Servico>) {
     await ServicoService.update(id, patch);
     await load();
   }
 
-  async function remove(id: number) {
-    await ServicoService.remove(id);
+  async function remove(id: string) {
+    await ServicoService.delete(id);
     await load();
   }
 

@@ -3,9 +3,9 @@ import { BaseModel } from "./BaseModel";
 export type AgendamentoStatus = 'CONCLUIDO' | 'CONFIRMADO' | 'CANCELADO';
 
 export interface Agendamento extends BaseModel {
-    clienteId: number;
+    clienteId: string;
     dataHora: string;
-    servicosId: number[];
+    servicosId: string[];
     status: AgendamentoStatus;
     observacoes?: string;
 }

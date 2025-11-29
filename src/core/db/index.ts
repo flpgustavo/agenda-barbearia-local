@@ -5,10 +5,10 @@ import { Usuario } from "../models/Usuario";
 import { Agendamento } from "../models/Agendamento";
 
 export class Database extends Dexie {
-    clientes!: Table<Cliente, number>;
-    servicos!: Table<Servico, number>;
-    usuarios!: Table<Usuario, number>;
-    agendamentos!: Table<Agendamento, number>;
+    clientes!: Table<Cliente, string>;
+    servicos!: Table<Servico, string>;
+    usuarios!: Table<Usuario, string>;
+    agendamentos!: Table<Agendamento, string>;
 
     constructor() {
         super("agenda-barbearia");

@@ -39,11 +39,8 @@ class UsuarioServiceClass extends BaseService<Usuario> {
     }
 
     async create(data: Omit<Usuario, "id" | "createdAt" | "updatedAt">): Promise<string> {
-
         this.validarHorarios(data);
-
         await this.validarDuplicidade();
-
         return super.create(data);
     }
 
@@ -51,7 +48,7 @@ class UsuarioServiceClass extends BaseService<Usuario> {
         const atual = await this.table.get(id);
         if (!atual) throw new Error("Usuário não encontrado.");
 
-        const combinado = { ...atual, ...data };
+        const combinado = { ...atual, ...data } as Omit<Usuario, "id" | "createdAt" | "updatedAt">;
 
         this.validarHorarios(combinado);
 

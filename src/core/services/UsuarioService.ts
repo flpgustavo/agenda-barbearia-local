@@ -1,79 +1,62 @@
 import { BaseService } from "./BaseService";
-import { Servico } from "../models/Servico";
+import { Usuario } from "../models/Usuario";
 import { db } from "../db";
 
-class ServicoServiceClass extends BaseService<Servico> {
+class UsuarioServiceClass extends BaseService<Usuario> {
     constructor() {
-        super('servicos' as keyof typeof db);
+        super("usuarios");
     }
 
-    //-----------------------------
-    // 🔍 VALIDAÇÕES DO SERVIÇO
-    //-----------------------------
-    private async validarServico(data: Omit<Servico, "id" | "createdAt" | "updatedAt">) {
-        const { nome, duracaoMinutos, preco } = data;
+    private toMinutes(hora: string): number {
+        const [h, m] = hora.split(":").map(Number);
+        return h * 60 + m;
+    }
 
-        // Nome obrigatório
-        if (!nome || nome.trim().length === 0) {
-            throw new Error("O nome do serviço é obrigatório.");
+    private validarHorarios(usuario: Omit<Usuario, "id" | "createdAt" | "updatedAt">) {
+        const inicio = this.toMinutes(usuario.inicio);
+        const fim = this.toMinutes(usuario.fim);
+        const intervaloInicio = this.toMinutes(usuario.intervaloInicio);
+        const intervaloFim = this.toMinutes(usuario.intervaloFim);
+
+        if (inicio >= fim) {
+            throw new Error("Horário de início deve ser antes do horário de fim.");
         }
 
-        // Nome mínimo
-        if (nome.trim().length < 3) {
-            throw new Error("O nome do serviço deve ter pelo menos 3 caracteres.");
+        if (intervaloInicio >= intervaloFim) {
+            throw new Error("Intervalo de início deve ser antes do intervalo de fim.");
         }
 
-        // Duração obrigatória
-        if (!duracaoMinutos || duracaoMinutos <= 0) {
-            throw new Error("A duração do serviço deve ser maior que 0.");
-        }
-
-        // Preço não pode ser negativo
-        if (preco !== undefined && preco < 0) {
-            throw new Error("O preço não pode ser negativo.");
-        }
-
-        // Nome único
-        const existe = await this.table.where("nome").equalsIgnoreCase(nome.trim()).first();
-        if (existe) {
-            throw new Error("Já existe um serviço com esse nome.");
+        if (intervaloInicio < inicio || intervaloFim > fim) {
+            throw new Error("O intervalo deve estar dentro do horário de trabalho.");
         }
     }
 
-    //------------------------------------------
-    // 🟢 CREATE COM VALIDAÇÕES ANTES DE SALVAR
-    //------------------------------------------
-    async create(data: Omit<Servico, "id" | "createdAt" | "updatedAt">): Promise<string> {
-        await this.validarServico(data);
+    private async validarDuplicidade() {
+        const total = await this.table.count();
+        if (total > 0) {
+            throw new Error("Já existe um usuário cadastrado.");
+        }
+    }
+
+    async create(data: Omit<Usuario, "id" | "createdAt" | "updatedAt">): Promise<string> {
+
+        this.validarHorarios(data);
+
+        await this.validarDuplicidade();
+
         return super.create(data);
     }
 
-    //------------------------------------------
-    // 🟡 UPDATE COM VALIDAÇÃO (exceto nome único do próprio registro)
-    //------------------------------------------
-    async update(id: string, data: Partial<Servico>): Promise<void> {
+    async update(id: string, data: Partial<Usuario>) {
+        const atual = await this.table.get(id);
+        if (!atual) throw new Error("Usuário não encontrado.");
 
-        if (data.nome) {
-            const outro = await this.table
-                .where("nome")
-                .equalsIgnoreCase(data.nome.trim())
-                .first();
+        const combinado = { ...atual, ...data };
 
-            if (outro && outro.id !== id) {
-                throw new Error("Já existe outro serviço com esse nome.");
-            }
-        }
-
-        if (data.duracaoMinutos !== undefined && data.duracaoMinutos <= 0) {
-            throw new Error("A duração do serviço deve ser maior que 0.");
-        }
-
-        if (data.preco !== undefined && data.preco < 0) {
-            throw new Error("O preço não pode ser negativo.");
-        }
+        this.validarHorarios(combinado);
 
         return super.update(id, data);
     }
 }
 
-export const ServicoService = new ServicoServiceClass();
+export const UsuarioService = new UsuarioServiceClass();

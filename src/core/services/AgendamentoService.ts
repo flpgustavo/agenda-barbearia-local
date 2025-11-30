@@ -9,33 +9,24 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         super("agendamentos" as keyof typeof db);
     }
 
-    //-------------------------------------
-    // ⏱ Converter para minutos
-    //-------------------------------------
     private toMinutes(hora: string): number {
         const [h, m] = hora.split(":").map(Number);
         return h * 60 + m;
     }
 
-    //-------------------------------------
-    // 📌 VALIDAÇÃO PRINCIPAL
-    //-------------------------------------
    private async validarAgendamento(data: Partial<Agendamento>) {
     const { clienteId, servicosId, dataHora } = data;
 
-    // 1) Validar cliente
     const cliente = await db.clientes.get(clienteId!);
     if (!cliente) {
         throw new Error("Cliente não encontrado.");
     }
 
-    // 2) Validar serviço
     const servico = await db.servicos.get(servicosId!);
     if (!servico) {
         throw new Error("Serviço não encontrado.");
     }
 
-    // 3) Validar horário no futuro
     const dt = new Date(dataHora!);
     if (isNaN(dt.getTime())) {
         throw new Error("Data e hora inválidas.");
@@ -44,7 +35,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         throw new Error("Não é possível agendar para o passado.");
     }
 
-    // 4) Verificar usuário configurado
     const usuario = await db.usuarios.toCollection().first();
     if (!usuario) {
         throw new Error("Configure seu horário de atendimento antes de criar agendamentos.");

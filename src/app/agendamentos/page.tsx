@@ -1,276 +1,367 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Search, MoreHorizontal, Edit, Trash2 } from "lucide-react"; // Removi Calendar não usado
-import Link from "next/link";
-import { toast } from "sonner";
-import { format } from "date-fns";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import {
+    format,
+    startOfMonth,
+    endOfMonth,
+    eachWeekOfInterval,
+    getISOWeek,
+    isSameDay,
+    isSameWeek,
+    eachDayOfInterval,
+    addMonths,
+    setMonth,
+    setYear,
+    getYear,
+    getMonth,
+    startOfWeek,
+} from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Plus, ChevronRight, CalendarDays, Clock } from "lucide-react";
 
-// Modelos (Mantemos os imports para tipagem, mesmo mockando)
-import { Agendamento, AgendamentoStatus } from "@/core/models/Agendamento";
-import { AgendamentoService } from "@/core/services/AgendamentoService";
-
-// Componentes UI
+// --- Componentes Shadcn ---
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Card, CardContent } from "@/components/ui/card";
 
-interface AgendamentoExibicao extends Agendamento {
-    nomeCliente?: string;
-    nomesServicos?: string[];
+// --- Tipos ---
+interface BaseModel {
+    id: string;
 }
 
-export default function AgendamentosPage() {
-    const [agendamentos, setAgendamentos] = useState<AgendamentoExibicao[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [termoBusca, setTermoBusca] = useState("");
+export type AgendamentoStatus = "CONCLUIDO" | "CONFIRMADO" | "CANCELADO";
 
-    async function loadData() {
-        try {
-            setLoading(true);
+export interface Agendamento extends BaseModel {
+    clienteId: string;
+    dataHora: string;
+    servicosId: string[];
+    status: AgendamentoStatus;
+    observacoes?: string;
+    nomeClienteMock?: string;
+    nomeServicoMock?: string;
+}
 
-            // --- SIMULAÇÃO DE DELAY DE REDE (Opcional, para ver o loading) ---
-            await new Promise(resolve => setTimeout(resolve, 1000));
+// --- Mock Data (Simples) ---
+const MOCK_AGENDAMENTOS: Agendamento[] = [
+    {
+        id: "1",
+        clienteId: "c1",
+        dataHora: new Date(2025, 0, 20, 14, 0).toISOString(),
+        servicosId: ["s1"],
+        status: "CONFIRMADO",
+        nomeClienteMock: "João Silva",
+        nomeServicoMock: "Corte Masc.",
+    },
+    {
+        id: "2",
+        clienteId: "c2",
+        dataHora: new Date(2025, 0, 21, 9, 30).toISOString(),
+        servicosId: ["s2"],
+        status: "CONCLUIDO",
+        nomeClienteMock: "Maria Souza",
+        nomeServicoMock: "Manicure",
+    },
+    {
+        id: "3",
+        clienteId: "c3",
+        dataHora: new Date(2025, 0, 21, 10, 30).toISOString(),
+        servicosId: ["s2"],
+        status: "CONCLUIDO",
+        nomeClienteMock: "Maria Souza 2",
+        nomeServicoMock: "Manicure",
+    },
+];
 
-            // ==========================================================
-            // 1. DADOS MOCKADOS (Fictícios)
-            // ==========================================================
+// --- Constantes ---
+const MESES = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+];
 
-            const mockClientes = [
-                { id: 'c1', nome: 'Ana Clara Silva' },
-                { id: 'c2', nome: 'Roberto Carlos' },
-                { id: 'c3', nome: 'Fernanda Montenegro' },
-            ];
+const ANOS = [2024, 2025, 2026, 2027];
 
-            const mockServicos = [
-                { id: 's1', nome: 'Corte Masculino' },
-                { id: 's2', nome: 'Barba' },
-                { id: 's3', nome: 'Coloração' },
-                { id: 's4', nome: 'Manicure' },
-            ];
+export default function AgendaMensal() {
+    // Estado único da data base (sempre o dia 1 do mês selecionado)
+    const [dataAtual, setDataAtual] = useState<Date>(new Date(2025, 0, 1));
 
-            const mockAgendamentos: Agendamento[] = [
-                {
-                    id: 'a1',
-                    clienteId: 'c1',
-                    servicosId: ['s3', 's4'],
-                    dataHora: new Date().toISOString(), // Hoje
-                    status: 'CONFIRMADO',
-                    observacoes: 'Cliente alérgica a amônia'
-                },
-                {
-                    id: 'a3',
-                    clienteId: 'c3',
-                    servicosId: ['s4'],
-                    dataHora: new Date(Date.now() - 86400000).toISOString(), // Ontem (-24h)
-                    status: 'CONCLUIDO'
-                },
-                {
-                    id: 'a4',
-                    clienteId: 'c1',
-                    servicosId: ['s3'],
-                    dataHora: new Date(Date.now() - 172800000).toISOString(), // Anteontem
-                    status: 'CANCELADO'
-                }
-            ];
+    // Estado visual para sincronizar a sidebar
+    const [diaFocado, setDiaFocado] = useState<Date>(new Date(2025, 0, 1));
 
-            // ==========================================================
-            // 2. LÓGICA DE JUNÇÃO (Mantida igual à original)
-            // ==========================================================
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const diasRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+    const isClickingRef = useRef(false);
 
-            // Em vez de chamar o Service, usamos os arrays mockados acima
-            const listaAgendamentos = mockAgendamentos;
-            const clientes = mockClientes;
-            const servicos = mockServicos;
+    // --- Memos (Performance: Recalcula só se mudar o mês) ---
 
-            // Criar Mapas para busca rápida
-            const clientesMap = new Map(clientes.map(c => [c.id, c.nome]));
-            const servicosMap = new Map(servicos.map(s => [s.id, s.nome]));
+    const diasDoMes = useMemo(() => {
+        return eachDayOfInterval({
+            start: startOfMonth(dataAtual),
+            end: endOfMonth(dataAtual),
+        });
+    }, [dataAtual]);
 
-            // Cruzar os dados (Join)
-            const dadosCompletos = listaAgendamentos.map(agenda => ({
-                ...agenda,
-                nomeCliente: clientesMap.get(agenda.clienteId) || 'Cliente Desconhecido',
-                nomesServicos: agenda.servicosId.map(id => servicosMap.get(id) || 'Serviço Removido')
-            }));
+    const semanasDoMes = useMemo(() => {
+        return eachWeekOfInterval({
+            start: startOfMonth(dataAtual),
+            end: endOfMonth(dataAtual),
+        }, { weekStartsOn: 1 });
+    }, [dataAtual]);
 
-            // Ordenar por data (mais recente primeiro)
-            dadosCompletos.sort((a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime());
 
-            setAgendamentos(dadosCompletos);
-
-        } catch (error) {
-            console.error(error);
-            toast.error("Erro ao carregar dados simulados");
-        } finally {
-            setLoading(false);
-        }
-    }
-
+    // --- Intersection Observer (Leve) ---
     useEffect(() => {
-        loadData();
-    }, []);
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (isClickingRef.current) return;
+                const visible = entries.find((e) => e.isIntersecting);
+                if (visible?.target) {
+                    const dateStr = visible.target.getAttribute("data-date");
+                    if (dateStr) setDiaFocado(new Date(dateStr));
+                }
+            },
+            { root: scrollContainerRef.current, threshold: 0.2, rootMargin: "-10% 0px -50% 0px" }
+        );
 
-    // Função Delete Mockada (Visualmente funciona, mas não apaga do banco)
-    async function handleDelete(id: string) {
-        if (!confirm("Tem certeza que deseja cancelar este agendamento?")) return;
+        Object.values(diasRefs.current).forEach((el) => {
+            if (el) observer.observe(el);
+        });
 
-        try {
-            // await AgendamentoService.remove(id); <--- COMENTADO
+        return () => observer.disconnect();
+    }, [diasDoMes]);
 
-            // Simulando remoção visual
-            setAgendamentos(prev => prev.filter(item => item.id !== id));
-            toast.success("Agendamento removido (Simulação)");
 
-        } catch (error) {
-            toast.error("Erro ao remover agendamento");
+    // --- Handlers ---
+
+    const handleAnoChange = (anoStr: string) => {
+        setDataAtual((prev) => setYear(prev, parseInt(anoStr)));
+    };
+
+    const handleMesChange = (mesIndexStr: string) => {
+        setDataAtual((prev) => setMonth(prev, parseInt(mesIndexStr)));
+    };
+
+    const handleNextMonth = () => {
+        const proximoMes = addMonths(dataAtual, 1);
+        setDataAtual(proximoMes);
+        // Resetar scroll para o topo ao mudar de mês
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
         }
-    }
+    };
 
-    // ... Resto do código (Filtros, RenderStatusBadge e JSX) mantém-se IGUAL ...
-    // Vou repetir aqui apenas o trecho do filtro e JSX para garantir que copias tudo certo se precisares.
+    const handleSemanaClick = (inicioSemana: Date) => {
+        isClickingRef.current = true;
+        setDiaFocado(inicioSemana); // Feedback visual imediato
 
-    const agendamentosFiltrados = agendamentos.filter(ag =>
-        ag.nomeCliente?.toLowerCase().includes(termoBusca.toLowerCase()) ||
-        ag.status.toLowerCase().includes(termoBusca.toLowerCase())
-    );
+        // Encontrar o primeiro dia desta semana que pertence ao mês atual
+        // (Caso a semana comece no mês anterior)
+        const diaAlvo = isSameDay(startOfMonth(dataAtual), inicioSemana)
+            ? inicioSemana
+            : inicioSemana; // Simplificação: tenta ir para o inicio da semana
 
-    const renderStatusBadge = (status: string) => { // Ajustei tipo para string para aceitar o mock
+        // Buscar referência
+        // Precisamos garantir que rolamos para um dia que existe na lista atual
+        let diaParaRolar = diaAlvo;
+        if (getMonth(diaAlvo) !== getMonth(dataAtual)) {
+            // Se o inicio da semana é mês passado, rola para o dia 1 do mês atual
+            diaParaRolar = startOfMonth(dataAtual);
+        }
+
+        const dateKey = diaParaRolar.toISOString().split("T")[0];
+        const el = diasRefs.current[dateKey]; // Tenta achar o elemento exato
+
+        // Fallback: se não achar o dia exato (ex: semana começa dia 29/Jan e estamos em Fev), pega o primeiro dia da lista
+        const targetEl = el || diasRefs.current[diasDoMes[0].toISOString().split("T")[0]];
+
+        if (targetEl) {
+            targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        setTimeout(() => { isClickingRef.current = false; }, 600);
+    };
+
+    const getAgendamentosDoDia = (dia: Date) => {
+        return MOCK_AGENDAMENTOS.filter((ag) => isSameDay(new Date(ag.dataHora), dia));
+    };
+
+    // Cores dinâmicas para status
+    const getStatusColor = (status: AgendamentoStatus) => {
         switch (status) {
-            case 'CONFIRMADO': return <Badge className="bg-blue-500 hover:bg-blue-600">Confirmado</Badge>;
-            case 'CONCLUIDO': return <Badge className="bg-green-500 hover:bg-green-600">Concluído</Badge>;
-            case 'CANCELADO': return <Badge variant="destructive">Cancelado</Badge>;
-            case 'PENDENTE': return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pendente</Badge>;
-            default: return <Badge variant="outline">{status}</Badge>;
+            case "CONFIRMADO": return "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20";
+            case "CONCLUIDO": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20";
+            case "CANCELADO": return "bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20";
+            default: return "bg-muted text-muted-foreground";
         }
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Agendamentos</h2>
-                    <p className="text-muted-foreground">Gerencie os horários marcados.</p>
+        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden font-sans">
+
+            {/* --- HEADER (bg-card) --- */}
+            <div className="bg-card border-b border-border p-4 shadow-sm z-20">
+                <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4">
+                    <div className="sm:flex items-center gap-2 text-muted-foreground hidden">
+                        <CalendarDays className="w-5 h-5" />
+                        <span className="font-semibold text-foreground">Agendamentos</span>
+                    </div>
+
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <Select
+                            value={getMonth(dataAtual).toString()}
+                            onValueChange={handleMesChange}
+                        >
+                            <SelectTrigger className="w-full sm:w-[140px] bg-background border-input">
+                                <SelectValue placeholder="Mês" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {MESES.map((mes, idx) => (
+                                    <SelectItem key={idx} value={idx.toString()}>{mes}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select
+                            value={getYear(dataAtual).toString()}
+                            onValueChange={handleAnoChange}
+                        >
+                            <SelectTrigger className="w-[100px] bg-background border-input">
+                                <SelectValue placeholder="Ano" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {ANOS.map((ano) => (
+                                    <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Button
+                            variant='default'
+                        >
+                            <Plus className="h-4 w-4" />
+                            Novo
+                        </Button>
+                    </div>
                 </div>
-                <Button asChild>
-                    <Link href="/agendamentos/novo">
-                        <Plus className="mr-2 h-4 w-4" /> Novo Agendamento
-                    </Link>
-                </Button>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle>Listagem</CardTitle>
-                        <div className="relative w-64">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Buscar cliente..."
-                                className="pl-8"
-                                value={termoBusca}
-                                onChange={(e) => setTermoBusca(e.target.value)}
-                            />
-                        </div>
+            {/* --- BODY --- */}
+            <div className="flex flex-1 overflow-hidden">
+
+                {/* SIDEBAR (bg-card) */}
+                <div className="w-18 sm:w-24 bg-card border-r border-border flex flex-col z-10">
+                    <div className="py-2 text-center border-b border-border text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+                        Semana
                     </div>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Data e Hora</TableHead>
-                                <TableHead>Cliente</TableHead>
-                                <TableHead>Serviços</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Ações</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {loading ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="text-center h-24">
-                                        Carregando agendamentos...
-                                    </TableCell>
-                                </TableRow>
-                            ) : agendamentosFiltrados.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                                        Nenhum agendamento encontrado.
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                agendamentosFiltrados.map((item) => (
-                                    <TableRow key={item.id}>
-                                        <TableCell className="font-medium">
-                                            <div className="flex flex-col">
-                                                <span>
-                                                    {format(new Date(item.dataHora), "dd/MM/yyyy", { locale: ptBR })}
-                                                </span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    {format(new Date(item.dataHora), "HH:mm", { locale: ptBR })}
-                                                </span>
+                    <ScrollArea className="flex-1">
+                        <div className="flex flex-col">
+                            {semanasDoMes.map((inicioSemana) => {
+                                const numeroSemana = getISOWeek(inicioSemana);
+                                const isSelected = isSameWeek(inicioSemana, diaFocado, { weekStartsOn: 1 });
+
+                                return (
+                                    <button
+                                        key={inicioSemana.toISOString()}
+                                        onClick={() => handleSemanaClick(inicioSemana)}
+                                        className={`
+                      py-4 w-full flex flex-col items-center justify-center border-b border-border transition-all
+                      ${isSelected
+                                                ? "bg-primary text-primary-foreground"
+                                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"}
+                    `}
+                                    >
+                                        <span className="text-lg font-bold leading-none">{numeroSemana}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </ScrollArea>
+                </div>
+
+                {/* LISTA DE DIAS (bg-background) */}
+                <div
+                    ref={scrollContainerRef}
+                    className="flex-1 overflow-y-auto scroll-smooth p-0 bg-background"
+                >
+                    <div className="max-w-3xl mx-auto space-y-1 pb-10">
+
+                        {diasDoMes.map((dia) => {
+                            const agendamentos = getAgendamentosDoDia(dia);
+                            const diaFormatado = format(dia, "eeee", { locale: ptBR });
+                            const diaNumero = format(dia, "d");
+                            const dateKey = dia.toISOString().split("T")[0];
+
+                            return (
+                                <div
+                                    key={dateKey}
+                                    data-date={dateKey}
+                                    ref={(el) => { diasRefs.current[dateKey] = el; }}
+                                    className="flex flex-col mb-10"
+                                >
+                                    {/* Cabeçalho do Dia */}
+                                    <div className="flex items-baseline gap-2 mb-2 sticky top-0 glass p-2 px-4 z-10 border-b border-border">
+                                        <span className="text-xl font-bold capitalize text-foreground">
+                                            {diaFormatado.split("-")[0]}
+                                        </span>
+                                        <span className="text-md text-muted-foreground">- dia {diaNumero}</span>
+                                    </div>
+
+                                    {/* Agendamentos */}
+                                    <div className="space-y-3 p-2 px-4">
+                                        {agendamentos.length > 0 ? (
+                                            agendamentos.map((ag) => (
+                                                <Card key={ag.id} className={`border ${getStatusColor(ag.status)} shadow-sm transition-all hover:shadow-md py-2 cursor-pointer`}>
+                                                    <CardContent className="p-3 flex justify-between items-center">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold text-lg">
+                                                                <span className="flex flex-row items-center gap-1">
+                                                                    <Clock size={14} /> {format(new Date(ag.dataHora), "HH:mm")}
+                                                                </span>
+                                                            </span>
+                                                            <span className="font-medium text-foreground">{ag.nomeClienteMock}</span>
+                                                            <span className="text-sm opacity-90 font-medium">{ag.nomeServicoMock}</span>
+                                                        </div>
+
+                                                        <div className="text-[10px] font-bold uppercase tracking-wide opacity-70 border border-current px-2 py-0.5 rounded-full">
+                                                            {ag.status}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            ))
+                                        ) : (
+                                            // Slot Vazio
+                                            <div className="h-14 border border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer group">
+                                                <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                                                Disponível
                                             </div>
-                                        </TableCell>
-                                        <TableCell>{item.nomeCliente}</TableCell>
-                                        <TableCell>
-                                            <div className="flex flex-wrap gap-1">
-                                                {item.nomesServicos?.map((serv, idx) => (
-                                                    <span key={idx} className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold transition-colors bg-secondary text-secondary-foreground">
-                                                        {serv}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>{renderStatusBadge(item.status)}</TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    {/* O botão envolve o ícone. Só existe 1 elemento filho direto do Trigger */}
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Abrir menu</span> {/* Boa prática para acessibilidade */}
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                                    <DropdownMenuItem asChild>
-                                                        <Link href={`/agendamentos/editar/${item.id}`} className="flex items-center cursor-pointer">
-                                                            <Edit className="mr-2 h-4 w-4" /> Editar
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        className="text-red-600 cursor-pointer"
-                                                        onClick={() => item.id && handleDelete(item.id)}
-                                                    >
-                                                        <Trash2 className="mr-2 h-4 w-4" /> Deletar
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        <div className="pt-2 pb-6 px-4 flex justify-center">
+                            <Button
+                                variant="secondary"
+                                size="lg"
+                                onClick={handleNextMonth}
+                                className="w-full max-w-md"
+                            >
+                                Ir para {format(addMonths(dataAtual, 1), "MMMM", { locale: ptBR })}
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

@@ -114,7 +114,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
-            <header className="border-b h-16 px-4 flex items-center shadow-md justify-between bg-card sticky top-0 z-50">
+            <header className="border-b h-16 px-4 flex items-center shadow-md justify-between bg-card top-0 z-50">
 
                 <div className="flex items-center gap-4">
                     <Sheet>
@@ -194,7 +194,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
             </header>
 
-            <main className="flex-1 p-6">
+            <main className="flex-1">
                 {children}
             </main>
         </div>

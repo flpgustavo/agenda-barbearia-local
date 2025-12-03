@@ -288,7 +288,7 @@ export default function AgendaMensal() {
                 {/* LISTA DE DIAS */}
                 <div
                     ref={scrollContainerRef}
-                    className="flex-1 overflow-y-auto scroll-smooth p-0 bg-background"
+                    className="flex-1 overflow-y-auto scroll-smooth p-0 bg-background no-scrollbar"
                 >
                     <div className="max-w-3xl mx-auto space-y-1 pb-10">
 

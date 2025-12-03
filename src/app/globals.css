@@ -193,6 +193,19 @@
   }
 }
 
+@layer utilities {
+  /* Esconde a barra de rolagem no Chrome, Safari e Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Esconde a barra de rolagem no IE, Edge e Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE e Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
 @keyframes enter-animation {
   to {
     opacity: 1;

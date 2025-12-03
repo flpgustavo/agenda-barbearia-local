@@ -203,9 +203,9 @@ export default function AgendaMensal() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden font-sans">
+        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
 
-            {/* --- HEADER (bg-card) --- */}
+            {/* --- HEADER --- */}
             <div className="bg-card border-b border-border p-4 shadow-sm z-20">
                 <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4">
                     <div className="sm:flex items-center gap-2 text-muted-foreground hidden">
@@ -255,7 +255,7 @@ export default function AgendaMensal() {
             {/* --- BODY --- */}
             <div className="flex flex-1 overflow-hidden">
 
-                {/* SIDEBAR (bg-card) */}
+                {/* SIDEBAR */}
                 <div className="w-18 sm:w-24 bg-card border-r border-border flex flex-col z-10">
                     <div className="py-2 text-center border-b border-border text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
                         Semana
@@ -285,7 +285,7 @@ export default function AgendaMensal() {
                     </ScrollArea>
                 </div>
 
-                {/* LISTA DE DIAS (bg-background) */}
+                {/* LISTA DE DIAS */}
                 <div
                     ref={scrollContainerRef}
                     className="flex-1 overflow-y-auto scroll-smooth p-0 bg-background"
@@ -337,7 +337,7 @@ export default function AgendaMensal() {
                                             ))
                                         ) : (
                                             // Slot Vazio
-                                            <div className="h-14 border border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer group">
+                                            <div className="h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer group">
                                                 <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                                                 Disponível
                                             </div>

@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,11 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import useUsuario from "@/hooks/useUsuario";
 import { Download, UserPlus } from "lucide-react"; // Ícones
 import Image from "next/image";
 import Link from "next/link"; // Para navegação, se necessário
 
 export default function Home() {
+  const { items } = useUsuario();
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950">
 
@@ -35,16 +40,27 @@ export default function Home() {
         </CardHeader>
 
         <CardContent className="grid gap-4">
-
-          <Link href="/register">
-            <Button
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-neon w-full animate-pulse-glow"
-              size="lg"
-            >
-              <UserPlus className="mr-2 h-5 w-5" />
-              Criar nova conta
-            </Button>
-          </Link>
+          {items.length > 0 ? (
+            <Link href="/agendamentos">
+              <Button
+                className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-neon w-full animate-pulse-glow"
+                size="lg"
+              >
+                <UserPlus className="mr-2 h-5 w-5" />
+                Acessar minha conta
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/register">
+              <Button
+                className="bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-neon w-full animate-pulse-glow"
+                size="lg"
+              >
+                <UserPlus className="mr-2 h-5 w-5" />
+                Criar nova conta
+              </Button>
+            </Link>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

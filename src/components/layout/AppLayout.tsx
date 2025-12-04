@@ -39,10 +39,15 @@ const menuItems = [
         icon: CalendarDaysIcon
     },
     {
-        label: "Seus Serviços",
+        label: "Serviços",
         href: "/servicos", 
         icon: LayoutList
     },
+    {
+        label: "Clientes",
+        href: "/clientes",
+        icon: User
+    }
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {
@@ -123,13 +128,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 <Menu className="h-6 w-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="px-4">
+                        <SheetContent side="left" className="px-4 bg-card">
                             <SheetHeader className="pl-0 pb-0">
                                 <SheetTitle>Menu</SheetTitle>
                             </SheetHeader>
-                            <nav className="flex flex-col gap-4 mt-0">
+                            <nav className="flex flex-col gap-2 mt-0">
                                 {menuItems.map((item) => {
-                                    const isActive = pathname === item.href;
+                                    const isActive = pathname.startsWith(item.href);
 
                                     return (
                                         <Link

@@ -10,14 +10,13 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Servico } from "@/core/models/Servico";
-import { useServico } from "@/hooks/useServico";
+import { useCliente } from "@/hooks/useCliente";
 import { Plus, MoreVertical, Clock, DollarSign, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default function Servicos() {
 
-    const { items } = useServico()
+    const { items } = useCliente()
 
     const handleEdit = (id: string) => {
         console.log(`Editando serviço ${id}`);
@@ -31,19 +30,19 @@ export default function Servicos() {
         <div className="min-h-screen bg-background pb-24 p-6">
             <div className="mb-8 flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Serviços</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Cliente</h1>
                     <p className="text-muted-foreground">
-                        Gerencie os serviços oferecidos aos seus clientes.
+                        Gerencie todos os seus clientes.
                     </p>
                 </div>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {items.map((service) => (
-                    <Card key={service.id} className="flex flex-col gap-2 pb-4 justify-between shadow-md hover:scale-[1.02] hover:shadow-lg transition-shadow">
+                {items.map((cliente) => (
+                    <Card key={cliente.id} className="flex flex-col gap-2 pb-4 justify-between shadow-md hover:scale-[1.02] hover:shadow-lg transition-shadow">
                         <CardHeader className="relative">
                             <div className="flex justify-between items-start">
-                                <CardTitle className="text-lg font-semibold">{service.nome}</CardTitle>
+                                <CardTitle className="text-lg font-semibold">{cliente.nome}</CardTitle>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button
@@ -59,13 +58,13 @@ export default function Servicos() {
                                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
 
-                                        <DropdownMenuItem onClick={() => handleEdit(service.id || '')} className="cursor-pointer">
+                                        <DropdownMenuItem onClick={() => handleEdit(cliente.id || '')} className="cursor-pointer">
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Editar</span>
                                         </DropdownMenuItem>
 
                                         <DropdownMenuItem
-                                            onClick={() => handleDelete(service.id || '')}
+                                            onClick={() => handleDelete(cliente.id || '')}
                                             className="text-red-600 focus:text-red-600 cursor-pointer"
                                         >
                                             <Trash2 className="mr-2 h-4 w-4" />
@@ -78,20 +77,16 @@ export default function Servicos() {
 
                         <CardContent>
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-1 text-2xl font-bold text-primary">
-                                    <span><sup className="">R$</sup>{service.preco}</span>
-                                </div>
                                 <div className="flex items-center gap-1 text-lg font-semibold">
-                                    <sup><Clock size={14} /></sup>
-                                    <span>{service.duracaoMinutos} minutos</span>
+                                    {cliente.telefone}
                                 </div>
                             </div>
                         </CardContent>
 
                         <CardFooter>
                             <small className="text-xs font-semibold text-muted-foreground w-full mt-1">
-                                {service.createdAt && (
-                                    "criado em " + new Date(service.createdAt).toLocaleDateString()
+                                {cliente.createdAt && (
+                                    "cliente desde " + new Date(cliente.createdAt).toLocaleDateString()
                                 )}
                             </small>
                         </CardFooter>
@@ -100,11 +95,11 @@ export default function Servicos() {
             </div>
 
             <div className="fixed bottom-6 right-6 z-50">
-                <Link href="/servicos/novo">
+                <Link href="/clientes/novo">
                 <Button
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
-                    aria-label="Criar novo serviço"
+                    aria-label="Criar novo cliente"
                 >
                     <Plus className="size-5 font-bold text-primary-foreground" />
                 </Button>

@@ -20,35 +20,33 @@ import {
     FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useServico } from "@/hooks/useServico";
-import { Servico } from "@/core/models/Servico";
+import { useCliente } from "@/hooks/useCliente";
+import { Cliente } from "@/core/models/Cliente";
 
-export default function NovoServico() {
+export default function NovoCliente() {
     const navigate = useRouter();
-    const { criar } = useServico();
+    const { criar } = useCliente();
 
     async function handleCreate(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
 
-        const dados: Omit<Servico, "id" | "createdAt" | "updatedAt"> = {
+        const dados: Omit<Cliente, "id" | "createdAt" | "updatedAt"> = {
             nome: formData.get("nome") as string,
-            preco: parseFloat(formData.get("preco") as string) || 0,
-            duracaoMinutos: parseFloat(formData.get("duracaoMinutos") as string) || 0,
+            telefone: formData.get("duracaoMinutos") as string,
         };
 
         toast.promise(
             criar(dados),
             {
-                loading: "Criando serviço ...",
+                loading: "Criando cliente ...",
                 success: () => {
-                    navigate.push("/servicos");
-                    return "Serviço criado com sucesso!";
+                    navigate.push("/clientes");
+                    return "Cliente criado com sucesso!";
                 },
                 error: (err: Error) => {
-                    return err instanceof Error ? err.message : "Falha ao criar serviço.";
+                    return err instanceof Error ? err.message : "Falha ao criar cliente.";
                 },
             }
         );
@@ -59,7 +57,7 @@ export default function NovoServico() {
             <Card className="w-full max-w-md shadow-lg">
                 <CardHeader className="space-y-1 text-center">
                     <CardTitle className="text-2xl font-bold tracking-tight">
-                        Criar serviço
+                        Novo cliente
                     </CardTitle>
                 </CardHeader>
 
@@ -69,17 +67,12 @@ export default function NovoServico() {
                             <FieldSet>
                                 <Field>
                                     <FieldLabel>Nome *</FieldLabel>
-                                    <Input name="nome" placeholder="Digite o nome do serviço" required />
+                                    <Input name="nome" placeholder="Digite o nome do cliente" required />
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Preço *</FieldLabel>
-                                    <Input name="preco" type="number" step="0.01" placeholder="Digite o preço do serviço" required />
-                                </Field>
-
-                                <Field>
-                                    <FieldLabel>Duração em Minutos *</FieldLabel>
-                                    <Input name="duracaoMinutos" type="number" placeholder="Digite a duração do serviço" required />
+                                    <FieldLabel>Telefone *</FieldLabel>
+                                    <Input name="telefone" type="number" step="1" placeholder="Digite o telefone do seu cliente" required />
                                 </Field>
                             </FieldSet>
 

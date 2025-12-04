@@ -34,7 +34,7 @@ export default function NovoCliente() {
 
         const dados: Omit<Cliente, "id" | "createdAt" | "updatedAt"> = {
             nome: formData.get("nome") as string,
-            telefone: formData.get("duracaoMinutos") as string,
+            telefone: formData.get("telefone") as string,
         };
 
         toast.promise(

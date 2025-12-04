@@ -20,12 +20,7 @@ export function useBase<T extends BaseModel>(service: BaseService<T>) {
     }
 
     async function criar(data: Omit<T, "id" | "createdAt" | "updatedAt">) {
-        try {
-            await service.create(data);
-            await carregar();
-        } catch (err: any) {
-            setError(err.message || "Erro ao criar");
-        }
+        return await service.create(data);
     }
 
     async function atualizar(id: string, data: Partial<T>) {

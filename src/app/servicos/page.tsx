@@ -11,40 +11,12 @@ import {
 } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Servico } from "@/core/models/Servico";
+import { useServico } from "@/hooks/useServico";
 import { Plus, MoreVertical, Clock, DollarSign, Edit, Trash2 } from "lucide-react";
 
-const servicesData: Servico[] = [
-    {
-        id: "1",
-        nome: "Corte de Cabelo",
-        preco: 40.00,
-        duracaoMinutos: 30,
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "2",
-        nome: "Barbearia Simples",
-        preco: 55.00,
-        duracaoMinutos: 45,
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "3",
-        nome: "Barbearia Com Design",
-        preco: 60.00,
-        duracaoMinutos: 60,
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "4",
-        nome: "Barbearia Completa",
-        preco: 90.00,
-        duracaoMinutos: 60,
-        createdAt: new Date().toISOString(),
-    },
-];
-
 export default function Servicos() {
+
+    const { items } = useServico()
 
     const handleEdit = (id: string) => {
         console.log(`Editando serviço ${id}`);
@@ -55,7 +27,7 @@ export default function Servicos() {
     }
 
     return (
-        <div className="min-h-screen bg-background pb-24">
+        <div className="min-h-screen bg-background pb-24 p-6">
             <div className="mb-8 flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Serviços</h1>
@@ -66,16 +38,16 @@ export default function Servicos() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {servicesData.map((service) => (
+                {items.map((service) => (
                     <Card key={service.id} className="flex flex-col gap-2 pb-4 justify-between shadow-md hover:scale-[1.02] hover:shadow-lg transition-shadow">
                         <CardHeader className="relative">
                             <div className="flex justify-between items-start">
                                 <CardTitle className="text-lg font-semibold">{service.nome}</CardTitle>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
                                             className="-mt-2 -mr-2 h-8 w-8 text-muted-foreground hover:text-foreground"
                                         >
                                             <MoreVertical className="h-4 w-4" />
@@ -85,14 +57,14 @@ export default function Servicos() {
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
-                                        
+
                                         <DropdownMenuItem onClick={() => handleEdit(service.id || '')} className="cursor-pointer">
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Editar</span>
                                         </DropdownMenuItem>
-                                        
-                                        <DropdownMenuItem 
-                                            onClick={() => handleDelete(service.id || '')} 
+
+                                        <DropdownMenuItem
+                                            onClick={() => handleDelete(service.id || '')}
                                             className="text-red-600 focus:text-red-600 cursor-pointer"
                                         >
                                             <Trash2 className="mr-2 h-4 w-4" />
@@ -116,7 +88,7 @@ export default function Servicos() {
                         </CardContent>
 
                         <CardFooter>
-                            <small className="text-xs font-semibold text-secondary w-full mt-1">
+                            <small className="text-xs font-semibold text-muted-foreground w-full mt-1">
                                 {service.createdAt && (
                                     "criado em " + new Date(service.createdAt).toLocaleDateString()
                                 )}
@@ -132,7 +104,7 @@ export default function Servicos() {
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                     aria-label="Criar novo serviço"
                 >
-                    <Plus className="h-6 w-6 text-primary-foreground" />
+                    <Plus className="size-5 font-bold text-primary-foreground" />
                 </Button>
             </div>
 

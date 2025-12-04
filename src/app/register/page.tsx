@@ -42,16 +42,16 @@ export default function Register() {
         };
 
         toast.promise(
-            (async () => {
-                return await criar(dados);
-            })(),
+            criar(dados),
             {
                 loading: "Configurando sua conta ...",
                 success: () => {
                     navigate.push("/agendamentos");
                     return "Conta criada com sucesso!";
                 },
-                error: (err) => `Erro: ${err.message || "Falha ao criar conta"}`,
+                error: (err: Error) => {
+                    return err instanceof Error ? err.message : "Falha ao criar conta.";
+                },
             }
         );
     }

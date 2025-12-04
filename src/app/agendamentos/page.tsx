@@ -337,7 +337,7 @@ export default function AgendaMensal() {
                                             ))
                                         ) : (
                                             // Slot Vazio
-                                            <div className="h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer group">
+                                            <div className="h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
                                                 <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                                                 Disponível
                                             </div>
@@ -349,7 +349,7 @@ export default function AgendaMensal() {
 
                         <div className="pt-2 pb-6 px-4 flex justify-center">
                             <Button
-                                variant="secondary"
+                                variant="outline"
                                 size="lg"
                                 onClick={handleNextMonth}
                                 className="w-full max-w-md"

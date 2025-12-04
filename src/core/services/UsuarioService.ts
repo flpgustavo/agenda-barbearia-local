@@ -19,7 +19,7 @@ class UsuarioServiceClass extends BaseService<Usuario> {
         const intervaloFim = this.toMinutes(usuario.intervaloFim);
 
         if (inicio >= fim) {
-            throw new Error("Horário de início deve ser antes do horário de fim.");
+            throw new Error("Horário de início deve ser antes do horário de fim !");
         }
 
         if (intervaloInicio >= intervaloFim) {

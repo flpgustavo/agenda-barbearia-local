@@ -2,7 +2,6 @@ import { BaseService } from "./BaseService";
 import { Agendamento } from "../models/Agendamento";
 import { db } from "../db";
 
-
 class AgendamentoServiceClass extends BaseService<Agendamento> {
     constructor() {
         super("agendamentos" as keyof typeof db);
@@ -43,21 +42,59 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
 
         const inicio = this.toMinutes(usuario.inicio);
         const fim = this.toMinutes(usuario.fim);
-        const intervaloInicio = this.toMinutes(usuario.intervaloInicio);
-        const intervaloFim = this.toMinutes(usuario.intervaloFim);
+        const intervaloInicio = usuario.intervaloInicio
+            ? this.toMinutes(usuario.intervaloInicio)
+            : null;
+        const intervaloFim = usuario.intervaloFim
+            ? this.toMinutes(usuario.intervaloFim)
+            : null;
         const horaMin = this.toMinutes(hora);
-
-        if (horaMin < inicio || horaMin > fim) {
-            throw new Error("Horário fora do expediente de trabalho.");
-        }
-
-        if (horaMin >= intervaloInicio && horaMin < intervaloFim) {
-            throw new Error("Não é possível agendar no horário de intervalo.");
-        }
 
         const duracaoServico = servico.duracaoMinutos;
         const inicioNovo = horaMin;
         const fimNovo = horaMin + duracaoServico;
+
+        if (horaMin < inicio || horaMin >= fim) {
+            throw new Error("Horário de início fora do expediente de trabalho.");
+        }
+
+        if (fimNovo > fim) {
+            throw new Error(
+                `O serviço termina às ${Math.floor(fimNovo / 60)
+                    .toString()
+                    .padStart(2, "0")}:${(fimNovo % 60)
+                    .toString()
+                    .padStart(2, "0")}, fora do expediente.`
+            );
+        }
+
+        if (
+            intervaloInicio !== null &&
+            intervaloFim !== null &&
+            horaMin >= intervaloInicio &&
+            horaMin < intervaloFim
+        ) {
+            throw new Error("Não é possível agendar no horário de intervalo.");
+        }
+
+        if (intervaloInicio !== null && intervaloFim !== null) {
+
+            if (inicioNovo < intervaloInicio && fimNovo > intervaloInicio) {
+                throw new Error(
+                    `O serviço terminaria durante o intervalo (${Math.floor(
+                        intervaloInicio / 60
+                    )
+                        .toString()
+                        .padStart(2, "0")}:${(intervaloInicio % 60)
+                        .toString()
+                        .padStart(2, "0")} - ${Math.floor(intervaloFim / 60)
+                        .toString()
+                        .padStart(2, "0")}:${(intervaloFim % 60)
+                        .toString()
+                        .padStart(2, "0")}).`
+                );
+            }
+        }
 
         const agendamentosDoDia = await db.agendamentos
             .where("dataHora")
@@ -65,8 +102,9 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             .toArray();
 
         for (const ag of agendamentosDoDia) {
-            if (data.id && ag.id === data.id) continue; 
-            if (ag.status === "CANCELADO") continue;    
+            if (data.id && ag.id === data.id) continue;
+
+            if (ag.status === "CANCELADO") continue;
 
             const agMin = this.toMinutes(ag.dataHora.slice(11, 16));
             const agServico = await db.servicos.get(ag.servicosId);
@@ -84,7 +122,9 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         }
     }
 
-    async create(data: Omit<Agendamento, "id" | "createdAt" | "updatedAt">): Promise<string> {
+    async create(
+        data: Omit<Agendamento, "id" | "createdAt" | "updatedAt">
+    ): Promise<string> {
         await this.validarAgendamento(data);
         return super.create(data);
     }

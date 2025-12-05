@@ -316,7 +316,8 @@ export default function AgendaMensal() {
                                     {/* Agendamentos */}
                                     <div className="space-y-3 p-2 px-4">
                                         {agendamentos.length > 0 ? (
-                                            agendamentos.map((ag) => (
+                                            <>
+                                            {agendamentos.map((ag) => (
                                                 <Card key={ag.id} className={`border ${getStatusColor(ag.status)} shadow-sm transition-all hover:shadow-md py-2 cursor-pointer`}>
                                                     <CardContent className="p-3 flex justify-between items-center">
                                                         <div className="flex flex-col">
@@ -334,7 +335,12 @@ export default function AgendaMensal() {
                                                         </div>
                                                     </CardContent>
                                                 </Card>
-                                            ))
+                                            ))}
+                                            <div className="h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
+                                                <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                                                Novo
+                                            </div>
+                                            </>
                                         ) : (
                                             // Slot Vazio
                                             <div className="h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">

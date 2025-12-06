@@ -5,7 +5,7 @@ export type AgendamentoStatus = 'CONCLUIDO' | 'CONFIRMADO' | 'CANCELADO';
 export interface Agendamento extends BaseModel {
     clienteId: string;
     dataHora: string;
-    servicosId: string[];
+    servicoId: string;
     status: AgendamentoStatus;
     observacoes?: string;
 }

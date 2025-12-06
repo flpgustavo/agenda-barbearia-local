@@ -31,6 +31,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAgendamento } from "@/hooks/useAgendamento";
+import { CreateDrawer } from "./CreateDrawer";
 
 // --- Tipos ---
 interface BaseModel {
@@ -54,7 +56,7 @@ const MOCK_AGENDAMENTOS: Agendamento[] = [
     {
         id: "1",
         clienteId: "c1",
-        dataHora: new Date(2025, 0, 20, 14, 0).toISOString(),
+        dataHora: new Date(2025, 11, 20, 14, 0).toISOString(),
         servicosId: ["s1"],
         status: "CONFIRMADO",
         nomeClienteMock: "João Silva",
@@ -63,7 +65,7 @@ const MOCK_AGENDAMENTOS: Agendamento[] = [
     {
         id: "2",
         clienteId: "c2",
-        dataHora: new Date(2025, 0, 21, 9, 30).toISOString(),
+        dataHora: new Date(2025, 11, 21, 9, 311).toISOString(),
         servicosId: ["s2"],
         status: "CONCLUIDO",
         nomeClienteMock: "Maria Souza",
@@ -72,7 +74,7 @@ const MOCK_AGENDAMENTOS: Agendamento[] = [
     {
         id: "3",
         clienteId: "c3",
-        dataHora: new Date(2025, 0, 21, 10, 30).toISOString(),
+        dataHora: new Date(2025, 11, 21, 10, 30).toISOString(),
         servicosId: ["s2"],
         status: "CONCLUIDO",
         nomeClienteMock: "Maria Souza 2",
@@ -89,17 +91,20 @@ const MESES = [
 const ANOS = [2024, 2025, 2026, 2027];
 
 export default function AgendaMensal() {
-    // Estado único da data base (sempre o dia 1 do mês selecionado)
-    const [dataAtual, setDataAtual] = useState<Date>(new Date(2025, 0, 1));
 
-    // Estado visual para sincronizar a sidebar
-    const [diaFocado, setDiaFocado] = useState<Date>(new Date(2025, 0, 1));
+    const [dataAtual, setDataAtual] = useState<Date>(new Date());
+
+    const [diaFocado, setDiaFocado] = useState<Date>(new Date());
+
+    const [disponibilidadeMap, setDisponibilidadeMap] = useState<Record<string, boolean>>({});
+
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const { verificarDisponibilidade } = useAgendamento();
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const diasRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
     const isClickingRef = useRef(false);
-
-    // --- Memos (Performance: Recalcula só se mudar o mês) ---
 
     const diasDoMes = useMemo(() => {
         return eachDayOfInterval({
@@ -115,8 +120,21 @@ export default function AgendaMensal() {
         }, { weekStartsOn: 1 });
     }, [dataAtual]);
 
+    useEffect(() => {
+        const carregarDisponibilidade = async () => {
+            const novoMap: Record<string, boolean> = {};
+            await Promise.all(diasDoMes.map(async (dia) => {
+                const temVaga = await verificarDisponibilidade(dia);
+                const dateKey = dia.toISOString().split("T")[0];
+                novoMap[dateKey] = temVaga;
+            }));
 
-    // --- Intersection Observer (Leve) ---
+            setDisponibilidadeMap(novoMap);
+        };
+
+        carregarDisponibilidade();
+    }, [diasDoMes, verificarDisponibilidade]);
+
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -139,6 +157,11 @@ export default function AgendaMensal() {
 
 
     // --- Handlers ---
+
+    const handleCreate = (date: string) => {
+        setDataAtual(new Date(date + "T00:00:00"));
+        setIsDrawerOpen(true);
+    };
 
     const handleAnoChange = (anoStr: string) => {
         setDataAtual((prev) => setYear(prev, parseInt(anoStr)));
@@ -317,36 +340,44 @@ export default function AgendaMensal() {
                                     <div className="space-y-3 p-2 px-4">
                                         {agendamentos.length > 0 ? (
                                             <>
-                                            {agendamentos.map((ag) => (
-                                                <Card key={ag.id} className={`border ${getStatusColor(ag.status)} shadow-sm transition-all hover:shadow-md py-2 cursor-pointer`}>
-                                                    <CardContent className="p-3 flex justify-between items-center">
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-lg">
-                                                                <span className="flex flex-row items-center gap-1">
-                                                                    <Clock size={14} /> {format(new Date(ag.dataHora), "HH:mm")}
+                                                {agendamentos.map((ag) => (
+                                                    <Card key={ag.id} className={`border ${getStatusColor(ag.status)} shadow-sm transition-all hover:shadow-md py-2 cursor-pointer`}>
+                                                        <CardContent className="p-3 flex justify-between items-center">
+                                                            <div className="flex flex-col">
+                                                                <span className="font-bold text-lg">
+                                                                    <span className="flex flex-row items-center gap-1">
+                                                                        <Clock size={14} /> {format(new Date(ag.dataHora), "HH:mm")}
+                                                                    </span>
                                                                 </span>
-                                                            </span>
-                                                            <span className="font-medium text-foreground">{ag.nomeClienteMock}</span>
-                                                            <span className="text-sm opacity-90 font-medium">{ag.nomeServicoMock}</span>
-                                                        </div>
+                                                                <span className="font-medium text-foreground">{ag.nomeClienteMock}</span>
+                                                                <span className="text-sm opacity-90 font-medium">{ag.nomeServicoMock}</span>
+                                                            </div>
 
-                                                        <div className="text-[10px] font-bold uppercase tracking-wide opacity-70 border border-current px-2 py-0.5 rounded-full">
-                                                            {ag.status}
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
-                                            <div className="h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
-                                                <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                                                Novo
-                                            </div>
+                                                            <div className="text-[10px] font-bold uppercase tracking-wide opacity-70 border border-current px-2 py-0.5 rounded-full">
+                                                                {ag.status}
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                ))}
+                                                {disponibilidadeMap[dateKey] && (
+                                                    <Button
+                                                        variant="link"
+                                                        onClick={() => handleCreate(dateKey)}
+                                                        className="hover:no-underline w-full h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
+                                                        <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                                                        Novo
+                                                    </Button>
+                                                )
+                                                }
                                             </>
                                         ) : (
-                                            // Slot Vazio
-                                            <div className="h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
+                                            <Button
+                                                variant="link"
+                                                onClick={() => handleCreate(dateKey)}
+                                                className="hover:no-underline w-full h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
                                                 <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                                                 Disponível
-                                            </div>
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
@@ -368,6 +399,12 @@ export default function AgendaMensal() {
                     </div>
                 </div>
             </div>
+
+            <CreateDrawer
+                open={isDrawerOpen}
+                onOpenChange={setIsDrawerOpen}
+                data={dataAtual}
+            />
         </div>
     );
 }

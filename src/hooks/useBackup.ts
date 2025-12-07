@@ -6,14 +6,24 @@ export function useBackup() {
 
     async function fazerBackup(password: string) {
         setLoading(true);
-        await BackupService.export(password);
-        setLoading(false);
+        try {
+            await BackupService.export(password);
+        } catch (error: any) {
+            throw error; // Propaga o erro para o componente tratar
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function restaurarBackup(file: File, password: string) {
         setLoading(true);
-        await BackupService.import(file, password);
-        setLoading(false);
+        try {
+            await BackupService.import(file, password);
+        } catch (error: any) {
+            throw error; // Propaga o erro para o componente tratar
+        } finally {
+            setLoading(false);
+        }
     }
 
     return { fazerBackup, restaurarBackup, loading };

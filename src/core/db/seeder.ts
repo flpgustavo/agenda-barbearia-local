@@ -26,7 +26,12 @@ export async function seedDatabase(db: Database) {
     const servicos = [
       { id: generateUUID(), nome: 'Corte Degradê', duracaoMinutos: 45, preco: 40.00, createdAt: now, updatedAt: now },
       { id: generateUUID(), nome: 'Barba Completa', duracaoMinutos: 30, preco: 30.00, createdAt: now, updatedAt: now },
-      { id: generateUUID(), nome: 'Combo (Corte + Barba)', duracaoMinutos: 60, preco: 60.00, createdAt: now, updatedAt: now }
+      { id: generateUUID(), nome: 'Combo (Corte + Barba)', duracaoMinutos: 60, preco: 60.00, createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Corte de Barba', duracaoMinutos: 30, preco: 30.00, createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Corte de Bigode', duracaoMinutos: 45, preco: 40.00, createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Corte de Costeleta', duracaoMinutos: 30, preco: 30.00, createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Corte de Barba com Desenho', duracaoMinutos: 60, preco: 60.00, createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Corte de Barba com Pintura', duracaoMinutos: 60, preco: 60.00, createdAt: now, updatedAt: now }
     ];
 
     const usuarios = [
@@ -34,14 +39,29 @@ export async function seedDatabase(db: Database) {
     ];
 
     const clientes = [
-      { id: generateUUID(), nome: 'Carlos Cliente', telefone: '4488048244', createdAt: now, updatedAt: now }
+      { id: generateUUID(), nome: 'Carlos Cliente', telefone: '11999999999', createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Amantino Pedro', telefone: '11988887777', createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Pedro Santos', telefone: '11977776666', createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'João Silva', telefone: '11966665555', createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Lucas Pereira', telefone: '11955554444', createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Mateus Oliveira', telefone: '11944443333', createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Rafael Costa', telefone: '11933332222', createdAt: now, updatedAt: now },
+      { id: generateUUID(), nome: 'Gustavo Rodrigues', telefone: '11922221111', createdAt: now, updatedAt: now }
     ];
 
+    const agendamentos = [
+      { id: generateUUID(), clienteId: clientes[0].id, servicoId: servicos[0].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[1].id, servicoId: servicos[1].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 11, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[2].id, servicoId: servicos[2].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[3].id, servicoId: servicos[0].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 15, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[4].id, servicoId: servicos[1].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now }
+    ]
     // Inserção
-    await db.transaction('rw', db.servicos, db.usuarios, db.clientes, async () => {
+    await db.transaction('rw', db.servicos, db.usuarios, db.clientes, db.agendamentos, async () => {
       await db.servicos.bulkAdd(servicos as any);
       await db.usuarios.bulkAdd(usuarios as any);
       await db.clientes.bulkAdd(clientes as any);
+      await db.agendamentos.bulkAdd(agendamentos as any);
     });
 
     console.log('✅ Seeder finalizado com sucesso!');

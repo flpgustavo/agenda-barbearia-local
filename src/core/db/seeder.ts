@@ -50,11 +50,11 @@ export async function seedDatabase(db: Database) {
     ];
 
     const agendamentos = [
-      { id: generateUUID(), clienteId: clientes[0].id, servicoId: servicos[0].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
-      { id: generateUUID(), clienteId: clientes[1].id, servicoId: servicos[1].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 11, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
-      { id: generateUUID(), clienteId: clientes[2].id, servicoId: servicos[2].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
-      { id: generateUUID(), clienteId: clientes[3].id, servicoId: servicos[0].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 15, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
-      { id: generateUUID(), clienteId: clientes[4].id, servicoId: servicos[1].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 0), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now }
+      { id: generateUUID(), clienteId: clientes[0].id, servicoId: servicos[0].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0).toISOString(),criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[1].id, servicoId: servicos[1].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 11, 0).toISOString(),criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[2].id, servicoId: servicos[2].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0).toISOString(),criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[3].id, servicoId: servicos[0].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 15, 0).toISOString(), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now },
+      { id: generateUUID(), clienteId: clientes[4].id, servicoId: servicos[1].id, dataHora: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 0).toISOString(), criadoPor: usuarios[0].id, createdAt: now, updatedAt: now }
     ]
     // Inserção
     await db.transaction('rw', db.servicos, db.usuarios, db.clientes, db.agendamentos, async () => {

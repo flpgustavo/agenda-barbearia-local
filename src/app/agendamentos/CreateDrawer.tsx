@@ -41,6 +41,7 @@ import { useAgendamento } from "@/hooks/useAgendamento";
 import { useCliente } from "@/hooks/useCliente";
 import { useServico } from "@/hooks/useServico";
 import { toast } from "sonner";
+import { set } from "date-fns";
 
 interface CreateDrawerProps {
   open: boolean;
@@ -58,7 +59,9 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [clienteId, setClienteId] = useState<string>("");
   const [servicoId, setServicoId] = useState<string>("");
-  const [openClienteCombobox, setOpenClienteCombobox] = useState(false); 
+  const [openClienteCombobox, setOpenClienteCombobox] = useState(false);
+  const [openServicoCombobox, setOpenServicoCombobox] = useState(false);
+
 
   // Estado para a lista de horários calculados
   const [horariosDisponiveis, setHorariosDisponiveis] = useState<string[]>([]);
@@ -69,6 +72,11 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
   const getClienteLabel = () => {
     const cliente = clientes?.find((c: any) => c.id === clienteId);
     return cliente ? cliente.nome : "Selecione o cliente";
+  };
+
+  const getServicoLabel = () => {
+    const servico = servicos?.find((s: any) => s.id === servicoId);
+    return servico ? `${servico.nome} (${servico.duracaoMinutos} minutos)` : "Selecione o serviço";
   };
 
   // Efeito 1: Preencher data inicial
@@ -179,9 +187,9 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                
+
                 {/* O Conteúdo do Popover deve ter a largura do container pai */}
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <PopoverContent className="w-xs p-0">
                   <Command>
                     <CommandInput placeholder="Escreva o nome..." />
                     <CommandList>
@@ -214,22 +222,55 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
 
             {/* 3. Seleção de Serviço (Gatilho para Horários) */}
             <div className="space-y-2">
-              <Label htmlFor="servico">Serviço *</Label>
-              <Select value={servicoId} onValueChange={setServicoId}>
-                <SelectTrigger id="servico" className="w-full">
-                  <SelectValue placeholder="Selecione o serviço" />
-                </SelectTrigger>
-                <SelectContent>
-                  {servicos?.map((servico: any) => (
-                    <SelectItem key={servico.id} value={servico.id}>
-                      {servico.nome} ({servico.duracaoMinutos} min)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2 flex flex-col">
+                <Label>Serviço *</Label>
+                <Popover open={openServicoCombobox} onOpenChange={setOpenServicoCombobox}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openServicoCombobox}
+                      className="w-full justify-between font-normal" // w-full para largura total
+                    >
+                      {servicoId ? getServicoLabel() : "Pesquisar serviço..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+
+                  {/* O Conteúdo do Popover deve ter a largura do container pai */}
+                  <PopoverContent className="w-xs p-0">
+                    <Command>
+                      <CommandInput placeholder="Escreva o nome..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum serviço encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {servicos?.map((servico: any) => (
+                            <CommandItem
+                              key={servico.id}
+                              value={servico.nome} // O value é o que usamos para filtrar (nome)
+                              onSelect={() => {
+                                setServicoId(servico.id); // Guardamos o ID
+                                setOpenServicoCombobox(false); // Fecha ao selecionar
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  servicoId === servico.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {servico.nome} ({servico.duracaoMinutos} minutos)
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-[1fr_2fr] gap-2">
               <div className="space-y-2">
                 <Label htmlFor="date">Data *</Label>
                 <Input
@@ -259,7 +300,7 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
                           : "Selecione o horário"
                     } />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
+                  <SelectContent className="max-h-[300px]">
                     {horariosDisponiveis.length > 0 ? (
                       horariosDisponiveis.map((horario) => (
                         <SelectItem key={horario} value={horario}>
@@ -275,7 +316,6 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
                 </Select>
               </div>
             </div>
-
           </div>
 
           <DrawerFooter>

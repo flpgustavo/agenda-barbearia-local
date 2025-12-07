@@ -174,7 +174,7 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
           <div className="p-4 space-y-4">
             <div className="space-y-2 flex flex-col">
               <Label>Cliente *</Label>
-              <Popover open={openClienteCombobox} onOpenChange={setOpenClienteCombobox}>
+              <Popover open={openClienteCombobox} onOpenChange={setOpenClienteCombobox} modal={true}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -191,8 +191,9 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
                 <PopoverContent className="w-xs p-0">
                   <Command>
                     <CommandInput placeholder="Escreva o nome..." />
-                    <CommandList>
-                      <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                    <CommandList className="max-h-[150px] overflow-y-auto touch-auto"
+                      data-vaul-no-drag
+                    >                      <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
                       <CommandGroup>
                         {clientes?.map((cliente: any) => (
                           <CommandItem
@@ -223,7 +224,7 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
             <div className="space-y-2">
               <div className="space-y-2 flex flex-col">
                 <Label>Serviço *</Label>
-                <Popover open={openServicoCombobox} onOpenChange={setOpenServicoCombobox}>
+                <Popover open={openServicoCombobox} onOpenChange={setOpenServicoCombobox} modal={true}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -240,7 +241,9 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
                   <PopoverContent className="w-xs p-0">
                     <Command>
                       <CommandInput placeholder="Escreva o nome..." />
-                      <CommandList>
+                      <CommandList className="max-h-[150px] overflow-y-auto touch-auto"
+                        data-vaul-no-drag
+                      >
                         <CommandEmpty>Nenhum serviço encontrado.</CommandEmpty>
                         <CommandGroup>
                           {servicos?.map((servico: any) => (
@@ -303,8 +306,8 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
                   {/* Conteúdo do Popover de Horário */}
                   <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                     <Command>
-                      <CommandList className="max-h-[200px] overflow-y-auto touch-auto"
-                      data-vaul-no-drag
+                      <CommandList className="max-h-[250px] overflow-y-auto touch-auto"
+                        data-vaul-no-drag
                       >
                         <CommandEmpty>Sem horários livres.</CommandEmpty>
                         <CommandGroup>

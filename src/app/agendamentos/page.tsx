@@ -106,7 +106,9 @@ export default function AgendaMensal() {
 
                 // Organiza num objeto para acesso rápido O(1)
                 todos.forEach((ag: any) => {
-                    const dataKey = ag.dataHora.split("T")[0]; // YYYY-MM-DD
+                    if (!ag.dataHora) return;
+
+                    const dataKey = ag?.dataHora.split("T")[0]; // YYYY-MM-DD
                     if (!mapa[dataKey]) {
                         mapa[dataKey] = [];
                     }
@@ -279,7 +281,9 @@ export default function AgendaMensal() {
                             </SelectContent>
                         </Select>
 
-                        <Button variant='default'>
+                        <Button variant='default'
+                            onClick={() => handleCreate(new Date().toISOString().split("T")[0])}
+                        >
                             <Plus className="h-4 w-4" />
                             Novo
                         </Button>

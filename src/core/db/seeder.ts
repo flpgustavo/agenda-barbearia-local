@@ -34,7 +34,7 @@ export async function seedDatabase(db: Database) {
     ];
 
     const clientes = [
-      { id: generateUUID(), nome: 'Carlos Cliente', telefone: '11999999999', createdAt: now, updatedAt: now }
+      { id: generateUUID(), nome: 'Carlos Cliente', telefone: '4488048244', createdAt: now, updatedAt: now }
     ];
 
     // Inserção

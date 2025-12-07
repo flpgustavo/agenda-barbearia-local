@@ -2,6 +2,11 @@ import { BaseService } from "./BaseService";
 import { Agendamento } from "../models/Agendamento";
 import { db } from "../db";
 
+export interface AgendamentoComDetalhes extends Agendamento {
+    cliente?: any;
+    servico?: any;
+}
+
 class AgendamentoServiceClass extends BaseService<Agendamento> {
     constructor() {
         super("agendamentos" as keyof typeof db);
@@ -66,8 +71,8 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
                 `O serviço termina às ${Math.floor(fimNovo / 60)
                     .toString()
                     .padStart(2, "0")}:${(fimNovo % 60)
-                    .toString()
-                    .padStart(2, "0")}, fora do expediente.`
+                        .toString()
+                        .padStart(2, "0")}, fora do expediente.`
             );
         }
 
@@ -111,12 +116,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
 
     // NOVO: lista agendamentos trazendo cliente e serviço associados
     async listWithDetails(): Promise<
-        Array<
-            Agendamento & {
-                cliente?: any;
-                servico?: any;
-            }
-        >
+        AgendamentoComDetalhes[]
     > {
         const agendamentos = await this.list();
 
@@ -280,6 +280,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
     async create(
         data: Omit<Agendamento, "id" | "createdAt" | "updatedAt">
     ): Promise<string> {
+        console.log(data);
         await this.validarAgendamento(data);
         return super.create(data);
     }

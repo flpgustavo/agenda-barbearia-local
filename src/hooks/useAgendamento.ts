@@ -1,5 +1,5 @@
 import { useBase } from "./useBase";
-import { AgendamentoService } from "../core/services/AgendamentoService";
+import { AgendamentoComDetalhes, AgendamentoService } from "../core/services/AgendamentoService";
 import { Agendamento } from "../core/models/Agendamento";
 import { useCallback } from "react";
 
@@ -14,9 +14,14 @@ export function useAgendamento() {
         return await AgendamentoService.gerarHorariosDisponiveis(dataStr, duracao, duracao);
     }, []);
 
+    const agendamentos = useCallback(async () => {
+        return await AgendamentoService.listWithDetails();
+    }, []);
+
     return {
         ...base,
         verificarDisponibilidade,
-        buscarHorarios
+        buscarHorarios,
+        agendamentos
     };
 }

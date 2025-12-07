@@ -61,7 +61,7 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
   const [servicoId, setServicoId] = useState<string>("");
   const [openClienteCombobox, setOpenClienteCombobox] = useState(false);
   const [openServicoCombobox, setOpenServicoCombobox] = useState(false);
-
+  const [openTimePopover, setOpenTimePopover] = useState(false); // <--- NOVO
 
   // Estado para a lista de horários calculados
   const [horariosDisponiveis, setHorariosDisponiveis] = useState<string[]>([]);
@@ -150,7 +150,6 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
       });
 
       onOpenChange(false);
-      // Limpeza de estados
       setClienteId("");
       setServicoId("");
       setSelectedTime("");
@@ -270,50 +269,81 @@ export function CreateDrawer({ open, onOpenChange, data }: CreateDrawerProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-[1fr_2fr] gap-2">
+            <div className="grid grid-cols-[2fr_1fr] gap-2">
+              <div className="space-y-2 flex flex-col">
+                <div className="flex justify-between items-center">
+                  <Label>Horário disponível *</Label>
+                </div>
+
+                <Popover open={openTimePopover} onOpenChange={setOpenTimePopover} modal={true}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openTimePopover}
+                      className={cn(
+                        "w-full justify-between font-normal",
+                        !selectedTime && "text-muted-foreground"
+                      )}
+                      disabled={!servicoId || !selectedDate || loadingHorarios}
+                    >
+                      {loadingHorarios ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" /> Buscando...
+                        </span>
+                      ) : selectedTime ? (
+                        selectedTime
+                      ) : (
+                        "Selecione o horário..."
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+
+                  {/* Conteúdo do Popover de Horário */}
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                    <Command>
+                      <CommandList className="max-h-[200px] overflow-y-auto touch-auto"
+                      data-vaul-no-drag
+                      >
+                        <CommandEmpty>Sem horários livres.</CommandEmpty>
+                        <CommandGroup>
+                          {horariosDisponiveis.map((time) => (
+                            <CommandItem
+                              key={time}
+                              value={time}
+                              onSelect={(currentValue) => {
+                                setSelectedTime(time);
+                                setOpenTimePopover(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "h-4 w-4",
+                                  selectedTime === time ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {time}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="date">Data *</Label>
                 <Input
                   type="date"
                   id="date"
+                  required
                   value={selectedDate}
                   onClick={(e) => e.currentTarget.showPicker()}
                   onChange={(e) => setSelectedDate(e.target.value)}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label htmlFor="time">Horário Disponível *</Label>
-                  {loadingHorarios && <Loader2 className="h-3 w-3 animate-spin" />}
-                </div>
-
-                <Select
-                  value={selectedTime}
-                  onValueChange={setSelectedTime}
-                  disabled={!servicoId || !selectedDate || loadingHorarios}
-                >
-                  <SelectTrigger id="time" className="w-full">
-                    <SelectValue placeholder={
-                      !servicoId ? "Selecione o serviço"
-                        : loadingHorarios ? "Buscando horários..."
-                          : "Selecione o horário"
-                    } />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {horariosDisponiveis.length > 0 ? (
-                      horariosDisponiveis.map((horario) => (
-                        <SelectItem key={horario} value={horario}>
-                          {horario}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="p-2 text-sm text-muted-foreground text-center">
-                        {!servicoId ? "Aguardando serviço..." : "Sem horários livres"}
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>

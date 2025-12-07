@@ -15,10 +15,9 @@ import {
     setYear,
     getYear,
     getMonth,
-    startOfWeek,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, ChevronRight, CalendarDays, Clock } from "lucide-react";
+import { Plus, ChevronRight, CalendarDays, Clock, Link, PhoneCallIcon, MessageCircle } from "lucide-react";
 
 // --- Componentes Shadcn ---
 import {
@@ -30,57 +29,17 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
+
+// --- Hooks e Componentes Customizados ---
 import { useAgendamento } from "@/hooks/useAgendamento";
 import { CreateDrawer } from "./CreateDrawer";
-
-// --- Tipos ---
-interface BaseModel {
-    id: string;
-}
+// Ajuste o import conforme a localização real do seu tipo
+import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService";
+import { AgendamentoCard } from "./AgendamentoCard";
+import { AgendamentoDetails } from "./AgendamentoDetail";
 
 export type AgendamentoStatus = "CONCLUIDO" | "CONFIRMADO" | "CANCELADO";
-
-export interface Agendamento extends BaseModel {
-    clienteId: string;
-    dataHora: string;
-    servicosId: string[];
-    status: AgendamentoStatus;
-    observacoes?: string;
-    nomeClienteMock?: string;
-    nomeServicoMock?: string;
-}
-
-// --- Mock Data (Simples) ---
-const MOCK_AGENDAMENTOS: Agendamento[] = [
-    {
-        id: "1",
-        clienteId: "c1",
-        dataHora: new Date(2025, 11, 20, 14, 0).toISOString(),
-        servicosId: ["s1"],
-        status: "CONFIRMADO",
-        nomeClienteMock: "João Silva",
-        nomeServicoMock: "Corte Masc.",
-    },
-    {
-        id: "2",
-        clienteId: "c2",
-        dataHora: new Date(2025, 11, 21, 9, 311).toISOString(),
-        servicosId: ["s2"],
-        status: "CONCLUIDO",
-        nomeClienteMock: "Maria Souza",
-        nomeServicoMock: "Manicure",
-    },
-    {
-        id: "3",
-        clienteId: "c3",
-        dataHora: new Date(2025, 11, 21, 10, 30).toISOString(),
-        servicosId: ["s2"],
-        status: "CONCLUIDO",
-        nomeClienteMock: "Maria Souza 2",
-        nomeServicoMock: "Manicure",
-    },
-];
 
 // --- Constantes ---
 const MESES = [
@@ -92,19 +51,32 @@ const ANOS = [2024, 2025, 2026, 2027];
 
 export default function AgendaMensal() {
 
+    // --- Estados ---
     const [dataAtual, setDataAtual] = useState<Date>(new Date());
-
     const [diaFocado, setDiaFocado] = useState<Date>(new Date());
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [selectedAgendamento, setSelectedAgendamento] = useState<AgendamentoComDetalhes | null>(null);
 
+    // Estado para disponibilidade (Cache de dias livres: { "2025-01-01": true })
     const [disponibilidadeMap, setDisponibilidadeMap] = useState<Record<string, boolean>>({});
 
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    // Estado para agendamentos (Cache organizado: { "2025-01-01": [AgendamentoA, AgendamentoB] })
+    const [agendamentosMap, setAgendamentosMap] = useState<Record<string, AgendamentoComDetalhes[]>>({});
 
-    const { verificarDisponibilidade } = useAgendamento();
+    // --- Hooks ---
+    const { verificarDisponibilidade, agendamentos } = useAgendamento();
 
+    // Refs para scroll e observação
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const diasRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
     const isClickingRef = useRef(false);
+
+    // --- Memos de Data ---
+
+    // Variável de controle: muda apenas se o Mês/Ano mudar. 
+    // Impede re-renderizações pesadas durante o scroll.
+    const mesControle = format(dataAtual, "yyyy-MM");
 
     const diasDoMes = useMemo(() => {
         return eachDayOfInterval({
@@ -120,9 +92,46 @@ export default function AgendaMensal() {
         }, { weekStartsOn: 1 });
     }, [dataAtual]);
 
+
+    // --- Effects (Carga de Dados) ---
+
+    // 1. Carregar e Agrupar Agendamentos
+    useEffect(() => {
+        const carregarAgendamentos = async () => {
+            try {
+                // Busca todos (idealmente filtraria por dataInicio/Fim no backend)
+                const todos = await agendamentos();
+
+                const mapa: Record<string, AgendamentoComDetalhes[]> = {};
+
+                // Organiza num objeto para acesso rápido O(1)
+                todos.forEach((ag: any) => {
+                    const dataKey = ag.dataHora.split("T")[0]; // YYYY-MM-DD
+                    if (!mapa[dataKey]) {
+                        mapa[dataKey] = [];
+                    }
+                    mapa[dataKey].push(ag);
+                });
+
+                setAgendamentosMap(mapa);
+            } catch (error) {
+                console.error("Erro ao carregar agendamentos:", error);
+            }
+        };
+
+        carregarAgendamentos();
+
+        // Recarrega se mudar o mês ou se fechar o Drawer (novo agendamento criado)
+    }, [mesControle, agendamentos, isDrawerOpen]);
+
+    // 2. Carregar Disponibilidade dos Dias
     useEffect(() => {
         const carregarDisponibilidade = async () => {
+            if (diasDoMes.length === 0) return;
+
             const novoMap: Record<string, boolean> = {};
+
+            // Verifica todos os dias em paralelo
             await Promise.all(diasDoMes.map(async (dia) => {
                 const temVaga = await verificarDisponibilidade(dia);
                 const dateKey = dia.toISOString().split("T")[0];
@@ -133,8 +142,11 @@ export default function AgendaMensal() {
         };
 
         carregarDisponibilidade();
-    }, [diasDoMes, verificarDisponibilidade]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mesControle]); // Só roda se o mês mudar! Ignora scroll.
 
+
+    // --- Observer (Scroll Spy) ---
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -156,10 +168,16 @@ export default function AgendaMensal() {
     }, [diasDoMes]);
 
 
-    // --- Handlers ---
+    // --- Helpers & Handlers ---
 
-    const handleCreate = (date: string) => {
-        setDataAtual(new Date(date + "T00:00:00"));
+    // Busca síncrona do mapa (muito rápida)
+    const getAgendamentosDoDia = (dia: Date) => {
+        const dateKey = dia.toISOString().split("T")[0];
+        return (agendamentosMap[dateKey] || []).sort((a, b) => a.dataHora.localeCompare(b.dataHora));
+    }
+    const handleCreate = (dateStr: string) => {
+        // Ajuste fuso horário: cria data ao meio-dia para evitar problemas de dia anterior
+        setDataAtual(new Date(dateStr + "T12:00:00"));
         setIsDrawerOpen(true);
     };
 
@@ -174,7 +192,6 @@ export default function AgendaMensal() {
     const handleNextMonth = () => {
         const proximoMes = addMonths(dataAtual, 1);
         setDataAtual(proximoMes);
-        // Resetar scroll para o topo ao mudar de mês
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
         }
@@ -182,26 +199,19 @@ export default function AgendaMensal() {
 
     const handleSemanaClick = (inicioSemana: Date) => {
         isClickingRef.current = true;
-        setDiaFocado(inicioSemana); // Feedback visual imediato
+        setDiaFocado(inicioSemana);
 
-        // Encontrar o primeiro dia desta semana que pertence ao mês atual
-        // (Caso a semana comece no mês anterior)
         const diaAlvo = isSameDay(startOfMonth(dataAtual), inicioSemana)
             ? inicioSemana
-            : inicioSemana; // Simplificação: tenta ir para o inicio da semana
+            : inicioSemana;
 
-        // Buscar referência
-        // Precisamos garantir que rolamos para um dia que existe na lista atual
         let diaParaRolar = diaAlvo;
         if (getMonth(diaAlvo) !== getMonth(dataAtual)) {
-            // Se o inicio da semana é mês passado, rola para o dia 1 do mês atual
             diaParaRolar = startOfMonth(dataAtual);
         }
 
         const dateKey = diaParaRolar.toISOString().split("T")[0];
-        const el = diasRefs.current[dateKey]; // Tenta achar o elemento exato
-
-        // Fallback: se não achar o dia exato (ex: semana começa dia 29/Jan e estamos em Fev), pega o primeiro dia da lista
+        const el = diasRefs.current[dateKey];
         const targetEl = el || diasRefs.current[diasDoMes[0].toISOString().split("T")[0]];
 
         if (targetEl) {
@@ -211,11 +221,15 @@ export default function AgendaMensal() {
         setTimeout(() => { isClickingRef.current = false; }, 600);
     };
 
-    const getAgendamentosDoDia = (dia: Date) => {
-        return MOCK_AGENDAMENTOS.filter((ag) => isSameDay(new Date(ag.dataHora), dia));
+    const handleLongPressCard = (ag: any) => {
+        setSelectedAgendamento(ag);
+        setIsDetailsOpen(true);
     };
 
-    // Cores dinâmicas para status
+    const handleClickCard = (ag: any) => {
+        console.log("Clique curto");
+    };
+
     const getStatusColor = (status: AgendamentoStatus) => {
         switch (status) {
             case "CONFIRMADO": return "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20";
@@ -265,9 +279,7 @@ export default function AgendaMensal() {
                             </SelectContent>
                         </Select>
 
-                        <Button
-                            variant='default'
-                        >
+                        <Button variant='default'>
                             <Plus className="h-4 w-4" />
                             Novo
                         </Button>
@@ -294,11 +306,11 @@ export default function AgendaMensal() {
                                         key={inicioSemana.toISOString()}
                                         onClick={() => handleSemanaClick(inicioSemana)}
                                         className={`
-                      py-4 w-full flex flex-col items-center justify-center border-b border-border transition-all
-                      ${isSelected
+                                            py-4 w-full flex flex-col items-center justify-center border-b border-border transition-all
+                                            ${isSelected
                                                 ? "bg-primary text-primary-foreground"
                                                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"}
-                    `}
+                                        `}
                                     >
                                         <span className="text-lg font-bold leading-none">{numeroSemana}</span>
                                     </button>
@@ -316,10 +328,15 @@ export default function AgendaMensal() {
                     <div className="max-w-3xl mx-auto space-y-1 pb-10">
 
                         {diasDoMes.map((dia) => {
-                            const agendamentos = getAgendamentosDoDia(dia);
+                            // Busca instantânea no mapa
+                            const agendamentosDoDia = getAgendamentosDoDia(dia);
+
                             const diaFormatado = format(dia, "eeee", { locale: ptBR });
                             const diaNumero = format(dia, "d");
                             const dateKey = dia.toISOString().split("T")[0];
+
+                            // Verifica disponibilidade no mapa
+                            const temVaga = disponibilidadeMap[dateKey];
 
                             return (
                                 <div
@@ -338,43 +355,34 @@ export default function AgendaMensal() {
 
                                     {/* Agendamentos */}
                                     <div className="space-y-3 p-2 px-4">
-                                        {agendamentos.length > 0 ? (
+                                        {agendamentosDoDia.length > 0 ? (
                                             <>
-                                                {agendamentos.map((ag) => (
-                                                    <Card key={ag.id} className={`border ${getStatusColor(ag.status)} shadow-sm transition-all hover:shadow-md py-2 cursor-pointer`}>
-                                                        <CardContent className="p-3 flex justify-between items-center">
-                                                            <div className="flex flex-col">
-                                                                <span className="font-bold text-lg">
-                                                                    <span className="flex flex-row items-center gap-1">
-                                                                        <Clock size={14} /> {format(new Date(ag.dataHora), "HH:mm")}
-                                                                    </span>
-                                                                </span>
-                                                                <span className="font-medium text-foreground">{ag.nomeClienteMock}</span>
-                                                                <span className="text-sm opacity-90 font-medium">{ag.nomeServicoMock}</span>
-                                                            </div>
-
-                                                            <div className="text-[10px] font-bold uppercase tracking-wide opacity-70 border border-current px-2 py-0.5 rounded-full">
-                                                                {ag.status}
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
+                                                {agendamentosDoDia.map((ag: any) => (
+                                                    <AgendamentoCard
+                                                        key={ag.id}
+                                                        agendamento={ag}
+                                                        getStatusColor={getStatusColor}
+                                                        onLongPress={handleLongPressCard}
+                                                        onClick={handleClickCard}
+                                                    />
                                                 ))}
                                                 {disponibilidadeMap[dateKey] && (
                                                     <Button
                                                         variant="link"
                                                         onClick={() => handleCreate(dateKey)}
-                                                        className="hover:no-underline w-full h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
+                                                        className="hover:no-underline w-full h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group"
+                                                    >
                                                         <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                                                         Novo
                                                     </Button>
-                                                )
-                                                }
+                                                )}
                                             </>
                                         ) : (
                                             <Button
                                                 variant="link"
                                                 onClick={() => handleCreate(dateKey)}
-                                                className="hover:no-underline w-full h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group">
+                                                className="hover:no-underline w-full h-14 border-3 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center text-muted-foreground text-sm hover:border-primary/50 hover:text-primary hover:font-semibold hover:bg-primary/5 transition-colors cursor-pointer group"
+                                            >
                                                 <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                                                 Disponível
                                             </Button>
@@ -384,6 +392,7 @@ export default function AgendaMensal() {
                             );
                         })}
 
+                        {/* Botão Próximo Mês */}
                         <div className="pt-2 pb-6 px-4 flex justify-center">
                             <Button
                                 variant="outline"
@@ -400,11 +409,30 @@ export default function AgendaMensal() {
                 </div>
             </div>
 
+            {/* O Drawer fica aqui, fora do loop e do scroll */}
             <CreateDrawer
                 open={isDrawerOpen}
                 onOpenChange={setIsDrawerOpen}
                 data={dataAtual}
             />
+
+            <AgendamentoDetails
+                open={isDetailsOpen}
+                onOpenChange={setIsDetailsOpen}
+                agendamento={selectedAgendamento}
+                onEdit={(ag) => {
+                    // Lógica para abrir o Drawer de edição
+                    // Exemplo: handleCreate(ag.dataHora.split("T")[0]);
+                    console.log("Editar", ag);
+                }}
+                onDelete={async (id) => {
+                    // Lógica para apagar
+                    // Exemplo: await delete(id);
+                    console.log("Apagar ID", id);
+                }}
+            />
         </div>
     );
 }
+
+

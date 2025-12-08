@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, use } from "react";
 import {
     format,
     startOfMonth,
@@ -97,18 +97,19 @@ export default function AgendaMensal() {
 
     // 1. Carregar e Agrupar Agendamentos
     useEffect(() => {
+        const controller = new AbortController(); // Controle de cancelamento
+
         const carregarAgendamentos = async () => {
             try {
-                // Busca todos (idealmente filtraria por dataInicio/Fim no backend)
-                const todos = await agendamentos();
+                const todos = await agendamentos(); 
+                
+                if (controller.signal.aborted) return;
 
                 const mapa: Record<string, AgendamentoComDetalhes[]> = {};
 
-                // Organiza num objeto para acesso rápido O(1)
                 todos.forEach((ag: any) => {
                     if (!ag.dataHora) return;
-
-                    const dataKey = ag?.dataHora.split("T")[0]; // YYYY-MM-DD
+                    const dataKey = ag.dataHora.split("T")[0];
                     if (!mapa[dataKey]) {
                         mapa[dataKey] = [];
                     }
@@ -117,36 +118,46 @@ export default function AgendaMensal() {
 
                 setAgendamentosMap(mapa);
             } catch (error) {
-                console.error("Erro ao carregar agendamentos:", error);
+                if (!controller.signal.aborted) {
+                    console.error("Erro ao carregar agendamentos:", error);
+                }
             }
         };
 
         carregarAgendamentos();
 
-        // Recarrega se mudar o mês ou se fechar o Drawer (novo agendamento criado)
-    }, [mesControle, agendamentos, isDrawerOpen]);
+        return () => controller.abort();
+        
+    }, [mesControle, agendamentos, isDrawerOpen]); 
 
-    // 2. Carregar Disponibilidade dos Dias
+    // 2. Carregar Disponibilidade
     useEffect(() => {
+        const controller = new AbortController();
+
         const carregarDisponibilidade = async () => {
             if (diasDoMes.length === 0) return;
-
             const novoMap: Record<string, boolean> = {};
+            try {
+                await Promise.all(diasDoMes.map(async (dia) => {
+                    if (controller.signal.aborted) return;
+                    
+                    const temVaga = await verificarDisponibilidade(dia);
+                    const dateKey = dia.toISOString().split("T")[0];
+                    novoMap[dateKey] = temVaga;
+                }));
 
-            // Verifica todos os dias em paralelo
-            await Promise.all(diasDoMes.map(async (dia) => {
-                const temVaga = await verificarDisponibilidade(dia);
-                const dateKey = dia.toISOString().split("T")[0];
-                novoMap[dateKey] = temVaga;
-            }));
-
-            setDisponibilidadeMap(novoMap);
+                if (!controller.signal.aborted) {
+                    setDisponibilidadeMap(novoMap);
+                }
+            } catch (err) {
+                console.error(err);
+            }
         };
 
         carregarDisponibilidade();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mesControle]); // Só roda se o mês mudar! Ignora scroll.
 
+        return () => controller.abort();
+    }, [mesControle]);
 
     // --- Observer (Scroll Spy) ---
     useEffect(() => {

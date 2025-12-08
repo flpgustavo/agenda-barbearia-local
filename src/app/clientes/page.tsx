@@ -13,17 +13,31 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useCliente } from "@/hooks/useCliente";
 import { Plus, MoreVertical, Clock, DollarSign, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { ClienteFormDrawer } from "./ClienteFormDrawer";
+import { toast } from "sonner";
+import { Cliente } from "@/core/models/Cliente";
 
 export default function Servicos() {
 
-    const { items } = useCliente()
+    const { items, remover } = useCliente()
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
 
-    const handleEdit = (id: string) => {
-        console.log(`Editando serviço ${id}`);
-    }
+    const handleForm = (cliente?: Cliente) => {
+        setSelectedCliente(cliente || null);
+        setIsDrawerOpen(true);
+    };
 
-    const handleDelete = (id: string) => {
-        console.log(`Excluindo serviço ${id}`);
+    const handleDelete = async (id: string) => {
+        toast.promise(
+            remover(id),
+            {
+                loading: `Excluindo cliente...`,
+                success: () => `Cliente removido com sucesso!`,
+                error: (err: Error) => err.message || `Falha ao cliente.`,
+            }
+        )
     }
 
     return (
@@ -58,7 +72,7 @@ export default function Servicos() {
                                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
 
-                                        <DropdownMenuItem onClick={() => handleEdit(cliente.id || '')} className="cursor-pointer">
+                                        <DropdownMenuItem onClick={() => handleForm(cliente)} className="cursor-pointer">
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Editar</span>
                                         </DropdownMenuItem>
@@ -95,17 +109,21 @@ export default function Servicos() {
             </div>
 
             <div className="fixed bottom-6 right-6 z-50">
-                <Link href="/clientes/novo">
                 <Button
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                     aria-label="Criar novo cliente"
+                    onClick={() => handleForm()}
                 >
                     <Plus className="size-5 font-bold text-primary-foreground" />
                 </Button>
-                </Link>
             </div>
 
+            <ClienteFormDrawer
+                open={isDrawerOpen}
+                onOpenChange={setIsDrawerOpen}
+                cliente={selectedCliente!}
+            />
         </div>
     );
 }

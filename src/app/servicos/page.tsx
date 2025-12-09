@@ -12,19 +12,31 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Servico } from "@/core/models/Servico";
 import { useServico } from "@/hooks/useServico";
-import { Plus, MoreVertical, Clock, DollarSign, Edit, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { Plus, MoreVertical, Clock, Edit, Trash2 } from "lucide-react";
+import { ServicoFormDrawer } from "./ServicoFormDrawer";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Servicos() {
 
-    const { items } = useServico()
+    const { items, remover } = useServico()
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedServico, setSelectedServico] = useState<Servico | null>(null);
 
-    const handleEdit = (id: string) => {
-        console.log(`Editando serviço ${id}`);
-    }
+    const handleForm = (servico?: Servico) => {
+        setSelectedServico(servico || null);
+        setIsDrawerOpen(true);
+    };
 
-    const handleDelete = (id: string) => {
-        console.log(`Excluindo serviço ${id}`);
+    const handleDelete = async (id: string) => {
+        toast.promise(
+            remover(id),
+            {
+                loading: `Excluindo cliente...`,
+                success: () => `Cliente removido com sucesso!`,
+                error: (err: Error) => err.message || `Falha ao cliente.`,
+            }
+        )
     }
 
     return (
@@ -59,7 +71,7 @@ export default function Servicos() {
                                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
 
-                                        <DropdownMenuItem onClick={() => handleEdit(service.id || '')} className="cursor-pointer">
+                                        <DropdownMenuItem onClick={() => handleForm(service)} className="cursor-pointer">
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Editar</span>
                                         </DropdownMenuItem>
@@ -100,16 +112,21 @@ export default function Servicos() {
             </div>
 
             <div className="fixed bottom-6 right-6 z-50">
-                <Link href="/servicos/novo">
                 <Button
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                     aria-label="Criar novo serviço"
+                    onClick={() => handleForm()}
                 >
                     <Plus className="size-5 font-bold text-primary-foreground" />
                 </Button>
-                </Link>
             </div>
+
+            <ServicoFormDrawer
+                open={isDrawerOpen}
+                onOpenChange={setIsDrawerOpen}
+                servico={selectedServico!}
+            />
 
         </div>
     );

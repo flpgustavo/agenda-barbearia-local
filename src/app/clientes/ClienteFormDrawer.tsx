@@ -12,7 +12,7 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from "@/components/ui/drawer";
-
+import { IMaskInput } from "react-imask";
 import { useCliente } from "@/hooks/useCliente";
 import { toast } from "sonner";
 import { Cliente } from "@/core/models/Cliente";
@@ -21,15 +21,17 @@ interface ClienteFormDrawerProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     cliente?: Cliente;
+    onSuccess?: () => void;
 }
 
-export function ClienteFormDrawer({ open, onOpenChange, cliente }: ClienteFormDrawerProps) {
+export function ClienteFormDrawer({ open, onOpenChange, cliente, onSuccess }: ClienteFormDrawerProps) {
 
     // Estados do Formulário
     const { criar, atualizar } = useCliente();
     const [nome, setNome] = useState("");
     const [telefone, setTelefone] = useState("");
     const [id, setId] = useState("");
+    
 
     const [loading, setLoading] = useState(false);
 
@@ -57,6 +59,11 @@ export function ClienteFormDrawer({ open, onOpenChange, cliente }: ClienteFormDr
             return;
         }
 
+        if (telefone.length < 10) {
+            toast.warning("O telefone parece incompleto. Digite o DDD + Número.");
+            return;
+        }
+
         setLoading(true);
         try {
             let result;
@@ -70,6 +77,7 @@ export function ClienteFormDrawer({ open, onOpenChange, cliente }: ClienteFormDr
             onOpenChange(false);
             setNome("");
             setTelefone("");
+            onSuccess?.();
             return result;
         } catch (error) {
             console.error("Erro ao criar cliente:", error);
@@ -101,11 +109,16 @@ export function ClienteFormDrawer({ open, onOpenChange, cliente }: ClienteFormDr
                         <div className="space-y-2">
                             <div className="space-y-2 flex flex-col">
                                 <Label>Telefone *</Label>
-                                <Input
-                                    type="tel"
-                                    placeholder="(99) 99999-9999"
+                                <IMaskInput
+                                    mask={[
+                                        { mask: '(00) 0000-0000' },
+                                        { mask: '(00) 00000-0000' }
+                                    ]}
                                     value={telefone}
-                                    onChange={(e) => setTelefone(e.target.value)}
+                                    unmask
+                                    onAccept={(value: string) => setTelefone(value)}
+                                    placeholder="(99) 99999-9999"
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                                 />
                             </div>
                         </div>

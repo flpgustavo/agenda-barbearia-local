@@ -18,11 +18,16 @@ import { ClienteFormDrawer } from "./ClienteFormDrawer";
 import { toast } from "sonner";
 import { Cliente } from "@/core/models/Cliente";
 
-export default function Servicos() {
+export default function Clientes() {
 
-    const { items, remover } = useCliente()
+    const { items, remover, recarregar } = useCliente()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
+
+    const handleSuccess = () => {
+        setIsDrawerOpen(false);
+        recarregar?.();
+    }
 
     const handleForm = (cliente?: Cliente) => {
         setSelectedCliente(cliente || null);
@@ -123,6 +128,7 @@ export default function Servicos() {
                 open={isDrawerOpen}
                 onOpenChange={setIsDrawerOpen}
                 cliente={selectedCliente!}
+                onSuccess={handleSuccess}
             />
         </div>
     );

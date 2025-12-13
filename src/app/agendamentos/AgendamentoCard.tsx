@@ -35,10 +35,10 @@ export function AgendamentoCard({ agendamento, onLongPress, onClick, getStatusCo
             </span>
           </span>
           <span className="font-medium text-foreground">
-            {agendamento.cliente.nome || "Cliente"}
+            {agendamento.cliente?.nome || "Cliente"}
           </span>
           <span className="text-sm opacity-90 font-medium">
-            {agendamento.servico.nome || "Serviço"}
+            {agendamento.servico?.nome || "Serviço"}
           </span>
         </div>
 

@@ -1,10 +1,12 @@
 import { BaseService } from "./BaseService";
 import { Agendamento } from "../models/Agendamento";
 import { db } from "../db";
+import { Cliente } from "../models/Cliente";
+import { Servico } from "../models/Servico";
 
 export interface AgendamentoComDetalhes extends Agendamento {
-    cliente?: any;
-    servico?: any;
+    cliente?: Cliente;
+    servico?: Servico;
 }
 
 class AgendamentoServiceClass extends BaseService<Agendamento> {

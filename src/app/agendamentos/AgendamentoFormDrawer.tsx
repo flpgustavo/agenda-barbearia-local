@@ -32,6 +32,7 @@ import { useAgendamento } from "@/hooks/useAgendamento";
 import { useCliente } from "@/hooks/useCliente";
 import { useServico } from "@/hooks/useServico";
 import { toast } from "sonner";
+import { format } from "date-fns";
 // Importa o tipo se tiveres, senão usa any ou define uma interface parcial
 // import { Agendamento } from "@/core/models/Agendamento"; 
 
@@ -171,7 +172,7 @@ export function AgendamentoFormDrawer({
     setLoading(true);
     try {
       // Monta a data ISO
-      const dataHoraIso = new Date(`${data}T${hora}:00`).toISOString();
+      const dataHoraIso = format(new Date(`${data}T${hora}:00`), "yyyy-MM-dd'T'HH:mm:ssxxx");
 
       if (isEditing && agendamento?.id) {
         // --- ATUALIZAR ---
@@ -385,7 +386,7 @@ export function AgendamentoFormDrawer({
                   id="date"
                   required
                   value={data}
-                  // onClick={(e) => e.currentTarget.showPicker()} // Opcional: força abrir picker nativo
+                  onClick={(e) => e.currentTarget.showPicker()}
                   onChange={(e) => setData(e.target.value)}
                 />
               </div>

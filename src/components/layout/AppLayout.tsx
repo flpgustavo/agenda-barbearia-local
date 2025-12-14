@@ -24,7 +24,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { UsuarioService } from "@/core/services/UsuarioService";
+import { usuarioService } from "@/core/services/UsuarioService";
 import { Usuario } from "@/core/models/Usuario";
 import { useTheme } from "next-themes";
 
@@ -74,7 +74,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         async function validarUsuario() {
             try {
                 setIsChecking(true);
-                const usuarios = await UsuarioService.list();
+                const usuarios = await usuarioService.list();
 
                 if (usuarios.length > 0) {
                     setUsuarioAtual(usuarios[0]);
@@ -183,7 +183,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer">
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/perfil')}>
                                 <User className="mr-2 h-4 w-4" />
                                 <span>Perfil</span>
                             </DropdownMenuItem>

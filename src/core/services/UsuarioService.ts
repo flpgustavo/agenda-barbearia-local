@@ -2,7 +2,7 @@ import { BaseService } from "./BaseService";
 import { Usuario } from "../models/Usuario";
 import { db } from "../db";
 
-class UsuarioServiceClass extends BaseService<Usuario> {
+class UsuarioService extends BaseService<Usuario> {
     constructor() {
         super("usuarios");
     }
@@ -56,4 +56,4 @@ class UsuarioServiceClass extends BaseService<Usuario> {
     }
 }
 
-export const UsuarioService = new UsuarioServiceClass();
+export const usuarioService = new UsuarioService();

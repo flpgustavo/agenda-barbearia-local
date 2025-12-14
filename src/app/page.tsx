@@ -18,7 +18,7 @@ export default function Home() {
   const { items } = useUsuario();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950">
+    <div className="flex min-h-screen items-center justify-center bg-background">
 
       <Card className="w-full max-w-md shadow-lg animate-enter">
 

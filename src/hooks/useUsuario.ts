@@ -1,7 +1,7 @@
 import { useBase } from "./useBase";
-import { UsuarioService } from "../core/services/UsuarioService";
+import { usuarioService } from "../core/services/UsuarioService";
 import { Usuario } from "../core/models/Usuario";
 
 export default function useUsuario() {
-    return useBase<Usuario>(UsuarioService);
+    return useBase<Usuario>(usuarioService);
 }

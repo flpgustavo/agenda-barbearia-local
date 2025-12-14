@@ -2,7 +2,7 @@ import { BaseService } from "./BaseService";
 import { Servico } from "../models/Servico";
 import { db } from "../db";
 
-class ServicoServiceClass extends BaseService<Servico> {
+class ServicoService extends BaseService<Servico> {
     constructor() {
         super("servicos" as keyof typeof db);
     }
@@ -58,4 +58,4 @@ class ServicoServiceClass extends BaseService<Servico> {
     }
 }
 
-export const ServicoService = new ServicoServiceClass();
+export const servicoService = new ServicoService();

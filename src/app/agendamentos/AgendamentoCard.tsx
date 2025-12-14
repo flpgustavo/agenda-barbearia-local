@@ -1,9 +1,11 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Check, Clock } from "lucide-react";
 import useLongPress from "@/hooks/useLongPress";
 import { AgendamentoStatus } from "@/core/models/Agendamento";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 // Defina o tipo ou use 'any' se preferir por enquanto
 interface AgendamentoCardProps {
@@ -31,7 +33,7 @@ export function AgendamentoCard({ agendamento, onLongPress, onClick, getStatusCo
         <div className="flex flex-col">
           <span className="font-bold text-lg">
             <span className="flex flex-row items-center gap-1">
-              <Clock size={14} /> {agendamento.dataHora.slice(11, 16)}
+              <Clock size={14} /> {format(new Date(agendamento.dataHora), "HH:mm")}
             </span>
           </span>
           <span className="font-medium text-foreground">
@@ -44,7 +46,7 @@ export function AgendamentoCard({ agendamento, onLongPress, onClick, getStatusCo
 
         {/* Ações / Status */}
         <div className="flex flex-col items-end gap-2">
-          <div className="text-[10px] font-bold uppercase tracking-wide opacity-70 border border-current px-2 py-0.5 rounded-full">
+          <div className="text-[11px] font-bold uppercase tracking-wide opacity-85 border border-current px-2 py-0.5 rounded-full">
             {agendamento.status}
           </div>
         </div>

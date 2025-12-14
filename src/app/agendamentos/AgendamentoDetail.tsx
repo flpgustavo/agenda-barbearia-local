@@ -44,8 +44,7 @@ export function AgendamentoDetails({
     if (!agendamento) return null;
 
     // Formatação de Data e Hora
-    // O slice resolve aquele problema do fuso horário visualmente
-    const horaVisual = agendamento.dataHora.slice(11, 16);
+    const horaVisual = format(new Date(agendamento.dataHora), "HH:mm");
     const dataObj = new Date(agendamento.dataHora);
     const dataExtenso = format(dataObj, "EEEE, dd 'de' MMMM", { locale: ptBR });
 

@@ -23,18 +23,18 @@ export default function Home() {
       <Card className="w-full max-w-md shadow-lg animate-enter">
 
         <CardHeader className="space-y-1 text-center">
-          <div className="w-full flex items-center justify-center">
+          <div className="w-full flex items-center justify-center invert dark:invert-0">
             <Image
               src="/logo.png"
               alt="Agenda Barbearia Pro"
-              width={150}
-              height={150}
+              width={100}
+              height={100}
             />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">
             Bem-vindo!
           </CardTitle>
-          <CardDescription className="text-zinc-500 dark:text-zinc-400">
+          <CardDescription>
             Para começar, escolha como deseja prosseguir.
           </CardDescription>
         </CardHeader>
@@ -64,10 +64,10 @@ export default function Home() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-zinc-200 dark:border-zinc-800" />
+              <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
+              <span className="px-2 bg-card ">
                 Ou
               </span>
             </div>

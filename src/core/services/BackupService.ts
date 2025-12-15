@@ -39,8 +39,16 @@ export const BackupService = {
             throw new Error("Nenhum arquivo foi selecionado.");
         }
 
-        if (!file.name.endsWith(".backup")) {
-            throw new Error("Arquivo inválido. Selecione um arquivo .backup válido.");
+        // Aceitar .backup, .txt e .backup.txt
+        const nome = file.name.toLowerCase();
+
+        const extensaoValida =
+            nome.endsWith(".backup") ||
+            nome.endsWith(".txt") ||
+            nome.endsWith(".backup.txt");
+
+        if (!extensaoValida) {
+            throw new Error("Arquivo inválido. Selecione um arquivo .backup ou .txt válido.");
         }
 
         try {
@@ -87,7 +95,7 @@ export const BackupService = {
                 }
             );
         } catch (error: any) {
-            if (error.message.includes("decrypt")) {
+            if (error.message?.includes("decrypt")) {
                 throw new Error("Senha incorreta ou arquivo corrompido.");
             }
             throw new Error(`Erro ao restaurar backup: ${error.message}`);

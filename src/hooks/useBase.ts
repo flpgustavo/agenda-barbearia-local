@@ -1,9 +1,23 @@
-import { useEffect, useState } from "react";
+// hooks/useBase.ts
+import { useEffect, useMemo, useState } from "react";
 import { BaseModel } from "../core/models/BaseModel";
 import { BaseService } from "../core/services/BaseService";
 
-export function useBase<T extends BaseModel>(service: BaseService<T>) {
-    const [items, setItems] = useState<T[]>([]);
+export interface BaseFilters<T> {
+    predicate?: (item: T) => boolean;
+}
+
+export interface UseBaseOptions<T> {
+    filters?: BaseFilters<T>;
+    autoLoad?: boolean;
+    transform?: (items: T[]) => T[]; // ex: join, sort, agregações simples
+}
+
+export function useBase<T extends BaseModel>(
+    service: BaseService<T>,
+    options?: UseBaseOptions<T>
+) {
+    const [rawItems, setRawItems] = useState<T[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +25,7 @@ export function useBase<T extends BaseModel>(service: BaseService<T>) {
         try {
             setLoading(true);
             const data = await service.list();
-            setItems(data);
+            setRawItems(data);
         } catch (err: any) {
             setError(err.message || "Erro ao carregar dados");
         } finally {
@@ -20,7 +34,9 @@ export function useBase<T extends BaseModel>(service: BaseService<T>) {
     }
 
     async function criar(data: Omit<T, "id" | "createdAt" | "updatedAt">) {
-        return await service.create(data);
+        const id = await service.create(data);
+        await carregar();
+        return id;
     }
 
     async function atualizar(id: string, data: Partial<T>) {
@@ -42,11 +58,29 @@ export function useBase<T extends BaseModel>(service: BaseService<T>) {
     }
 
     useEffect(() => {
-        carregar();
+        if (options?.autoLoad ?? true) {
+            carregar();
+        }
     }, []);
 
+    // aplica filtros + transformações
+    const items = useMemo(() => {
+        let result = [...rawItems];
+
+        if (options?.filters?.predicate) {
+            result = result.filter(options.filters.predicate);
+        }
+
+        if (options?.transform) {
+            result = options.transform(result);
+        }
+
+        return result;
+    }, [rawItems, options?.filters, options?.transform]);
+
     return {
-        items,
+        items,          // já filtrados/transformados
+        rawItems,       // dados brutos
         loading,
         error,
         criar,

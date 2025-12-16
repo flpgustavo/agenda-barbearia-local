@@ -5,13 +5,13 @@ export const dynamic = 'force-static';
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Agenda Barbearia Pro",
-    short_name: "Barbearia",
+    short_name: "NoteBarber",
     description: "Gerenciamento de agendamentos offline para barbearias.",
     start_url: "/",
     id: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#ffffff",
+    theme_color: "#ff592c",
     orientation: "portrait",
     lang: "pt-BR",
     dir: "ltr",
@@ -21,13 +21,8 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     icons: [
       {
-        src: '/logo.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
-      {
-        src: '/logo.png',
-        sizes: '512x512',
+        src: '/logoapp.png',
+        sizes: '252x252',
         type: 'image/png',
       },
     ],
@@ -36,15 +31,17 @@ export default function manifest(): MetadataRoute.Manifest {
         name: "Novo Agendamento",
         short_name: "Agendar",
         description: "Adicionar cliente rapidamente",
-        url: "/agendar?action=novo",
+        url: "/agendamentos?action=novo",
         icons: [
           {
-            src: "/logo.png",
-            sizes: "192x192",
+            src: "/actionadd.png",
+            sizes: "252x252",
             type: "image/png", // É boa prática adicionar o type
           }
         ]
       }
     ],
+
+
   }
 }

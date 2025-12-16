@@ -61,20 +61,23 @@ export default function DashboardPage() {
             {/* Header Sticky */}
             <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
                 <div className="container mx-auto p-4 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
-                        <p className="text-xs text-muted-foreground">
-                            Visão geral do negócio
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => recarregar()}
+                            disabled={loading}
+                        >
+                            <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+                        </Button>
+                        <div>
+                            <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
+                            <p className="text-xs text-muted-foreground">
+                                Visão geral do negócio
+                            </p>
+                        </div>
                     </div>
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => recarregar()}
-                        disabled={loading}
-                    >
-                        <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
-                    </Button>
+
                 </div>
 
                 {/* Barra de Filtros Rápida */}

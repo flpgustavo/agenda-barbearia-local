@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
     format,
     startOfMonth,
@@ -52,11 +52,11 @@ export default function AgendaMensal() {
     // --- Estados ---
     const [dataAtual, setDataAtual] = useState<Date>(new Date());
     const [diaFocado, setDiaFocado] = useState<Date>(new Date());
-    
+
     // Estados de UI (Drawers e Modais)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-    
+
     // Estados de Seleção de Dados
     const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Data clicada para criar NOVO
     const [selectedAgendamento, setSelectedAgendamento] = useState<AgendamentoComDetalhes | null>(null); // Para ver Detalhes
@@ -96,6 +96,28 @@ export default function AgendaMensal() {
 
 
     // --- Effects (Carga de Dados) ---
+    const verificaQueryParamsNovo = useCallback(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get("action");
+        if (action === "novo") {
+            setIsDrawerOpen(true);
+            setSelectedDate(dataAtual);
+            
+            // Limpar o parâmetro da URL para evitar reabertura
+            urlParams.delete("action");
+            const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+            window.history.replaceState({}, '', newUrl);
+        }
+    }, [dataAtual]);
+
+    useEffect(() => {
+        const handleParamsChange = () => {
+            verificaQueryParamsNovo();
+        };
+
+        handleParamsChange();
+
+    }, [verificaQueryParamsNovo]);
 
     // 1. Carregar Agendamentos (Adicionado refreshTrigger na dependência)
     useEffect(() => {
@@ -195,8 +217,8 @@ export default function AgendaMensal() {
         const date = new Date(dateStr);
         // Ajuste fuso horário simples para garantir que a data selecionada está correta
         // Ou use a string dateStr e converta dentro do componente se preferir
-        
-        setSelectedDate(date); 
+
+        setSelectedDate(date);
         setAgendamentoParaEditar(null); // Importante: Limpa edição anterior
         setIsDrawerOpen(true);
     }
@@ -312,7 +334,7 @@ export default function AgendaMensal() {
             <div className="flex flex-1 overflow-hidden">
                 {/* SIDEBAR (Semana) - Código Mantido */}
                 <div className="w-18 sm:w-24 bg-card border-r border-border flex flex-col z-10">
-                     <div className="py-2 text-center border-b border-border text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+                    <div className="py-2 text-center border-b border-border text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
                         Semana
                     </div>
                     <ScrollArea className="flex-1">
@@ -360,7 +382,7 @@ export default function AgendaMensal() {
                                                 onClick={handleClickCard}
                                             />
                                         ))}
-                                        
+
                                         {/* Botão Novo/Disponível */}
                                         <Button
                                             variant="link"
@@ -374,8 +396,8 @@ export default function AgendaMensal() {
                                 </div>
                             );
                         })}
-                        
-                         <div className="pt-2 pb-6 px-4 flex justify-center">
+
+                        <div className="pt-2 pb-6 px-4 flex justify-center">
                             <Button variant="outline" size="lg" onClick={handleNextMonth} className="w-full max-w-md">
                                 Ir para {format(addMonths(dataAtual, 1), "MMMM", { locale: ptBR })} <ChevronRight className="w-4 h-4" />
                             </Button>

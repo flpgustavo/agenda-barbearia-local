@@ -89,13 +89,13 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
             totalReceita: number;
             atendimentos: number;
         }> = {
-            0: { dia: "Dom", totalReceita: 0, atendimentos: 0 },
-            1: { dia: "Seg", totalReceita: 0, atendimentos: 0 },
-            2: { dia: "Ter", totalReceita: 0, atendimentos: 0 },
-            3: { dia: "Qua", totalReceita: 0, atendimentos: 0 },
-            4: { dia: "Qui", totalReceita: 0, atendimentos: 0 },
-            5: { dia: "Sex", totalReceita: 0, atendimentos: 0 },
-            6: { dia: "Sáb", totalReceita: 0, atendimentos: 0 },
+            0: { dia: "Domingo", totalReceita: 0, atendimentos: 0 },
+            1: { dia: "Segunda", totalReceita: 0, atendimentos: 0 },
+            2: { dia: "Terça", totalReceita: 0, atendimentos: 0 },
+            3: { dia: "Quarta", totalReceita: 0, atendimentos: 0 },
+            4: { dia: "Quinta", totalReceita: 0, atendimentos: 0 },
+            5: { dia: "Sexta", totalReceita: 0, atendimentos: 0 },
+            6: { dia: "Sábado", totalReceita: 0, atendimentos: 0 },
         };
 
         filtrados.forEach((ag) => {

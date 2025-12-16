@@ -22,7 +22,7 @@ interface DateRangeFilterProps {
 
 export function DateRangeFilter({ onFilterChange, className }: DateRangeFilterProps) {
   const [selectedOption, setSelectedOption] = useState("este_mes");
-  
+
   // Estado local para inputs manuais
   const [customDates, setCustomDates] = useState({
     start: format(startOfMonth(new Date()), "yyyy-MM-dd"),
@@ -32,7 +32,7 @@ export function DateRangeFilter({ onFilterChange, className }: DateRangeFilterPr
   // Função que calcula as datas baseada no Select
   const handleRangeChange = (value: string) => {
     setSelectedOption(value);
-    
+
     const hoje = new Date();
     let inicio = "";
     let fim = "";
@@ -76,7 +76,7 @@ export function DateRangeFilter({ onFilterChange, className }: DateRangeFilterPr
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       <Select value={selectedOption} onValueChange={handleRangeChange}>
-        <SelectTrigger className="w-full bg-background">
+        <SelectTrigger className="w-full bg-card dark:bg-card">
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             <SelectValue placeholder="Selecione o período" />
@@ -92,32 +92,34 @@ export function DateRangeFilter({ onFilterChange, className }: DateRangeFilterPr
       </Select>
 
       {selectedOption === "personalizado" && (
-        <div className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2 duration-300 p-3 border rounded-md bg-muted/20">
+        <div className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2 duration-300 p-3 border rounded-md bg-card">
           <div className="space-y-1">
             <Label className="text-[10px] text-muted-foreground uppercase">De</Label>
-            <Input 
-              type="date" 
+            <Input
+              type="date"
               value={customDates.start}
               onChange={(e) => handleManualDateChange('start', e.target.value)}
               className="bg-background h-9 text-xs"
+              onClick={(e) => e.currentTarget.showPicker()}
             />
           </div>
           <div className="space-y-1">
             <Label className="text-[10px] text-muted-foreground uppercase">Até</Label>
-            <Input 
-              type="date" 
+            <Input
+              type="date"
               value={customDates.end}
               onChange={(e) => handleManualDateChange('end', e.target.value)}
               className="bg-background h-9 text-xs"
+              onClick={(e) => e.currentTarget.showPicker()}
             />
           </div>
         </div>
       )}
-      
+
       {/* Feedback visual discreto do período selecionado (opcional) */}
       {selectedOption !== "personalizado" && (
         <p className="text-[10px] text-center text-muted-foreground">
-          {format(new Date(customDates.start), "dd/MM")} até {format(new Date(customDates.end), "dd/MM")}
+          {format(new Date(customDates.start), "dd/MM/yyyy")} até {format(new Date(customDates.end), "dd/MM/yyyy")}
         </p>
       )}
     </div>

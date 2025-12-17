@@ -102,7 +102,7 @@ export default function AgendaMensal() {
         if (action === "novo") {
             setIsDrawerOpen(true);
             setSelectedDate(dataAtual);
-            
+
             // Limpar o parâmetro da URL para evitar reabertura
             urlParams.delete("action");
             const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
@@ -185,23 +185,25 @@ export default function AgendaMensal() {
 
     // --- Observer (Scroll Spy) ---
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (isClickingRef.current) return;
-                const visible = entries.find((e) => e.isIntersecting);
-                if (visible?.target) {
-                    const dateStr = visible.target.getAttribute("data-date");
-                    if (dateStr) setDiaFocado(new Date(dateStr));
+        const timeoutId = setTimeout(() => {
+            const hojeKey = format(new Date(), "yyyy-MM-dd");
+            const elementoHoje = diasRefs.current[hojeKey];
+
+            if (elementoHoje) {
+                elementoHoje.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+                setDiaFocado(new Date());
+            } else {
+                if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
                 }
-            },
-            { root: scrollContainerRef.current, threshold: 0.2, rootMargin: "-10% 0px -50% 0px" }
-        );
+            }
+        }, 300);
 
-        Object.values(diasRefs.current).forEach((el) => {
-            if (el) observer.observe(el);
-        });
-
-        return () => observer.disconnect();
+        return () => clearTimeout(timeoutId);
     }, [diasDoMes]);
 
 

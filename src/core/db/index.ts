@@ -28,11 +28,9 @@ export const db = new Database();
 
 if (typeof window !== "undefined") {
     db.on("ready", async () => {
-        // Chamamos o seeder passando a instância 'db'
         await seedDatabase(db);
     });
     
-    // Força a abertura do banco para disparar o evento 'ready' imediatamente
     db.open().catch((err) => {
         console.error("Falha ao abrir o banco de dados:", err.stack || err);
     });

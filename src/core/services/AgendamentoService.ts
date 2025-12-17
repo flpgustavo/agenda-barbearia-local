@@ -14,9 +14,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         super("agendamentos" as keyof typeof db);
     }
 
-    // -------------------------
-    // Utils
-    // -------------------------
     private toMinutes(hora: string): number {
         const [h, m] = hora.split(":").map(Number);
         return h * 60 + m;
@@ -26,9 +23,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         return date.getHours() * 60 + date.getMinutes();
     }
 
-    // -------------------------
-    // Validação principal
-    // -------------------------
     private async validarAgendamento(data: Partial<Agendamento>) {
         const { clienteId, servicoId, dataHora } = data;
 
@@ -73,9 +67,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
 
         const dataAgendamentoStr = dataHora.split("T")[0];
 
-        // -------------------------
-        // 1. Expediente
-        // -------------------------
         if (horaInicioNovo < inicioExpediente || horaInicioNovo >= fimExpediente) {
             throw new Error("Horário de início fora do expediente.");
         }
@@ -84,9 +75,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             throw new Error("O serviço termina fora do horário de expediente.");
         }
 
-        // -------------------------
-        // 2. Intervalo
-        // -------------------------
         if (intervaloInicio !== null && intervaloFim !== null) {
             const conflitoIntervalo =
                 horaInicioNovo < intervaloFim &&
@@ -97,9 +85,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             }
         }
 
-        // -------------------------
-        // 3. Conflito com outros agendamentos
-        // -------------------------
         const agendamentosDoDia = await db.agendamentos
             .where("dataHora")
             .startsWith(dataAgendamentoStr)
@@ -125,9 +110,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         }
     }
 
-    // -------------------------
-    // Listagem com detalhes
-    // -------------------------
     async listWithDetails(): Promise<AgendamentoComDetalhes[]> {
         const agendamentos = await this.list();
 
@@ -145,9 +127,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         );
     }
 
-    // -------------------------
-    // Verifica se existe horário disponível no dia
-    // -------------------------
     async verificarDisponibilidadeDia(data: Date): Promise<boolean> {
         const hoje = new Date();
         const dataStr = data.toISOString().split("T")[0];
@@ -209,9 +188,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         return fimExpediente - cursor >= menorDuracao;
     }
 
-    // -------------------------
-    // Geração de horários disponíveis
-    // -------------------------
     async gerarHorariosDisponiveis(
         dataStr: string,
         duracaoMinutos: number,
@@ -280,9 +256,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         return horarios;
     }
 
-    // -------------------------
-    // CRUD
-    // -------------------------
     async create(
         data: Omit<Agendamento, "id" | "createdAt" | "updatedAt">
     ): Promise<string> {

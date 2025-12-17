@@ -1,12 +1,10 @@
-// hooks/useDashboardAgendamentos.ts
 import { useEffect, useMemo, useState } from "react";
 import { AgendamentoStatus } from "../core/models/Agendamento";
 import { AgendamentoService, AgendamentoComDetalhes } from "../core/services/AgendamentoService";
 
-// Filtros para o dashboard
 export interface DashboardFilters {
-    dataInicio?: string; // "2025-01-01"
-    dataFim?: string;    // "2025-12-31"
+    dataInicio?: string; 
+    dataFim?: string;   
     status?: AgendamentoStatus[];
     clienteId?: string;
     servicoId?: string;
@@ -53,7 +51,6 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         carregar();
     }, []);
 
-    // Aplica filtros básicos (data, status, cliente, serviço)
     const filtrados = useMemo(() => {
         return agendamentos.filter((ag) => {
             const dt = new Date(ag.dataHora);
@@ -79,7 +76,6 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         });
     }, [agendamentos, filters]);
 
-    // ==== 1) Receita por Dia da Semana ====
     const receitaPorDiaSemana = useMemo(() => {
         type DiaKey = 0|1|2|3|4|5|6;
         const diasLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -100,7 +96,7 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
 
         filtrados.forEach((ag) => {
             if (!ag.servico) return;
-            // considere receita só de CONCLUIDO/CONFIRMADO
+
             if (ag.status === "CANCELADO") return;
 
             const dt = new Date(ag.dataHora);
@@ -111,7 +107,6 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
             acc[diaSemana].atendimentos += 1;
         });
 
-        // Média por dia (se quiser usar no radar)
         const result = (Object.keys(acc) as unknown as DiaKey[]).map((k) => {
             const dia = acc[k];
             const ticketMedio = dia.atendimentos > 0
@@ -129,32 +124,30 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         const maiorReceita = Math.max(...result.map(r => r.totalReceita), 0);
 
         return {
-            porDia: result,        // para radar + tabela
+            porDia: result,       
             diaCampeao: result.reduce(
                 (best, cur) => cur.totalReceita > best.totalReceita ? cur : best,
                 { dia: "", totalReceita: 0, atendimentos: 0, ticketMedio: 0 }
             ),
-            potencialMaximoDia: maiorReceita || 1, // para Gauge base
+            potencialMaximoDia: maiorReceita || 1, 
         };
     }, [filtrados]);
 
-    // Para o Gauge Meter: % do potencial de cada dia
     const gaugePorDia = useMemo(() => {
         const max = receitaPorDiaSemana.potencialMaximoDia || 1;
         return receitaPorDiaSemana.porDia.map(d => ({
             dia: d.dia,
-            ocupacaoPercent: (d.totalReceita / max) * 100, // 0-100
+            ocupacaoPercent: (d.totalReceita / max) * 100, 
         }));
     }, [receitaPorDiaSemana]);
 
-    // ==== 2) Top Clientes ====
     const topClientes = useMemo(() => {
         interface ClienteStats {
             clienteId: string;
             nome: string;
             visitas: number;
             gastoTotal: number;
-            ultimoAtendimento: string; // ISO
+            ultimoAtendimento: string; 
         }
 
         const map = new Map<string, ClienteStats>();
@@ -190,7 +183,6 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
 
         lista.sort((a, b) => b.gastoTotal - a.gastoTotal);
 
-        // badge 🥇🥈🥉
         return lista.map((c, idx) => ({
             ...c,
             posicao: idx + 1,
@@ -198,9 +190,7 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         }));
     }, [filtrados]);
 
-    // ==== 3) Frequência de Retorno ====
     const frequenciaRetorno = useMemo(() => {
-        // Agrupa agendamentos por cliente e ordena por data
         const porCliente = new Map<string, Date[]>();
 
         filtrados
@@ -222,12 +212,11 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
             }
         });
 
-        // histograma simples por "bucket" de dias
         const buckets = {
-            semanal: 0,    // 7-10 dias
-            quinzenal: 0,  // 14-17
-            mensal: 0,     // 28-35
-            trimestral: 0, // 80-100
+            semanal: 0,    
+            quinzenal: 0,  
+            mensal: 0,     
+            trimestral: 0, 
             outros: 0,
         };
 
@@ -244,15 +233,13 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
             : 0;
 
         return {
-            diffsDias,     // para histograma bruto
-            mediaDias,     // linha de tendência geral
-            buckets,       // para segmentação
+            diffsDias,    
+            mediaDias,    
+            buckets,       
         };
     }, [filtrados]);
 
-    // ==== 4) Tempo de Vida do Cliente ====
     const lifetimeClientes = useMemo(() => {
-        // considera primeira e última visita de cada cliente
         interface ClienteLife {
             clienteId: string;
             nome: string;
@@ -284,7 +271,6 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         const mesesPorCliente: number[] = [];
 
         map.forEach((c) => {
-            // lifetime = diferença em meses entre primeira e última OU entre primeira e hoje?
             const meses = diffMonths(c.ultima, c.primeira);
             mesesPorCliente.push(Math.max(meses, 0));
         });
@@ -292,10 +278,10 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         const totalClientes = mesesPorCliente.length || 1;
 
         const buckets = {
-            novatos: 0,      // 0-3
-            emTeste: 0,      // 3-6
-            estabelecidos: 0,// 6-12
-            leais: 0,        // +12
+            novatos: 0,      
+            emTeste: 0,      
+            estabelecidos: 0,
+            leais: 0,        
         };
 
         mesesPorCliente.forEach((m) => {
@@ -326,20 +312,15 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         error,
         recarregar: carregar,
 
-        // dados filtrados
         agendamentos: filtrados,
 
-        // 1) Receita por dia da semana
-        receitaPorDiaSemana, // { porDia[], diaCampeao, potencialMaximoDia }
-        gaugePorDia,         // [{ dia, ocupacaoPercent }]
+        receitaPorDiaSemana,
+        gaugePorDia,        
 
-        // 2) Top clientes
-        topClientes,         // [{ nome, visitas, gastoTotal, ticketMedio, ultimoAtendimento, posicao, badge }]
+        topClientes,        
 
-        // 3) Frequência de retorno
-        frequenciaRetorno,   // { diffsDias[], mediaDias, buckets }
+        frequenciaRetorno,   
 
-        // 4) Lifetime
-        lifetimeClientes,    // { mesesPorCliente[], distribuicao{}, tempoMedioMeses }
+        lifetimeClientes,    
     };
 }

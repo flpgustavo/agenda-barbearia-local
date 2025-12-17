@@ -1,4 +1,3 @@
-// hooks/useBase.ts
 import { useEffect, useMemo, useState } from "react";
 import { BaseModel } from "../core/models/BaseModel";
 import { BaseService } from "../core/services/BaseService";
@@ -10,7 +9,7 @@ export interface BaseFilters<T> {
 export interface UseBaseOptions<T> {
     filters?: BaseFilters<T>;
     autoLoad?: boolean;
-    transform?: (items: T[]) => T[]; // ex: join, sort, agregações simples
+    transform?: (items: T[]) => T[]; 
 }
 
 export function useBase<T extends BaseModel>(
@@ -63,7 +62,6 @@ export function useBase<T extends BaseModel>(
         }
     }, []);
 
-    // aplica filtros + transformações
     const items = useMemo(() => {
         let result = [...rawItems];
 
@@ -79,8 +77,8 @@ export function useBase<T extends BaseModel>(
     }, [rawItems, options?.filters, options?.transform]);
 
     return {
-        items,          // já filtrados/transformados
-        rawItems,       // dados brutos
+        items,          
+        rawItems,       
         loading,
         error,
         criar,

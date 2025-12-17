@@ -19,27 +19,30 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         return h * 60 + m;
     }
 
+    private dateToMinutes(date: Date): number {
+        return date.getHours() * 60 + date.getMinutes();
+    }
+
     private async validarAgendamento(data: Partial<Agendamento>) {
         const { clienteId, servicoId, dataHora } = data;
 
-        const cliente = await db.clientes.get(clienteId!);
+        if (!clienteId || !servicoId || !dataHora) {
+            throw new Error("Dados do agendamento incompletos.");
+        }
+
+        const cliente = await db.clientes.get(clienteId);
         if (!cliente) {
             throw new Error("Cliente não encontrado.");
         }
 
-        const servico = await db.servicos.get(servicoId!);
+        const servico = await db.servicos.get(servicoId);
         if (!servico) {
             throw new Error("Serviço não encontrado.");
         }
 
-        const dt = new Date(dataHora!);
+        const dt = new Date(dataHora);
         if (isNaN(dt.getTime())) {
             throw new Error("Data e hora inválidas.");
-        }
-
-        // Validação de passado (opcional)
-        if (dt.toISOString() < new Date().toISOString()) {
-            // throw new Error("Não é possível agendar para o passado.");
         }
 
         const usuario = await db.usuarios.toCollection().first();
@@ -47,49 +50,41 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             throw new Error("Configure seu horário de atendimento antes de criar agendamentos.");
         }
 
-        const horaMin = dt.getUTCHours() * 60 + dt.getUTCMinutes();
-        const dataAgendamentoStr = dataHora!.split("T")[0];
+        const horaInicioNovo = this.dateToMinutes(dt);
+        const duracaoServico = servico.duracaoMinutos;
+        const horaFimNovo = horaInicioNovo + duracaoServico;
 
-        const inicio = this.toMinutes(usuario.inicio);
-        const fim = this.toMinutes(usuario.fim);
+        const inicioExpediente = this.toMinutes(usuario.inicio);
+        const fimExpediente = this.toMinutes(usuario.fim);
+
         const intervaloInicio = usuario.intervaloInicio
             ? this.toMinutes(usuario.intervaloInicio)
             : null;
+
         const intervaloFim = usuario.intervaloFim
             ? this.toMinutes(usuario.intervaloFim)
             : null;
 
-        const duracaoServico = servico.duracaoMinutos;
-        const inicioNovo = horaMin;
-        const fimNovo = horaMin + duracaoServico;
+        const dataAgendamentoStr = dataHora.split("T")[0];
 
-        // 1. Fora do expediente
-        if (horaMin < inicio || horaMin >= fim) {
-            throw new Error("Horário de início fora do expediente de trabalho.");
+        if (horaInicioNovo < inicioExpediente || horaInicioNovo >= fimExpediente) {
+            throw new Error("Horário de início fora do expediente.");
         }
 
-        if (fimNovo > fim) {
-            throw new Error(
-                `O serviço termina às ${Math.floor(fimNovo / 60)
-                    .toString()
-                    .padStart(2, "0")}:${(fimNovo % 60)
-                        .toString()
-                        .padStart(2, "0")}, fora do expediente.`
-            );
+        if (horaFimNovo > fimExpediente) {
+            throw new Error("O serviço termina fora do horário de expediente.");
         }
 
-        // 2. Intervalo de almoço
         if (intervaloInicio !== null && intervaloFim !== null) {
-            if (horaMin >= intervaloInicio && horaMin < intervaloFim) {
-                throw new Error("Não é possível agendar no horário de intervalo.");
-            }
+            const conflitoIntervalo =
+                horaInicioNovo < intervaloFim &&
+                horaFimNovo > intervaloInicio;
 
-            if (inicioNovo < intervaloInicio && fimNovo > intervaloInicio) {
-                throw new Error("O serviço conflita com o horário de intervalo.");
+            if (conflitoIntervalo) {
+                throw new Error("O horário conflita com o intervalo.");
             }
         }
 
-        // 3. Conflito com outros agendamentos
         const agendamentosDoDia = await db.agendamentos
             .where("dataHora")
             .startsWith(dataAgendamentoStr)
@@ -99,49 +94,43 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             if (data.id && ag.id === data.id) continue;
             if (ag.status === "CANCELADO") continue;
 
-            const agMin = this.toMinutes(ag.dataHora.slice(11, 16));
+            const inicioAg = this.toMinutes(ag.dataHora.slice(11, 16));
 
-            const agServico = await db.servicos.get(ag.servicoId);
-            const agDuracao = agServico?.duracaoMinutos ?? 0;
-            const agFim = agMin + agDuracao;
+            const servicoAg = await db.servicos.get(ag.servicoId);
+            const duracaoAg = servicoAg?.duracaoMinutos ?? 0;
+            const fimAg = inicioAg + duracaoAg;
 
             const conflito =
-                (inicioNovo >= agMin && inicioNovo < agFim) ||
-                (fimNovo > agMin && fimNovo <= agFim) ||
-                (inicioNovo <= agMin && fimNovo >= agFim);
+                horaInicioNovo < fimAg &&
+                horaFimNovo > inicioAg;
 
             if (conflito) {
-                throw new Error("Horário já está ocupado por outro agendamento.");
+                throw new Error("Horário já ocupado por outro agendamento.");
             }
         }
     }
 
-    // NOVO: lista agendamentos trazendo cliente e serviço associados
-    async listWithDetails(): Promise<
-        AgendamentoComDetalhes[]
-    > {
+    async listWithDetails(): Promise<AgendamentoComDetalhes[]> {
         const agendamentos = await this.list();
 
-        const agendamentosComDetalhes = await Promise.all(
-            agendamentos.map(async (agendamento) => {
-                const cliente = await db.clientes.get(agendamento.clienteId);
-                const servico = await db.servicos.get(agendamento.servicoId);
+        return Promise.all(
+            agendamentos.map(async (ag) => {
+                const cliente = await db.clientes.get(ag.clienteId);
+                const servico = await db.servicos.get(ag.servicoId);
 
                 return {
-                    ...agendamento,
+                    ...ag,
                     cliente,
                     servico,
                 };
             })
         );
-
-        return agendamentosComDetalhes;
     }
 
     async verificarDisponibilidadeDia(data: Date): Promise<boolean> {
-        const agora = new Date();
-        const hojeStr = agora.toISOString().split("T")[0];
+        const hoje = new Date();
         const dataStr = data.toISOString().split("T")[0];
+        const hojeStr = hoje.toISOString().split("T")[0];
 
         if (dataStr < hojeStr) return false;
 
@@ -154,7 +143,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         const servicos = await db.servicos.toArray();
         if (servicos.length === 0) return false;
 
-        const menorDuracaoServico = Math.min(...servicos.map((s) => s.duracaoMinutos));
+        const menorDuracao = Math.min(...servicos.map(s => s.duracaoMinutos));
 
         const agendamentos = await db.agendamentos
             .where("dataHora")
@@ -173,54 +162,48 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         for (const ag of agendamentos) {
             if (ag.status === "CANCELADO") continue;
 
-            const hora = ag.dataHora.slice(11, 16);
-            const inicio = this.toMinutes(hora);
-
-            const servicoAgendado = servicos.find((s) => s.id === ag.servicoId);
-            const duracao = servicoAgendado ? servicoAgendado.duracaoMinutos : 0;
+            const inicio = this.toMinutes(ag.dataHora.slice(11, 16));
+            const servico = servicos.find(s => s.id === ag.servicoId);
+            const duracao = servico?.duracaoMinutos ?? 0;
 
             intervalosOcupados.push({ inicio, fim: inicio + duracao });
         }
 
         intervalosOcupados.sort((a, b) => a.inicio - b.inicio);
 
-        let cursorTempo = inicioExpediente;
+        let cursor = inicioExpediente;
 
         if (dataStr === hojeStr) {
-            const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
-            cursorTempo = Math.max(cursorTempo, minutosAgora);
+            const agoraMin = hoje.getHours() * 60 + hoje.getMinutes();
+            cursor = Math.max(cursor, agoraMin);
         }
 
         for (const intervalo of intervalosOcupados) {
-            const espacoLivre = intervalo.inicio - cursorTempo;
-
-            if (espacoLivre >= menorDuracaoServico) {
+            if (intervalo.inicio - cursor >= menorDuracao) {
                 return true;
             }
-
-            cursorTempo = Math.max(cursorTempo, intervalo.fim);
+            cursor = Math.max(cursor, intervalo.fim);
         }
 
-        if (fimExpediente - cursorTempo >= menorDuracaoServico) {
-            return true;
-        }
-
-        return false;
+        return fimExpediente - cursor >= menorDuracao;
     }
 
     async gerarHorariosDisponiveis(
         dataStr: string,
         duracaoMinutos: number,
-        passoMinutos: number = 30
+        passoMinutos = 30
     ): Promise<string[]> {
         const usuario = await db.usuarios.toCollection().first();
-        const inicioExpediente = usuario ? this.toMinutes(usuario.inicio) : 480;
-        const fimExpediente = usuario ? this.toMinutes(usuario.fim) : 1080;
+        if (!usuario) return [];
 
-        const intervaloInicio = usuario?.intervaloInicio
+        const inicioExpediente = this.toMinutes(usuario.inicio);
+        const fimExpediente = this.toMinutes(usuario.fim);
+
+        const intervaloInicio = usuario.intervaloInicio
             ? this.toMinutes(usuario.intervaloInicio)
             : null;
-        const intervaloFim = usuario?.intervaloFim
+
+        const intervaloFim = usuario.intervaloFim
             ? this.toMinutes(usuario.intervaloFim)
             : null;
 
@@ -229,60 +212,53 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             .startsWith(dataStr)
             .toArray();
 
-        const agendamentosValidos = agendamentos.filter((a) => a.status !== "CANCELADO");
-
-        const horariosDisponiveis: string[] = [];
+        const horarios: string[] = [];
 
         for (
-            let tempoAtual = inicioExpediente;
-            tempoAtual + duracaoMinutos <= fimExpediente;
-            tempoAtual += passoMinutos
+            let tempo = inicioExpediente;
+            tempo + duracaoMinutos <= fimExpediente;
+            tempo += passoMinutos
         ) {
-            const inicioSlot = tempoAtual;
-            const fimSlot = tempoAtual + duracaoMinutos;
+            const inicioSlot = tempo;
+            const fimSlot = tempo + duracaoMinutos;
 
             let conflito = false;
 
-            // A) Conflito com almoço
-            if (intervaloInicio !== null && intervaloFim !== null) {
-                if (inicioSlot < intervaloFim && fimSlot > intervaloInicio) {
+            if (
+                intervaloInicio !== null &&
+                intervaloFim !== null &&
+                inicioSlot < intervaloFim &&
+                fimSlot > intervaloInicio
+            ) {
+                conflito = true;
+            }
+
+            for (const ag of agendamentos) {
+                if (ag.status === "CANCELADO") continue;
+
+                const inicioAg = this.toMinutes(ag.dataHora.slice(11, 16));
+                const servicoAg = await db.servicos.get(ag.servicoId);
+                const fimAg = inicioAg + (servicoAg?.duracaoMinutos ?? 0);
+
+                if (inicioSlot < fimAg && fimSlot > inicioAg) {
                     conflito = true;
-                }
-            }
-
-            // B) Conflito com agendamentos existentes
-            if (!conflito) {
-                for (const ag of agendamentosValidos) {
-                    const horaAg = ag.dataHora.slice(11, 16);
-                    const inicioAg = this.toMinutes(horaAg);
-
-                    const servicoAg = await db.servicos.get(ag.servicoId);
-                    const duracaoAg = servicoAg?.duracaoMinutos || 30;
-                    const fimAg = inicioAg + duracaoAg;
-
-                    if (inicioSlot < fimAg && fimSlot > inicioAg) {
-                        conflito = true;
-                        break;
-                    }
+                    break;
                 }
             }
 
             if (!conflito) {
-                const h = Math.floor(tempoAtual / 60)
-                    .toString()
-                    .padStart(2, "0");
-                const m = (tempoAtual % 60).toString().padStart(2, "0");
-                horariosDisponiveis.push(`${h}:${m}`);
+                const h = Math.floor(tempo / 60).toString().padStart(2, "0");
+                const m = (tempo % 60).toString().padStart(2, "0");
+                horarios.push(`${h}:${m}`);
             }
         }
 
-        return horariosDisponiveis;
+        return horarios;
     }
 
     async create(
         data: Omit<Agendamento, "id" | "createdAt" | "updatedAt">
     ): Promise<string> {
-        console.log(data);
         await this.validarAgendamento(data);
         return super.create(data);
     }
@@ -291,9 +267,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         const atual = await this.table.get(id);
         if (!atual) throw new Error("Agendamento não encontrado.");
 
-        const combinado = { ...atual, ...data };
-
-        await this.validarAgendamento(combinado);
+        await this.validarAgendamento({ ...atual, ...data });
         return super.update(id, data);
     }
 }

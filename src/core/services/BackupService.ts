@@ -23,7 +23,6 @@ export const BackupService = {
             link.download = `notebarber-backup-${new Date().toISOString().split("T")[0]}.backup`;
             link.click();
 
-            // Libera memória após o download
             setTimeout(() => URL.revokeObjectURL(url), 100);
         } catch (error: any) {
             throw new Error(`Erro ao criar backup: ${error.message}`);
@@ -39,7 +38,6 @@ export const BackupService = {
             throw new Error("Nenhum arquivo foi selecionado.");
         }
 
-        // Aceitar .backup, .txt e .backup.txt
         const nome = file.name.toLowerCase();
 
         const extensaoValida =
@@ -54,7 +52,6 @@ export const BackupService = {
         try {
             const decrypted = await Crypto.decrypt(password, file);
 
-            // Validar estrutura do backup
             if (
                 !decrypted ||
                 typeof decrypted !== "object" ||
@@ -73,13 +70,12 @@ export const BackupService = {
                 db.usuarios,
                 db.agendamentos,
                 async () => {
-                    // Limpa todas as tabelas
+
                     await db.clientes.clear();
                     await db.servicos.clear();
                     await db.usuarios.clear();
                     await db.agendamentos.clear();
 
-                    // Restaura os dados
                     if (decrypted.clientes.length > 0) {
                         await db.clientes.bulkAdd(decrypted.clientes);
                     }

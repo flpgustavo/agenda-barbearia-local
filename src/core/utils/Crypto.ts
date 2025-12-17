@@ -8,7 +8,6 @@ export const Crypto = {
             ["deriveKey"]
         );
 
-        // copy salt into a fresh ArrayBuffer-backed Uint8Array to avoid SharedArrayBuffer/ArrayBufferLike issues
         const saltBuffer = (new Uint8Array(salt)).buffer;
 
         return crypto.subtle.deriveKey(
@@ -30,7 +29,7 @@ export const Crypto = {
 
     async encrypt(password: string, data: object): Promise<Blob> {
         const salt = crypto.getRandomValues(new Uint8Array(16));
-        const iv = crypto.getRandomValues(new Uint8Array(12)); // recomendado AES-GCM
+        const iv = crypto.getRandomValues(new Uint8Array(12)); 
 
         const key = await this.generateKey(password, salt);
 
@@ -42,7 +41,6 @@ export const Crypto = {
             encoded
         );
 
-        // [salt | iv | encrypted]
         const blob = new Blob([salt, iv, encrypted]);
 
         return blob;

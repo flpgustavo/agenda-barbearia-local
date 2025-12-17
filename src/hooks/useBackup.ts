@@ -9,7 +9,7 @@ export function useBackup() {
         try {
             await BackupService.export(password);
         } catch (error: any) {
-            throw error; // Propaga o erro para o componente tratar
+            throw error; 
         } finally {
             setLoading(false);
         }
@@ -20,7 +20,7 @@ export function useBackup() {
         try {
             await BackupService.import(file, password);
         } catch (error: any) {
-            throw error; // Propaga o erro para o componente tratar
+            throw error; 
         } finally {
             setLoading(false);
         }

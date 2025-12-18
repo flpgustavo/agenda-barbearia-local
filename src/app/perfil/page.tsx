@@ -20,6 +20,9 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export default function PerfilPage() {
     const { fazerBackup, restaurarBackup, loading } = useBackup();
@@ -28,6 +31,7 @@ export default function PerfilPage() {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [importMode, setImportMode] = useState<'mesclar' | 'sobrescrever'>('mesclar');
 
     async function handleUpdate(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -200,13 +204,13 @@ export default function PerfilPage() {
             </Card>
 
             <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-                <AlertDialogContent className="w-[95vw] max-w-lg rounded-2xl md:w-full">
+                <AlertDialogContent className="w-[95vw] max-w-lg rounded-2xl md:w-full bg-card">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2 text-xl">
                             <AlertTriangle className="h-5 w-5 text-amber-500" />
                             Atenção
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-sm leading-relaxed">
+                        <AlertDialogDescription className="text-sm leading-relaxed text-left">
                             O banco de dados não está vazio. Como deseja processar o arquivo:
                             <span className="block mt-1 font-mono text-xs bg-muted p-1 rounded break-all">
                                 {pendingFile?.name}
@@ -214,40 +218,70 @@ export default function PerfilPage() {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
 
-                    <div className="grid grid-cols-1 gap-3 py-4">
-                        <Button
-                            variant="outline"
-                            className="flex items-center justify-start gap-4 h-auto p-4 whitespace-normal text-left hover:border-blue-500/50"
-                            onClick={() => pendingFile && executarImportacao(pendingFile, 'mesclar')}
+                    <div className="py-4">
+                        <RadioGroup
+                            value={importMode}
+                            onValueChange={(v) => setImportMode(v as 'mesclar' | 'sobrescrever')}
+                            className="grid grid-cols-1 gap-3"
                         >
-                            <div className="bg-blue-100 p-2 rounded-full shrink-0">
-                                <RefreshCw className="h-5 w-5 text-blue-600" />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="font-bold text-sm">Mesclar</p>
-                                <p className="text-xs text-muted-foreground">Adiciona o backup ao que você já tem. Ideal para não perder nada.</p>
-                            </div>
-                        </Button>
+                            {/* Opção: Mesclar */}
+                            <Label
+                                htmlFor="mesclar"
+                                className={cn(
+                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-accent",
+                                    importMode === "mesclar" ? "border-primary bg-primary/5 dark:bg-primary/20" : "border-muted"
+                                )}
+                            >
+                                <RadioGroupItem value="mesclar" id="mesclar" className="sr-only" />
+                                <div className="bg-primary/15 dark:bg-primary/40 p-2 rounded-full shrink-0">
+                                    <RefreshCw className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="font-bold text-sm">Mesclar Dados</p>
+                                    <p className="text-xs text-muted-foreground font-normal leading-tight">
+                                        Adiciona o backup ao que você já tem. Ideal para não perder nada.
+                                    </p>
+                                </div>
+                            </Label>
 
-                        <Button
-                            variant="outline"
-                            className="flex items-center justify-start gap-4 h-auto p-4 whitespace-normal text-left border-destructive/10 hover:bg-destructive/5 hover:border-destructive/40"
-                            onClick={() => pendingFile && executarImportacao(pendingFile, 'sobrescrever')}
-                        >
-                            <div className="bg-red-100 p-2 rounded-full shrink-0">
-                                <FileUp className="h-5 w-5 text-red-600" />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="font-bold text-red-600 text-sm">Sobrescrever Tudo</p>
-                                <p className="text-xs text-muted-foreground">Apaga os dados atuais e usa apenas os do arquivo. Use com cautela.</p>
-                            </div>
-                        </Button>
+                            {/* Opção: Sobrescrever */}
+                            <Label
+                                htmlFor="sobrescrever"
+                                className={cn(
+                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-accent",
+                                    importMode === "sobrescrever" ? "border-red-500 bg-red-500/5 dark:bg-destructive/50" : "border-muted"
+                                )}
+                            >
+                                <RadioGroupItem value="sobrescrever" id="sobrescrever" className="sr-only" />
+                                <div className="bg-red-100 dark:bg-destructive p-2 rounded-full shrink-0">
+                                    <FileUp className="h-5 w-5 text-red-600" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="font-bold text-sm">Sobrescrever Tudo</p>
+                                    <p className="text-xs text-muted-foreground font-normal leading-tight">
+                                        Apaga os dados atuais e usa apenas os do arquivo. Use com cautela.
+                                    </p>
+                                </div>
+                            </Label>
+                        </RadioGroup>
                     </div>
 
-                    <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                        <AlertDialogCancel className="w-full sm:w-auto" onClick={() => { if (fileInputRef.current) fileInputRef.current.value = ""; }}>
+                    <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                        <AlertDialogCancel
+                            className="w-full sm:w-auto"
+                            onClick={() => { if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                        >
                             Cancelar
                         </AlertDialogCancel>
+                        <Button
+                            className={cn(
+                                "w-full sm:w-auto",
+                                importMode === 'sobrescrever' ? "bg-red-600 hover:bg-red-700" : "bg-primary hover:bg-primary/90",
+                            )}
+                            onClick={() => pendingFile && executarImportacao(pendingFile, importMode)}
+                        >
+                            Confirmar
+                        </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

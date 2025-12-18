@@ -1,3 +1,4 @@
+import { Table } from "dexie";
 import { db } from "../db";
 import { Crypto } from "../utils/Crypto";
 
@@ -29,7 +30,11 @@ export const BackupService = {
         }
     },
 
-    async import(file: File, password: string): Promise<void> {
+    async import(
+        file: File,
+        password: string,
+        modo: 'sobrescrever' | 'mesclar' = 'sobrescrever'
+    ): Promise<void> {
         if (!password || password.trim().length === 0) {
             throw new Error("A senha é obrigatória para restaurar o backup.");
         }
@@ -65,28 +70,23 @@ export const BackupService = {
 
             await db.transaction(
                 "rw",
-                db.clientes,
-                db.servicos,
-                db.usuarios,
-                db.agendamentos,
+                [db.clientes, db.servicos, db.usuarios, db.agendamentos],
                 async () => {
+                    // Definimos as chaves que existem no objeto decrypted
+                    const tabelas = ["clientes", "servicos", "usuarios", "agendamentos"] as const;
 
-                    await db.clientes.clear();
-                    await db.servicos.clear();
-                    await db.usuarios.clear();
-                    await db.agendamentos.clear();
+                    for (const nomeTabela of tabelas) {
+                        const dadosNovos = decrypted[nomeTabela];
+                        if (!Array.isArray(dadosNovos) || dadosNovos.length === 0) continue;
 
-                    if (decrypted.clientes.length > 0) {
-                        await db.clientes.bulkAdd(decrypted.clientes);
-                    }
-                    if (decrypted.servicos.length > 0) {
-                        await db.servicos.bulkAdd(decrypted.servicos);
-                    }
-                    if (decrypted.usuarios.length > 0) {
-                        await db.usuarios.bulkAdd(decrypted.usuarios);
-                    }
-                    if (decrypted.agendamentos.length > 0) {
-                        await db.agendamentos.bulkAdd(decrypted.agendamentos);
+                        const tabela = db[nomeTabela] as Table<any, any>;
+
+                        if (modo === 'sobrescrever') {
+                            await tabela.clear();
+                            await tabela.bulkAdd(dadosNovos);
+                        } else {
+                            await tabela.bulkPut(dadosNovos);
+                        }
                     }
                 }
             );

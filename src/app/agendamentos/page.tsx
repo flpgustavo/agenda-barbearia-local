@@ -266,7 +266,6 @@ export default function AgendaMensal() {
     const handleSemanaClick = (inicioSemana: Date) => {
         isClickingRef.current = true;
         setDiaFocado(inicioSemana);
-        // ...lógica de scroll mantida...
         const dateKey = inicioSemana.toISOString().split("T")[0];
         const el = diasRefs.current[dateKey];
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });

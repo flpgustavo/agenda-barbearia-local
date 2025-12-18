@@ -9,18 +9,22 @@ export function useBackup() {
         try {
             await BackupService.export(password);
         } catch (error: any) {
-            throw error; 
+            throw error;
         } finally {
             setLoading(false);
         }
     }
 
-    async function restaurarBackup(file: File, password: string) {
+    async function restaurarBackup(
+        file: File,
+        password: string,
+        modo: 'sobrescrever' | 'mesclar' = 'sobrescrever'
+    ) {
         setLoading(true);
         try {
-            await BackupService.import(file, password);
+            await BackupService.import(file, password, modo);
         } catch (error: any) {
-            throw error; 
+            throw error;
         } finally {
             setLoading(false);
         }

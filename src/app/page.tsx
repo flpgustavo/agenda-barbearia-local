@@ -9,13 +9,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useBackup } from "@/hooks/useBackup";
 import useUsuario from "@/hooks/useUsuario";
-import { Download, UserPlus } from "lucide-react"; // Ícones
+import { Download, Loader2, UserPlus } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link"; // Para navegação, se necessário
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
   const { items } = useUsuario();
+  const { restaurarBackup, loading } = useBackup();
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      router.push('/dashboard');
+    }
+  }, [items, router]);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    toast.promise(restaurarBackup(file, 'senha', 'sobrescrever'), {
+      loading: "Restaurando seus dados...",
+      success: "Backup restaurado! Redirecionando...",
+      error: (err: Error) => err.message || "Falha ao importar backup."
+    });
+  };
+
+  if (items.length > 0) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -77,8 +103,14 @@ export default function Home() {
             variant="outline"
             className="w-full h-12 text-base border-dashed border-zinc-300 dark:border-zinc-700"
             size="lg"
+            disabled={loading}
+            onClick={() => fileInputRef.current?.click()}
           >
-            <Download className="mr-2 h-5 w-5" />
+            {loading ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-5 w-5" />
+            )}
             Importar Backup
           </Button>
 

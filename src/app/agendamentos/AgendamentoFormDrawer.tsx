@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, Check, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -33,36 +33,39 @@ import { useCliente } from "@/hooks/useCliente";
 import { useServico } from "@/hooks/useServico";
 import { toast } from "sonner";
 import { format } from "date-fns";
-// Importa o tipo se tiveres, senão usa any ou define uma interface parcial
-// import { Agendamento } from "@/core/models/Agendamento"; 
+import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService";
+import { Cliente } from "@/core/models/Cliente";
 
 interface AgendamentoFormDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedDate: Date | null; // Renomeei de 'data' para 'selectedDate' para ser mais claro
-  agendamento?: any; // <--- NOVO: Objeto de agendamento para edição (opcional)
-  onSuccess?: () => void; // <--- Útil para recarregar a lista no pai
+  selectedDate: Date | null;
+  agendamento?: AgendamentoComDetalhes;
+  onSuccess?: () => void;
+  onAddCliente?: () => void;
+  clienteSelected?: Cliente | null;
 }
 
-export function AgendamentoFormDrawer({ 
-  open, 
-  onOpenChange, 
-  selectedDate: initialDate, 
+export function AgendamentoFormDrawer({
+  open,
+  onOpenChange,
+  selectedDate: initialDate,
   agendamento,
-  onSuccess 
+  onSuccess,
+  onAddCliente,
+  clienteSelected
 }: AgendamentoFormDrawerProps) {
-  
+
   const { items: clientes } = useCliente();
   const { items: servicos } = useServico();
-  // Precisamos do 'atualizar' agora também
-  const { criar, atualizar, buscarHorarios } = useAgendamento(); 
 
-  // Estados do Formulário
+  const { criar, atualizar, buscarHorarios } = useAgendamento();
+
   const [data, setData] = useState<string>("");
   const [hora, setHora] = useState<string>("");
   const [clienteId, setClienteId] = useState<string>("");
   const [servicoId, setServicoId] = useState<string>("");
-  
+
   const [openClienteCombobox, setOpenClienteCombobox] = useState(false);
   const [openServicoCombobox, setOpenServicoCombobox] = useState(false);
   const [openTimePopover, setOpenTimePopover] = useState(false);
@@ -71,12 +74,17 @@ export function AgendamentoFormDrawer({
   const [loadingHorarios, setLoadingHorarios] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isEditing = !!agendamento; // Booleano auxiliar para saber se estamos editando
+  const isEditing = !!agendamento;
 
-  // Labels auxiliares
   const getClienteLabel = () => {
-    const cliente = clientes?.find((c: any) => c.id === clienteId);
-    return cliente ? cliente.nome : "Selecione o cliente";
+    const clienteNaLista = clientes?.find((c: any) => c.id === clienteId);
+    if (clienteNaLista) return clienteNaLista.nome;
+
+    if (clienteSelected && clienteSelected.id === clienteId) {
+      return clienteSelected.nome;
+    }
+
+    return "Selecione o cliente";
   };
 
   const getServicoLabel = () => {
@@ -84,41 +92,40 @@ export function AgendamentoFormDrawer({
     return servico ? `${servico.nome} (${servico.duracaoMinutos} min)` : "Selecione o serviço";
   };
 
-  // --------------------------------------------------------
-  // EFEITO 1: INICIALIZAÇÃO DO FORMULÁRIO
-  // --------------------------------------------------------
   useEffect(() => {
-    if (open) {
-      if (agendamento) {
-        // MODO EDIÇÃO: Preenche com os dados do agendamento
-        setClienteId(agendamento.clienteId);
-        setServicoId(agendamento.servicoId);
-        
-        // Converte a data ISO (ex: 2023-10-25T14:00:00Z) para Data e Hora separados
-        if (agendamento.dataHora) {
-            const dataObj = new Date(agendamento.dataHora);
-            setData(dataObj.toISOString().split("T")[0]); // YYYY-MM-DD
-            
-            // Pega a hora formatada HH:mm (ajuste conforme seu fuso horário se necessário)
-            // Aqui assumo que o valor vindo do banco já está correto ou em UTC tratado pelo navegador
-            const horas = String(dataObj.getHours()).padStart(2, '0');
-            const minutos = String(dataObj.getMinutes()).padStart(2, '0');
-            setHora(`${horas}:${minutos}`);
-        }
-      } else if (initialDate) {
-        // MODO CRIAÇÃO: Preenche apenas a data clicada no calendário
-        setData(initialDate.toISOString().split("T")[0]);
-        // Limpa os outros campos para garantir que não sobra "lixo" de edições anteriores
+    if (!open) {
+      const timer = setTimeout(() => {
         setClienteId("");
         setServicoId("");
         setHora("");
+        setData("");
+        setHorariosDisponiveis([]);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      if (agendamento) {
+        setClienteId(agendamento.clienteId);
+        setServicoId(agendamento.servicoId);
+        if (agendamento.dataHora) {
+          const dataObj = new Date(agendamento.dataHora);
+          setData(dataObj.toISOString().split("T")[0]);
+          const horas = String(dataObj.getHours()).padStart(2, '0');
+          const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+          setHora(`${horas}:${minutos}`);
+        }
+      } else if (initialDate) {
+        setData(initialDate.toISOString().split("T")[0]);
+        if (clienteSelected) {
+          setClienteId(clienteSelected.id || "");
+        }
       }
     }
-  }, [open, agendamento, initialDate]);
+  }, [open, agendamento, initialDate, clienteSelected]);
 
-  // --------------------------------------------------------
-  // EFEITO 2: BUSCAR HORÁRIOS DISPONÍVEIS
-  // --------------------------------------------------------
   useEffect(() => {
     const carregarHorarios = async () => {
       if (!data || !servicoId || !servicos) {
@@ -132,21 +139,15 @@ export function AgendamentoFormDrawer({
       setLoadingHorarios(true);
       try {
         const slots = await buscarHorarios(data, servicoSelecionado.duracaoMinutos);
-        
-        // Lógica importante para EDIÇÃO:
-        // Se estamos editando, o horário atual do agendamento (ex: 14:00) pode vir como "ocupado" do backend
-        // (porque nós mesmos estamos ocupando). Precisamos garantir que ele apareça na lista se for o horário atual.
+
         let slotsFinais = slots;
-        
+
         if (isEditing && hora && !slots.includes(hora)) {
-             // Se a data e o serviço não mudaram, adicionamos o horário atual à lista
-             // (Podes refinar essa lógica comparando se data == agendamento.data)
-             slotsFinais = [hora, ...slots].sort();
+          slotsFinais = [hora, ...slots].sort();
         }
 
         setHorariosDisponiveis(slotsFinais);
 
-        // Se o horário selecionado não estiver na lista (e não for o caso de edição acima), limpa
         if (!slotsFinais.includes(hora) && !isEditing) {
           setHora("");
         }
@@ -158,11 +159,8 @@ export function AgendamentoFormDrawer({
     };
 
     carregarHorarios();
-  }, [data, servicoId, servicos, buscarHorarios, isEditing]); // Removi 'hora' das deps para evitar loop
+  }, [data, servicoId, servicos, buscarHorarios, isEditing]);
 
-  // --------------------------------------------------------
-  // FUNÇÃO DE SALVAR (CRIAR OU ATUALIZAR)
-  // --------------------------------------------------------
   const handleSave = async () => {
     if (!clienteId || !servicoId || !data || !hora) {
       toast.warning("Por favor, preencha todos os campos.");
@@ -171,21 +169,18 @@ export function AgendamentoFormDrawer({
 
     setLoading(true);
     try {
-      // Monta a data ISO
       const dataHoraIso = format(new Date(`${data}T${hora}:00`), "yyyy-MM-dd'T'HH:mm:ssxxx");
 
       if (isEditing && agendamento?.id) {
-        // --- ATUALIZAR ---
         await atualizar(agendamento.id, {
-            clienteId,
-            servicoId,
-            dataHora: dataHoraIso,
-            // Mantém o status anterior ou atualiza se tiver lógica para isso
-            status: agendamento.status 
+          clienteId,
+          servicoId,
+          dataHora: dataHoraIso,
+          status: agendamento.status
         });
         toast.success("Agendamento atualizado com sucesso!");
       } else {
-        // --- CRIAR ---
+
         await criar({
           clienteId,
           servicoId,
@@ -196,13 +191,12 @@ export function AgendamentoFormDrawer({
       }
 
       onOpenChange(false);
-      onSuccess?.(); // Chama callback de sucesso se existir
-      
-      // Limpeza se for criação (opcional, pois o useEffect já trata)
+      onSuccess?.();
+
       if (!isEditing) {
-          setClienteId("");
-          setServicoId("");
-          setHora("");
+        setClienteId("");
+        setServicoId("");
+        setHora("");
       }
 
     } catch (error) {
@@ -221,59 +215,70 @@ export function AgendamentoFormDrawer({
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
             <DrawerTitle>
-                {isEditing ? "Editar Agendamento" : "Novo Agendamento"}
+              {isEditing ? "Editar Agendamento" : "Novo Agendamento"}
             </DrawerTitle>
           </DrawerHeader>
 
           <div className="p-4 space-y-4">
-            
-            {/* --- SELEÇÃO DE CLIENTE --- */}
-            <div className="space-y-2 flex flex-col">
-              <Label>Cliente *</Label>
-              <Popover open={openClienteCombobox} onOpenChange={setOpenClienteCombobox} modal={true}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={openClienteCombobox}
-                    className="w-full justify-between font-normal"
-                  >
-                    {clienteId ? getClienteLabel() : "Pesquisar cliente..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Escreva o nome..." />
-                    <CommandList>
-                      <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
-                      <CommandGroup>
-                        {clientes?.map((cliente: any) => (
-                          <CommandItem
-                            key={cliente.id}
-                            value={cliente.nome}
-                            onSelect={() => {
-                              setClienteId(cliente.id);
-                              setOpenClienteCombobox(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                clienteId === cliente.id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            {cliente.nome}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+
+            <div className="space-y-2 flex flex-row items-center justify-between gap-2">
+              <div className="w-full space-y-2 flex flex-col">
+                <Label>Cliente *</Label>
+                <Popover open={openClienteCombobox} onOpenChange={setOpenClienteCombobox} modal={true}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openClienteCombobox}
+                      className="w-full justify-between font-normal"
+                    >
+                      {clienteId ? getClienteLabel() : "Pesquisar cliente..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Escreva o nome..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {clientes?.map((cliente: any) => (
+                            <CommandItem
+                              key={cliente.id}
+                              value={cliente.nome}
+                              onSelect={() => {
+                                setClienteId(cliente.id);
+                                setOpenClienteCombobox(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  clienteId === cliente.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {cliente.nome}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Button
+                type="button"
+                variant="default"
+                size="icon"
+                disabled={loading}
+                className="mt-3"
+                onClick={onAddCliente}
+                title="Cadastrar novo cliente"
+              >
+                <Plus className="size-5 font-bold" />
+              </Button>
             </div>
 
-            {/* --- SELEÇÃO DE SERVIÇO --- */}
             <div className="space-y-2 flex flex-col">
               <Label>Serviço *</Label>
               <Popover open={openServicoCombobox} onOpenChange={setOpenServicoCombobox} modal={true}>
@@ -320,8 +325,7 @@ export function AgendamentoFormDrawer({
             </div>
 
             <div className="grid grid-cols-[2fr_1fr] gap-2">
-              
-              {/* --- SELEÇÃO DE HORÁRIO --- */}
+
               <div className="space-y-2 flex flex-col">
                 <Label>Horário *</Label>
                 <Popover open={openTimePopover} onOpenChange={setOpenTimePopover} modal={true}>
@@ -378,7 +382,6 @@ export function AgendamentoFormDrawer({
                 </Popover>
               </div>
 
-              {/* --- INPUT DE DATA --- */}
               <div className="space-y-2">
                 <Label htmlFor="date">Data *</Label>
                 <Input

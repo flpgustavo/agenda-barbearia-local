@@ -202,6 +202,24 @@
   ::selection {
     @apply bg-primary/30 text-foreground;
   }
+
+  [data-sonner-toast] {
+    --toast-font-size: 0.875rem !important;
+  }
+
+  [data-sonner-toast] [data-title] {
+    font-size: 0.875rem !important;
+    margin-left: 0.5rem !important;
+  }
+
+  [data-sonner-toast] [data-description] {
+    font-size: 0.775rem !important;
+  }
+
+  [data-sonner-toast] svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
 }
 
 @layer utilities {

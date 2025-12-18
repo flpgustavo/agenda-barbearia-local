@@ -37,6 +37,8 @@ import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService"; // 
 import { AgendamentoCard } from "./AgendamentoCard";
 import { AgendamentoDetails } from "./AgendamentoDetail";
 import { toast } from "sonner";
+import { ClienteFormDrawer } from "../clientes/ClienteFormDrawer";
+import { Cliente } from "@/core/models/Cliente";
 
 export type AgendamentoStatus = "CONCLUIDO" | "CONFIRMADO" | "CANCELADO";
 
@@ -45,7 +47,7 @@ const MESES = [
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
-const ANOS = [2024, 2025, 2026, 2027];
+const ANOS = [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035];
 
 export default function AgendaMensal() {
 
@@ -53,19 +55,17 @@ export default function AgendaMensal() {
     const [dataAtual, setDataAtual] = useState<Date>(new Date());
     const [diaFocado, setDiaFocado] = useState<Date>(new Date());
 
-    // Estados de UI (Drawers e Modais)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [isClienteDrawerOpen, setIsClienteDrawerOpen] = useState(false);
+    const [newCliente, setNewCliente] = useState<Cliente>();
 
-    // Estados de Seleção de Dados
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Data clicada para criar NOVO
-    const [selectedAgendamento, setSelectedAgendamento] = useState<AgendamentoComDetalhes | null>(null); // Para ver Detalhes
-    const [agendamentoParaEditar, setAgendamentoParaEditar] = useState<AgendamentoComDetalhes | null>(null); // Para o Form de Edição
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedAgendamento, setSelectedAgendamento] = useState<AgendamentoComDetalhes | null>(null);
+    const [agendamentoParaEditar, setAgendamentoParaEditar] = useState<AgendamentoComDetalhes | undefined>(undefined);
 
-    // Estado para forçar recarregamento da lista
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-    // Cache de dados
     const [disponibilidadeMap, setDisponibilidadeMap] = useState<Record<string, boolean>>({});
     const [agendamentosMap, setAgendamentosMap] = useState<Record<string, AgendamentoComDetalhes[]>>({});
 
@@ -152,7 +152,7 @@ export default function AgendaMensal() {
 
         return () => controller.abort();
 
-    }, [mesControle, agendamentos, refreshTrigger]); // <--- refreshTrigger faz a mágica de recarregar
+    }, [mesControle, agendamentos, refreshTrigger]);
 
     // 2. Carregar Disponibilidade
     useEffect(() => {
@@ -181,7 +181,7 @@ export default function AgendaMensal() {
         carregarDisponibilidade();
 
         return () => controller.abort();
-    }, [mesControle, refreshTrigger]); // Adicionado refreshTrigger aqui também
+    }, [mesControle, refreshTrigger]);
 
     // --- Observer (Scroll Spy) ---
     useEffect(() => {
@@ -214,32 +214,34 @@ export default function AgendaMensal() {
         return (agendamentosMap[dateKey] || []).sort((a, b) => a.dataHora.localeCompare(b.dataHora));
     }
 
-    // Ação: Criar Novo (Botão "+" ou "Disponível")
+    const handleOpenClienteForm = () => {
+        setIsClienteDrawerOpen(true);
+    };
+
+    const handleClienteSuccess = (novoCliente: any) => {
+        setIsClienteDrawerOpen(false);
+        setNewCliente(novoCliente);
+        setRefreshTrigger(prev => prev + 1);
+    };
+
     const handleCreate = (dateStr: string) => {
         const date = new Date(dateStr);
-        // Ajuste fuso horário simples para garantir que a data selecionada está correta
-        // Ou use a string dateStr e converta dentro do componente se preferir
-
         setSelectedDate(date);
-        setAgendamentoParaEditar(null); // Importante: Limpa edição anterior
+        setAgendamentoParaEditar(undefined);
         setIsDrawerOpen(true);
     }
 
-    // Ação: Editar (Vindo do Detalhes)
     const handleEdit = (agendamento: AgendamentoComDetalhes) => {
         setAgendamentoParaEditar(agendamento);
-        setSelectedDate(null); // Não é criação por data
-        setIsDetailsOpen(false); // Fecha o detalhes
-        setIsDrawerOpen(true); // Abre o formulário
+        setSelectedDate(null);
+        setIsDetailsOpen(false);
+        setIsDrawerOpen(true);
     }
 
-    // Ação: Sucesso no Formulário
     const handleFormSuccess = () => {
-        setRefreshTrigger(prev => prev + 1); // Força recarregamento das listas
-        // Toast já é chamado dentro do Drawer, mas pode adicionar outro aqui se quiser
+        setRefreshTrigger(prev => prev + 1);
     }
 
-    // Ação: Deletar
     const handleDelete = async (id: string) => {
         toast.promise(remover(id), {
             loading: 'Removendo agendamento...',
@@ -279,15 +281,6 @@ export default function AgendaMensal() {
 
     const handleClickCard = (ag: any) => {
         console.log("Clicou no agendamento:", ag);
-    };
-
-    const getStatusColor = (status: AgendamentoStatus) => {
-        switch (status) {
-            case "CONFIRMADO": return "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20";
-            case "CONCLUIDO": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20";
-            case "CANCELADO": return "bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20";
-            default: return "bg-muted text-muted-foreground";
-        }
     };
 
     return (
@@ -378,13 +371,11 @@ export default function AgendaMensal() {
                                             <AgendamentoCard
                                                 key={ag.id}
                                                 agendamento={ag}
-                                                getStatusColor={getStatusColor}
                                                 onLongPress={handleLongPressCard}
                                                 onClick={handleClickCard}
                                             />
                                         ))}
 
-                                        {/* Botão Novo/Disponível */}
                                         <Button
                                             variant="link"
                                             onClick={() => handleCreate(dateKey)}
@@ -407,24 +398,33 @@ export default function AgendaMensal() {
                 </div>
             </div>
 
-            {/* --- DRAWERS --- */}
-
-            {/* 1. Drawer de Formulário (Criação e Edição) */}
             <AgendamentoFormDrawer
                 open={isDrawerOpen}
-                onOpenChange={setIsDrawerOpen}
-                selectedDate={selectedDate}         // Passamos a data clicada (modo criar)
-                agendamento={agendamentoParaEditar} // Passamos o agendamento (modo editar)
-                onSuccess={handleFormSuccess}       // Callback para atualizar a lista
+                onOpenChange={(open) => {
+                    setIsDrawerOpen(open);
+                    if (!open) {
+                        setNewCliente(undefined);
+                    }
+                }}
+                selectedDate={selectedDate}
+                agendamento={agendamentoParaEditar}
+                onSuccess={handleFormSuccess}
+                onAddCliente={handleOpenClienteForm}
+                clienteSelected={newCliente}
             />
 
-            {/* 2. Drawer de Detalhes */}
             <AgendamentoDetails
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
                 agendamento={selectedAgendamento}
-                onEdit={handleEdit}     // Conectado à função de abrir o form
-                onDelete={handleDelete} // Conectado à função de deletar
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+            />
+
+            <ClienteFormDrawer
+                open={isClienteDrawerOpen}
+                onOpenChange={setIsClienteDrawerOpen}
+                onSuccess={handleClienteSuccess}
             />
         </div>
     );

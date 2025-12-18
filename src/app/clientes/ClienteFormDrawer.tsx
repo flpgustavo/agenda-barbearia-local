@@ -21,7 +21,7 @@ interface ClienteFormDrawerProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     cliente?: Cliente;
-    onSuccess?: () => void;
+    onSuccess?: (cliente: Cliente) => void;
 }
 
 export function ClienteFormDrawer({ open, onOpenChange, cliente, onSuccess }: ClienteFormDrawerProps) {
@@ -31,7 +31,7 @@ export function ClienteFormDrawer({ open, onOpenChange, cliente, onSuccess }: Cl
     const [nome, setNome] = useState("");
     const [telefone, setTelefone] = useState("");
     const [id, setId] = useState("");
-    
+
 
     const [loading, setLoading] = useState(false);
 
@@ -73,11 +73,17 @@ export function ClienteFormDrawer({ open, onOpenChange, cliente, onSuccess }: Cl
                 result = await atualizar(id, { nome: nome, telefone: telefone });
             }
 
+            const novo = {
+                id: id || result,
+                nome,
+                telefone
+            };
+
             toast.success(`Cliente ${!id ? "criado" : "atualizado"} com sucesso!`);
             onOpenChange(false);
             setNome("");
             setTelefone("");
-            onSuccess?.();
+            onSuccess?.(novo as Cliente);
             return result;
         } catch (error) {
             console.error("Erro ao criar cliente:", error);

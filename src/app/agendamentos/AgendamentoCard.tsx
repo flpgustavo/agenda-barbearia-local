@@ -12,10 +12,18 @@ interface AgendamentoCardProps {
   agendamento: any;
   onLongPress: (ag: any) => void;
   onClick: (ag: any) => void;
-  getStatusColor: (status: AgendamentoStatus) => string;
 }
 
-export function AgendamentoCard({ agendamento, onLongPress, onClick, getStatusColor }: AgendamentoCardProps) {
+const getStatusColor = (status: AgendamentoStatus) => {
+  switch (status) {
+    case "CONFIRMADO": return "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20";
+    case "CONCLUIDO": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20";
+    case "CANCELADO": return "bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20";
+    default: return "bg-muted text-muted-foreground";
+  }
+};
+
+export function AgendamentoCard({ agendamento, onLongPress, onClick }: AgendamentoCardProps) {
   // O Hook agora vive feliz dentro deste componente
   const longPressProps = useLongPress(
     () => onLongPress(agendamento),

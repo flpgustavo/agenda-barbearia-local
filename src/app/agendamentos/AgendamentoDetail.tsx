@@ -67,13 +67,13 @@ export function AgendamentoDetails({
                     <div className="grid gap-4">
                         {/* Data */}
                         <div className="flex items-start gap-4 p-3 rounded-lg border bg-muted/30">
-                            <div className="p-2 bg-card dark:bg-background rounded-md shadow-sm">
+                            <div className="p-2 bg-card dark:bg-background rounded-md shadow-md">
                                 <Calendar className="h-5 w-5 text-primary" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Data e Hora</p>
                                 <p className="font-semibold text-sm text-foreground">
-                                    Agendado para {dataExtenso} às {horaVisual} horas
+                                    Agendado para <u>{dataExtenso}</u> às {horaVisual} horas
                                 </p>
                             </div>
                         </div>
@@ -86,10 +86,10 @@ export function AgendamentoDetails({
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Cliente</p>
                                 <p className="font-semibold text-foreground">
-                                    {agendamento.cliente.nome || agendamento.cliente?.nome || "Nome não encontrado"}
+                                    {agendamento.cliente?.nome || "Nome não encontrado"}
                                 </p>
                                 <p className="font-semibold text-xs text-foreground">
-                                    {agendamento.cliente.telefone || agendamento.cliente?.telefone || "Telefone não encontrado"}
+                                    {agendamento.cliente?.telefone || "Telefone não encontrado"}
                                 </p>
                             </div>
                         </div>
@@ -102,15 +102,15 @@ export function AgendamentoDetails({
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Serviço</p>
                                 <p className="font-semibold text-foreground">
-                                    {agendamento.nomeServicoMock || agendamento.servico?.nome || "Serviço não encontrado"}
+                                    {agendamento.servico?.nome || "Serviço não encontrado"} - {agendamento.servico?.duracaoMinutos || 0} minutos
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2">
-                    {/* Botão WhatsApp (Destaque) */}
+                <DialogFooter className="grid grid-cols-1 gap-2 mt-2">
+
                     {telefoneLimpo && (
                         <Button
                             className="w-full bg-green-600 hover:bg-green-700 text-white shadow-sm"
@@ -123,19 +123,8 @@ export function AgendamentoDetails({
 
                     <div className="flex w-full gap-2">
                         <Button
-                            variant="outline"
-                            className="flex-1 border-primary/20 hover:bg-primary/5 hover:text-primary"
-                            onClick={() => {
-                                onOpenChange(false);
-                                onEdit(agendamento);
-                            }}
-                        >
-                            <Pencil className="mr-2 h-4 w-4" /> Editar
-                        </Button>
-
-                        <Button
                             variant="destructive"
-                            className="flex-1"
+                            className="flex-1 hover:bg-red-600 hover:text-white"
                             onClick={() => {
                                 if (confirm("Tem certeza que deseja apagar?")) {
                                     onDelete(agendamento.id);
@@ -144,6 +133,17 @@ export function AgendamentoDetails({
                             }}
                         >
                             <Trash2 className="mr-2 h-4 w-4" /> Apagar
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            className="flex-1 border-primary/20 hover:bg-primary/5 hover:text-primary"
+                            onClick={() => {
+                                onOpenChange(false);
+                                onEdit(agendamento);
+                            }}
+                        >
+                            <Pencil className="mr-2 h-4 w-4" /> Editar
                         </Button>
                     </div>
                 </DialogFooter>

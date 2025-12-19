@@ -68,7 +68,7 @@ export function AgendamentoCard({
 
   // Lógica do Swipe (Arrastar)
   const handleDragEnd = async (event: any, info: PanInfo) => {
-    const swipeThreshold = -100; // Distância necessária para ativar (negativo é para esquerda)
+    const swipeThreshold = -150; // Distância necessária para ativar (negativo é para esquerda)
     
     // Só permite arrastar se estiver CONFIRMADO
     if (agendamento.status === "CONFIRMADO" && info.offset.x < swipeThreshold) {
@@ -87,7 +87,7 @@ export function AgendamentoCard({
   return (
     <div className="relative w-full overflow-hidden rounded-lg mb-2">
    
-      <div className="absolute inset-0 bg-muted flex items-center justify-end pr-4 rounded-lg">
+      <div className="absolute inset-0 bg-emerald-500/10 flex items-center justify-end pr-4 rounded-lg">
         <div className="flex flex-col items-center text-emerald-500 font-bold animate-pulse">
           <Check size={24} />
           <span className="text-xs uppercase">Concluir</span>

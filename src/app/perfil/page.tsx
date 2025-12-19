@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Usuario } from "@/core/models/Usuario";
 import { useBackup } from "@/hooks/useBackup";
 import useUsuario from "@/hooks/useUsuario";
-import { Loader2, Download, Upload, FileUp, RefreshCw, CircleUserRound, AlertTriangle } from "lucide-react";
-import { FormEvent, useEffect, useRef, useState } from "react";
+// Adicionado Trash2 nas importações
+import { Loader2, Download, Upload, FileUp, RefreshCw, CircleUserRound, AlertTriangle, Trash2 } from "lucide-react";
+import { FormEvent, useRef, useState } from "react";
 import { toast } from "sonner";
+import { BackupService } from "@/core/services/BackupService"; // Certifique-se que o caminho está correto
 
 import {
     AlertDialog,
@@ -19,6 +21,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogAction // Adicionado para o botão de ação destrutiva
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -28,7 +31,12 @@ export default function PerfilPage() {
     const { fazerBackup, restaurarBackup, loading } = useBackup();
     const { items, atualizar } = useUsuario();
     const usuario = items?.[0] || null;
+    
+    // Estado para o Dialog de Importação
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    // Estado para o Dialog de Reset (Apagar tudo)
+    const [isResetOpen, setIsResetOpen] = useState(false);
+    
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [importMode, setImportMode] = useState<'mesclar' | 'sobrescrever'>('mesclar');
@@ -86,12 +94,26 @@ export default function PerfilPage() {
         });
     };
 
+    // Nova função para resetar o banco
+    const handleResetDatabase = async () => {
+        try {
+            await BackupService.reset();
+            setIsResetOpen(false);
+            toast.success("Banco de dados limpo com sucesso!");
+            // Recarrega a página para limpar estados em memória
+            setTimeout(() => window.location.reload(), 1000);
+        } catch (error: any) {
+            toast.error(error.message || "Erro ao limpar banco de dados");
+        }
+    };
+
     if (!usuario && !items[0]) {
         return <div className="flex justify-center p-10"><Loader2 className="animate-spin" /> Carregando perfil...</div>;
     }
 
     return (
-        <div className="min-h-screen bg-background pb-24 p-6">
+        <div className="min-h-screen bg-background pb-24 p-6 space-y-6">
+            {/* CARD 1: Perfil */}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -141,7 +163,8 @@ export default function PerfilPage() {
                 </CardContent>
             </Card>
 
-            <Card className="mt-6">
+            {/* CARD 2: Backup */}
+            <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <RefreshCw className="h-5 w-5" />
@@ -203,6 +226,39 @@ export default function PerfilPage() {
                 </CardContent>
             </Card>
 
+            {/* CARD 3: Zona de Perigo (NOVO) */}
+            <Card className="border-red-200 dark:border-red-900/50 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                        <AlertTriangle className="h-5 w-5" />
+                        Zona de Perigo
+                    </CardTitle>
+                    <CardDescription>
+                        Ações irreversíveis que afetam todos os seus dados.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col items-center justify-between p-4 border border-red-100 dark:border-red-900/30 rounded-lg bg-red-50/50 dark:bg-red-900/10">
+                        <div className="space-y-1">
+                            <p className="font-medium text-red-900 dark:text-red-200">Apagar todos os dados</p>
+                            <p className="text-sm text-red-700/80 dark:text-red-300/70">
+                                Remove permanentemente todos os clientes, agendamentos e configurações.
+                            </p>
+                        </div>
+                        <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => setIsResetOpen(true)}
+                            className="shrink-0 mt-4"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Apagar Tudo
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Dialog 1: Confirmação de Importação */}
             <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
                 <AlertDialogContent className="w-[95vw] max-w-lg rounded-2xl md:w-full bg-card">
                     <AlertDialogHeader>
@@ -282,6 +338,30 @@ export default function PerfilPage() {
                         >
                             Confirmar
                         </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Dialog 2: Confirmação de RESET (NOVO) */}
+            <AlertDialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                            <AlertTriangle className="h-5 w-5" />
+                            Tem certeza absoluta?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-left">
+                            Essa ação não pode ser desfeita. Isso excluirá permanentemente todos os dados.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={handleResetDatabase}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        >
+                            Sim, apagar tudo
+                        </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

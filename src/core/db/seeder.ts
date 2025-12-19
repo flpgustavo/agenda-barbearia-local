@@ -5,7 +5,7 @@ function generateUUID() {
     return crypto.randomUUID();
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 }
@@ -57,7 +57,7 @@ export async function seedDatabase(db: Database) {
       { id: 'cli-cancelador', nome: 'Felipe Indeciso', telefone: '11999990006', createdAt: diasAtras(30) }, // Só cancela
     ].map(c => ({ ...c, updatedAt: c.createdAt }));
 
-    let agendamentos: any[] = [];
+    const agendamentos: any[] = [];
 
     for (let i = 0; i < 20; i++) {
       agendamentos.push({

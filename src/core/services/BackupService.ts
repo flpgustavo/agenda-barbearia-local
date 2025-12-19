@@ -97,4 +97,21 @@ export const BackupService = {
             throw new Error(`Erro ao restaurar backup: ${error.message}`);
         }
     },
+
+    async reset(): Promise<void> {
+        try {
+            await db.transaction(
+                "rw", 
+                [db.clientes, db.servicos, db.usuarios, db.agendamentos], 
+                async () => {
+                    await db.clientes.clear();
+                    await db.servicos.clear();
+                    await db.usuarios.clear();
+                    await db.agendamentos.clear();
+                }
+            );
+        } catch (error: any) {
+            throw new Error(`Erro ao limpar o banco de dados: ${error.message}`);
+        }
+    }
 };

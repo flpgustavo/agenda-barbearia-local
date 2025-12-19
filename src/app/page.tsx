@@ -36,7 +36,10 @@ export default function Home() {
 
     toast.promise(restaurarBackup(file, 'senha', 'sobrescrever'), {
       loading: "Restaurando seus dados...",
-      success: "Backup restaurado! Redirecionando...",
+      success: () => {
+        router.push("/dashboard");
+        return "Backup restaurado com sucesso!";
+      },
       error: (err: Error) => err.message || "Falha ao importar backup."
     });
   };
@@ -46,7 +49,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
 
-      <Card className="w-full max-w-md shadow-lg animate-enter">
+      <Card className="w-[calc(100%-2rem)] max-w-md shadow-lg animate-enter ">
 
         <CardHeader className="space-y-1 text-center">
           <div className="w-full flex items-center justify-center invert dark:invert-0">
@@ -98,6 +101,14 @@ export default function Home() {
               </span>
             </div>
           </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".backup, .txt"
+          />
 
           <Button
             variant="outline"

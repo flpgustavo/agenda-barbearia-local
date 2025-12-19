@@ -239,6 +239,10 @@ export default function AgendaMensal() {
     }
 
     const handleFormSuccess = () => {
+        const diaCadastrado = selectedDate || new Date();
+        const dateKey = diaCadastrado.toISOString().split("T")[0];
+        const el = diasRefs.current[dateKey];
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
         setRefreshTrigger(prev => prev + 1);
     }
 
@@ -275,12 +279,12 @@ export default function AgendaMensal() {
     };
 
     const handleLongPressCard = (ag: any) => {
-        setSelectedAgendamento(ag);
-        setIsDetailsOpen(true);
+        console.log("Clicou no agendamento:", ag);
     };
 
     const handleClickCard = (ag: any) => {
-        console.log("Clicou no agendamento:", ag);
+        setSelectedAgendamento(ag);
+        setIsDetailsOpen(true);
     };
 
     const handleConcluir = async (agendamento: any) => {

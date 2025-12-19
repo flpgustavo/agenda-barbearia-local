@@ -27,9 +27,9 @@ export class Database extends Dexie {
 export const db = new Database();
 
 if (typeof window !== "undefined") {
-    db.on("ready", async () => {
-        await seedDatabase(db);
-    });
+    // db.on("ready", async () => {
+    //     await seedDatabase(db);
+    // });
     
     db.open().catch((err) => {
         console.error("Falha ao abrir o banco de dados:", err.stack || err);

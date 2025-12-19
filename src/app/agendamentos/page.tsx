@@ -70,7 +70,7 @@ export default function AgendaMensal() {
     const [agendamentosMap, setAgendamentosMap] = useState<Record<string, AgendamentoComDetalhes[]>>({});
 
     // --- Hooks ---
-    const { verificarDisponibilidade, agendamentos, remover } = useAgendamento();
+    const { verificarDisponibilidade, agendamentos, remover, atualizar } = useAgendamento();
 
     // Refs
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -283,6 +283,38 @@ export default function AgendaMensal() {
         console.log("Clicou no agendamento:", ag);
     };
 
+    const handleConcluir = async (agendamento: any) => {
+        const dateKey = agendamento.dataHora.split("T")[0];
+
+        setAgendamentosMap((prevMap) => {
+            const listaDoDia = prevMap[dateKey] || [];
+
+            const novaLista = listaDoDia.map((item) =>
+                item.id === agendamento.id
+                    ? { ...item, status: "CONCLUIDO" as AgendamentoStatus }
+                    : item
+            );
+
+            return {
+                ...prevMap,
+                [dateKey]: novaLista
+            };
+        });
+
+        try {
+            await atualizar(agendamento.id, {
+                id: agendamento.id,
+                status: "CONCLUIDO"
+            });
+
+            toast.success('Agendamento concluído com sucesso!');
+        } catch (error) {
+            console.error(error);
+            toast.error('Erro ao concluir o agendamento.');
+            setRefreshTrigger(prev => prev + 1);
+        }
+    };
+
     return (
         <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
 
@@ -373,6 +405,7 @@ export default function AgendaMensal() {
                                                 agendamento={ag}
                                                 onLongPress={handleLongPressCard}
                                                 onClick={handleClickCard}
+                                                onConcluirSwipe={handleConcluir}
                                             />
                                         ))}
 

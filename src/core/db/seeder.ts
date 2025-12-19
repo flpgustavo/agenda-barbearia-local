@@ -120,28 +120,6 @@ export async function seedDatabase(db: Database) {
       updatedAt: diasAtras(2)
     });
 
-    agendamentos.push({
-      id: generateUUID(),
-      clienteId: 'cli-cancelador',
-      servicoId: 'srv-5',
-      dataHora: diasAtras(10).toISOString(),
-      status: 'CANCELADO',
-      criadoPor: 'usr-1',
-      createdAt: diasAtras(15),
-      updatedAt: diasAtras(10)
-    });
-
-    agendamentos.push({
-      id: generateUUID(),
-      clienteId: 'cli-vip',
-      servicoId: 'srv-1',
-      dataHora: new Date(hoje.getTime() + 86400000 * 2).toISOString(), 
-      status: 'AGENDADO',
-      criadoPor: 'usr-1',
-      createdAt: hoje,
-      updatedAt: hoje
-    });
-
     for (let i = 0; i < 50; i++) {
       const dataRandom = dataAleatoriaEntre(mesesAtras(3), hoje);
       const srvRandom = servicos[Math.floor(Math.random() * servicos.length)];

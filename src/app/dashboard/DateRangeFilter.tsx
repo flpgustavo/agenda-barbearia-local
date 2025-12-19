@@ -118,7 +118,7 @@ export function DateRangeFilter({ onFilterChange, className }: DateRangeFilterPr
 
       {/* Feedback visual discreto do período selecionado (opcional) */}
       {selectedOption !== "personalizado" && (
-        <p className="text-[10px] text-center text-muted-foreground">
+        <p className="text-[12px] text-center text-muted-foreground">
           {format(new Date(customDates.start), "dd/MM/yyyy")} até {format(new Date(customDates.end), "dd/MM/yyyy")}
         </p>
       )}

@@ -98,6 +98,7 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
             if (!ag.servico) return;
 
             if (ag.status === "CANCELADO") return;
+            if (ag.status === "CONFIRMADO") return;
 
             const dt = new Date(ag.dataHora);
             const diaSemana = dt.getDay() as DiaKey;

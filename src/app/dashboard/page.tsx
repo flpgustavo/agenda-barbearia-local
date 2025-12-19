@@ -35,6 +35,8 @@ const formatCurrency = (value: number) => {
 };
 
 export default function DashboardPage() {
+    const [diaSelecionado, setDiaSelecionado] = useState(null);
+
     // Estado inicial dos filtros: Mês atual
     const [filters, setFilters] = useState<DashboardFilters>({
         dataInicio: startOfMonth(new Date()).toISOString().split("T")[0],
@@ -54,6 +56,12 @@ export default function DashboardPage() {
     // Função simples para mudar datas
     const handleFilterChange = (inicio: string, fim: string) => {
         setFilters(prev => ({ ...prev, dataInicio: inicio, dataFim: fim }));
+    };
+
+
+    // Função para alternar a seleção
+    const handleBarClick = (dia) => {
+        setDiaSelecionado(prev => prev === dia ? null : dia);
     };
 
     return (
@@ -77,7 +85,6 @@ export default function DashboardPage() {
                             </p>
                         </div>
                     </div>
-
                 </div>
 
                 {/* Barra de Filtros Rápida */}
@@ -119,41 +126,59 @@ export default function DashboardPage() {
                         loading={loading}
                     />
                     <KPICard
-                        title="Tempo de Vida"
-                        value={loading ? "..." : `${lifetimeClientes.tempoMedioMeses.toFixed(1)} meses`}
-                        subValue="Retenção média"
+                        title="Agendamentos"
+                        value={loading ? "..." : `${receitaPorDiaSemana.porDia.reduce((total, dia) => total + dia.atendimentos, 0)}`}
+                        subValue="total de agendamentos"
                         icon={<Users className="h-4 w-4 text-orange-500" />}
                         loading={loading}
                     />
                 </section>
 
                 {/* 2. Receita Semanal (Gráfico de Barras CSS) */}
-                <Card>
+                <Card onClick={() => setDiaSelecionado(null)}> {/* Fecha ao clicar fora das barras */}
                     <CardHeader className="pb-2">
                         <CardTitle className="text-base font-semibold">Receita por Dia da Semana</CardTitle>
-                        <CardDescription>Performance financeira diária</CardDescription>
+                        <CardDescription>Toque na barra para ver o valor</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {loading ? (
                             <Skeleton className="h-40 w-full" />
                         ) : (
-                            <div className="flex items-end justify-between gap-2 h-48 mt-2">
+                            <div className="flex items-end justify-between gap-1 h-52 mt-6 px-1">
                                 {receitaPorDiaSemana.porDia.map((item) => {
                                     const percent = (item.totalReceita / (receitaPorDiaSemana.potencialMaximoDia || 1)) * 100;
                                     const isBest = item.dia === receitaPorDiaSemana.diaCampeao.dia;
+                                    const isSelected = diaSelecionado === item.dia;
+                                    const diaAbreviado = item.dia.substring(0, 3).toUpperCase();
 
                                     return (
-                                        <div key={item.dia} className="flex flex-col items-center justify-end w-full group relative h-full">
-                                            {/* Tooltip simples no hover/touch */}
-                                            <div className="opacity-0 group-hover:opacity-100 absolute -top-8 bg-popover text-popover-foreground text-[10px] p-1 rounded border shadow-sm transition-opacity whitespace-nowrap z-20">
+                                        <div
+                                            key={item.dia}
+                                            className="flex flex-col items-center justify-end w-full relative h-full max-w-[45px] cursor-pointer"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Impede de fechar pelo clique no Card
+                                                handleBarClick(item.dia);
+                                            }}
+                                        >
+                                            {/* Tooltip Ativado por Clique */}
+                                            <div className={`absolute -top-10 text-white dark:text-black bg-accent-foreground text-sm py-1 px-2 rounded shadow-lg transition-all duration-200 z-20 pointer-events-none ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                                                }`}>
                                                 {formatCurrency(item.totalReceita)}
+                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-accent-foreground rotate-45"></div>
                                             </div>
 
+                                            {/* Barra do Gráfico */}
                                             <div
-                                                className={`w-full rounded-t-md transition-all duration-500 relative ${isBest ? 'bg-primary' : 'bg-primary/30'}`}
-                                                style={{ height: `${percent || 2}%` }}
+                                                className={`w-full rounded-t-sm transition-all duration-300 ${isSelected ? 'ring-2 ring-offset-2 ring-slate-400' : ''
+                                                    } ${isBest ? 'bg-primary' : 'bg-primary/25'}`}
+                                                style={{ height: `${Math.max(percent, 4)}%` }}
                                             ></div>
-                                            <span className="text-[10px] text-muted-foreground mt-2 font-medium uppercase">{item.dia}</span>
+
+                                            {/* Label do Dia */}
+                                            <span className={`text-[12px] mt-2 font-bold transition-colors ${isSelected || isBest ? 'text-primary' : 'text-muted-foreground'
+                                                }`}>
+                                                {diaAbreviado}
+                                            </span>
                                         </div>
                                     );
                                 })}
@@ -202,8 +227,9 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* 4. Métricas de Retenção (Grid) */}
+
+                {/* 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Frequência de Retorno */}
                     <Card>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-semibold">Ciclo de Retorno</CardTitle>
@@ -220,7 +246,6 @@ export default function DashboardPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Fidelidade / Lifetime */}
                     <Card>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-semibold">Estágio dos Clientes</CardTitle>
@@ -249,7 +274,8 @@ export default function DashboardPage() {
                             )}
                         </CardContent>
                     </Card>
-                </div>
+                </div> 
+                */}
 
             </main>
         </div>
@@ -261,7 +287,7 @@ export default function DashboardPage() {
 function KPICard({ title, value, subValue, icon, loading }: { title: string, value: string | number, subValue: string, icon: React.ReactNode, loading: boolean }) {
     return (
         <Card className="flex flex-col justify-between shadow-sm py-3 gap-3">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     {title}
                 </CardTitle>
@@ -273,7 +299,7 @@ function KPICard({ title, value, subValue, icon, loading }: { title: string, val
                 ) : (
                     <>
                         <div className="text-xl font-bold truncate">{value}</div>
-                        <p className="text-[10px] text-muted-foreground mt-1 truncate">
+                        <p className="text-[12px] text-muted-foreground mt-1 truncate">
                             {subValue}
                         </p>
                     </>

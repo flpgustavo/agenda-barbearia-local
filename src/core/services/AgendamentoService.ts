@@ -110,6 +110,34 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         }
     }
 
+    private async validarAgendamentoPassado(id: string): Promise<void> {
+        const agendamento = await this.table.get(id);
+        if (!agendamento) {
+            throw new Error("Agendamento não encontrado.");
+        }
+
+        if (agendamento.status === "CONCLUIDO") {
+            throw new Error(
+                "Não é possível alterar agendamentos que já foram concluídos."
+            );
+        }
+
+        if (agendamento.status === "CANCELADO") {
+            throw new Error(
+                "Não é possível alterar agendamentos que já foram cancelados."
+            );
+        }
+
+        const dataHoraAgendamento = new Date(agendamento.dataHora);
+        const agora = new Date();
+
+        if (dataHoraAgendamento < agora) {
+            throw new Error(
+                "Não é possível alterar agendamentos que já ocorreram."
+            );
+        }
+    }
+
     async listWithDetails(): Promise<AgendamentoComDetalhes[]> {
         const agendamentos = await this.list();
 
@@ -264,6 +292,8 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
     }
 
     async update(id: string, data: Partial<Agendamento>): Promise<void> {
+        await this.validarAgendamentoPassado(id);
+
         const atual = await this.table.get(id);
         if (!atual) throw new Error("Agendamento não encontrado.");
 

@@ -39,6 +39,20 @@ class ServicoService extends BaseService<Servico> {
         }
     }
 
+    private async validarExclusao(id: string): Promise<void> {
+        const agendamentosAtivos = await db.agendamentos
+            .where("servicoId")
+            .equals(id)
+            .filter(ag => ag.status !== "CANCELADO")
+            .toArray();
+
+        if (agendamentosAtivos.length > 0) {
+            throw new Error(
+                `Não é possível excluir este serviço. Existem ${agendamentosAtivos.length} agendamento(s) vinculado(s) a ele.`
+            );
+        }
+    }
+
     async create(
         data: Omit<Servico, "id" | "createdAt" | "updatedAt">
     ): Promise<string> {
@@ -55,6 +69,11 @@ class ServicoService extends BaseService<Servico> {
         await this.validarServico(combinado, id);
 
         return super.update(id, data);
+    }
+
+    async remove(id: string): Promise<void> {
+        await this.validarExclusao(id);
+        return super.remove(id);
     }
 }
 

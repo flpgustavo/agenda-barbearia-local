@@ -1,7 +1,11 @@
 name = "fragrant-thunder-7349"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".vercel/output/static"
 
-[site]
-bucket = ".vercel/output/static"
+# Aponta para o worker gerado
+main = ".vercel/output/static/_worker.js"
+
+# Configuração de Assets (substitui o antigo [site])
+[assets]
+directory = ".vercel/output/static"
+binding = "ASSETS"

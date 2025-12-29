@@ -310,6 +310,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
     }
 
     async update(id: string, data: Partial<Agendamento>): Promise<void> {
+        console.log("Atualizando agendamento:", id, data);
         await this.validarAgendamentoPassado(id);
 
         const atual = await this.table.get(id);

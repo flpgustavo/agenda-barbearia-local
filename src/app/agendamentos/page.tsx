@@ -240,8 +240,8 @@ export default function AgendaMensal() {
         setIsDrawerOpen(true);
     }
 
-    const handleFormSuccess = async (agendamento: any) => {
-        const ag = await getDetails(agendamento);
+    const handleFormSuccess = async (id: any) => {
+        const ag = await getDetails(id);
         const diaCadastrado = ag.dataHora ? new Date(ag.dataHora) : new Date();
         const dateKey = diaCadastrado.toISOString().split("T")[0];
         const el = diasRefs.current[dateKey];

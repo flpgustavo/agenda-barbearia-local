@@ -42,6 +42,7 @@ export function useBase<T extends BaseModel>(
         try {
             await service.update(id, data);
             await carregar();
+            return id;
         } catch (err: any) {
             setError(err.message || "Erro ao atualizar");
         }

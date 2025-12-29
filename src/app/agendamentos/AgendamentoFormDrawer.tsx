@@ -174,8 +174,8 @@ export function AgendamentoFormDrawer({
 
       if (isEditing && id) {
         await atualizar(id, {
-          clienteId,
-          servicoId,
+          clienteId: clienteId,
+          servicoId: servicoId,
           dataHora: dataHoraIso,
           status: agendamento.status
         });

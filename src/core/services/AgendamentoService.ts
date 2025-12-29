@@ -127,15 +127,6 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
                 "Não é possível alterar agendamentos que já foram cancelados."
             );
         }
-
-        const dataHoraAgendamento = new Date(agendamento.dataHora);
-        const agora = new Date();
-
-        if (dataHoraAgendamento < agora) {
-            throw new Error(
-                "Não é possível alterar agendamentos que já ocorreram."
-            );
-        }
     }
 
     async listWithDetails(): Promise<AgendamentoComDetalhes[]> {
@@ -310,14 +301,17 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
     }
 
     async update(id: string, data: Partial<Agendamento>): Promise<void> {
-        console.log("Atualizando agendamento:", id, data);
-        await this.validarAgendamentoPassado(id);
+        try {
+            await this.validarAgendamentoPassado(id);
 
-        const atual = await this.table.get(id);
-        if (!atual) throw new Error("Agendamento não encontrado.");
+            const atual = await this.table.get(id);
+            if (!atual) throw new Error("Agendamento não encontrado.");
 
-        await this.validarAgendamento({ ...atual, ...data });
-        return super.update(id, data);
+            await this.validarAgendamento({ ...atual, ...data });
+            await super.update(id, data);
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

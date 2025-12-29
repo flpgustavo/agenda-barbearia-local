@@ -1,0 +1,370 @@
+'use client';
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Usuario } from "@/core/models/Usuario";
+import { useBackup } from "@/hooks/useBackup";
+import useUsuario from "@/hooks/useUsuario";
+// Adicionado Trash2 nas importações
+import { Loader2, Download, Upload, FileUp, RefreshCw, CircleUserRound, AlertTriangle, Trash2 } from "lucide-react";
+import { FormEvent, useRef, useState } from "react";
+import { toast } from "sonner";
+import { BackupService } from "@/core/services/BackupService"; // Certifique-se que o caminho está correto
+
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogAction // Adicionado para o botão de ação destrutiva
+} from "@/components/ui/alert-dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+
+export default function PerfilPage() {
+    const { fazerBackup, restaurarBackup, loading } = useBackup();
+    const { items, atualizar } = useUsuario();
+    const usuario = items?.[0] || null;
+    
+    // Estado para o Dialog de Importação
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    // Estado para o Dialog de Reset (Apagar tudo)
+    const [isResetOpen, setIsResetOpen] = useState(false);
+    
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [importMode, setImportMode] = useState<'mesclar' | 'sobrescrever'>('mesclar');
+
+    async function handleUpdate(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+
+        const dados: Omit<Usuario, "id" | "createdAt" | "updatedAt"> = {
+            nome: formData.get("nome") as string,
+            inicio: formData.get("inicio") as string,
+            fim: formData.get("fim") as string,
+            intervaloInicio: (formData.get("intervaloInicio") as string) || "",
+            intervaloFim: (formData.get("intervaloFim") as string) || "",
+        };
+
+        toast.promise(
+            atualizar(usuario?.id as string, dados),
+            {
+                loading: "Atualizando sua conta ...",
+                success: "Conta atualizada com sucesso!",
+                error: (err: Error) => err instanceof Error ? err.message : "Falha ao atualizar conta.",
+            }
+        );
+    }
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const temDados = items.length > 0;
+
+        if (temDados) {
+            setPendingFile(file);
+            setIsConfirmOpen(true);
+        } else {
+            executarImportacao(file, 'sobrescrever');
+        }
+    };
+
+    const executarImportacao = async (file: File, modo: 'sobrescrever' | 'mesclar') => {
+        setIsConfirmOpen(false);
+
+        toast.promise(restaurarBackup(file, 'senha', modo), {
+            loading: modo === 'mesclar' ? "Mesclando dados..." : "Substituindo banco de dados...",
+            success: () => {
+                if (fileInputRef.current) fileInputRef.current.value = "";
+                setPendingFile(null);
+                return "Restauração concluída com sucesso!";
+            },
+            error: (err: Error) => {
+                if (fileInputRef.current) fileInputRef.current.value = "";
+                return err instanceof Error ? err.message : "Falha ao restaurar backup.";
+            },
+        });
+    };
+
+    // Nova função para resetar o banco
+    const handleResetDatabase = async () => {
+        try {
+            await BackupService.reset();
+            setIsResetOpen(false);
+            toast.success("Banco de dados limpo com sucesso!");
+            // Recarrega a página para limpar estados em memória
+            setTimeout(() => window.location.reload(), 1000);
+        } catch (error: any) {
+            toast.error(error.message || "Erro ao limpar banco de dados");
+        }
+    };
+
+    if (!usuario && !items[0]) {
+        return <div className="flex justify-center p-10"><Loader2 className="animate-spin" /> Carregando perfil...</div>;
+    }
+
+    return (
+        <div className="min-h-screen bg-background pb-24 p-6 space-y-6">
+            {/* CARD 1: Perfil */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <CircleUserRound className="h-5 w-5" />
+                        Seu Perfil
+                    </CardTitle>
+                    <CardDescription>Gerencie as informações do seu perfil.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleUpdate} className="space-y-4" key={usuario?.id || 'loading'}>
+                        <FieldGroup>
+                            <FieldSet>
+                                <Field>
+                                    <FieldLabel>Nome</FieldLabel>
+                                    <Input name="nome" defaultValue={usuario?.nome || ''} placeholder="Digite seu nome" required />
+                                </Field>
+                                <FieldSeparator />
+                                <FieldSet>
+                                    <FieldLegend className="text-center text-sm font-medium">Horário de Atendimento</FieldLegend>
+                                </FieldSet>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel>Início *</FieldLabel>
+                                        <Input name="inicio" type="time" defaultValue={usuario?.inicio || ''} required />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel>Fim *</FieldLabel>
+                                        <Input name="fim" type="time" defaultValue={usuario?.fim || ''} required />
+                                    </Field>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel>Início Intervalo</FieldLabel>
+                                        <Input name="intervaloInicio" type="time" defaultValue={usuario?.intervaloInicio || ''} />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel>Fim Intervalo</FieldLabel>
+                                        <Input name="intervaloFim" type="time" defaultValue={usuario?.intervaloFim || ''} />
+                                    </Field>
+                                </div>
+                            </FieldSet>
+                            <div className="pt-4">
+                                <Button type="submit" className="w-full">Atualizar Perfil</Button>
+                            </div>
+                        </FieldGroup>
+                    </form>
+                </CardContent>
+            </Card>
+
+            {/* CARD 2: Backup */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <RefreshCw className="h-5 w-5" />
+                        Backup e Restauração
+                    </CardTitle>
+                    <CardDescription>Gerencie a segurança dos seus dados.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-6 md:grid-cols-2">
+                    <div className="flex flex-col gap-3 p-4 border rounded-lg bg-muted/20">
+                        <div className="flex items-center gap-2 font-medium">
+                            <Download className="h-4 w-4 text-primary" />
+                            Exportar Dados
+                        </div>
+                        <p className="text-sm text-muted-foreground">Baixe uma cópia segura de todos os seus registros atuais.</p>
+                        <Button
+                            variant="outline"
+                            className="w-full mt-auto border-primary/20 hover:bg-primary/5 hover:text-primary"
+                            onClick={() => {
+                                toast.promise(fazerBackup("senha"), {
+                                    loading: "Gerando arquivo de backup ...",
+                                    success: "Download iniciado!",
+                                    error: (err: Error) => err instanceof Error ? err.message : "Falha ao fazer backup.",
+                                });
+                            }}
+                            disabled={loading}
+                        >
+                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                            Fazer Backup
+                        </Button>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <input
+                            type="file"
+                            accept=".backup"
+                            className="hidden"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            disabled={loading}
+                        />
+                        <label
+                            onClick={() => !loading && fileInputRef.current?.click()}
+                            className={`
+                                flex flex-col items-center justify-center gap-2 p-6 
+                                border-2 border-dashed rounded-lg cursor-pointer 
+                                transition-all duration-200 h-full bg-muted/20
+                                ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted/50 hover:border-primary/50'}
+                            `}
+                        >
+                            <div className="p-3 bg-background rounded-full shadow-sm border">
+                                {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Upload className="h-6 w-6 text-muted-foreground" />}
+                            </div>
+                            <div className="text-center space-y-1">
+                                <p className="text-sm font-medium text-primary">Clique para selecionar o backup</p>
+                                <p className="text-xs text-muted-foreground">Suporta arquivos .backup</p>
+                            </div>
+                        </label>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* CARD 3: Zona de Perigo (NOVO) */}
+            <Card className="border-red-200 dark:border-red-900/50 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                        <AlertTriangle className="h-5 w-5" />
+                        Zona de Perigo
+                    </CardTitle>
+                    <CardDescription>
+                        Ações irreversíveis que afetam todos os seus dados.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col items-center justify-between p-4 border border-red-100 dark:border-red-900/30 rounded-lg bg-red-50/50 dark:bg-red-900/10">
+                        <div className="space-y-1">
+                            <p className="font-medium text-red-900 dark:text-red-200">Apagar todos os dados</p>
+                            <p className="text-sm text-red-700/80 dark:text-red-300/70">
+                                Remove permanentemente todos os clientes, agendamentos e configurações.
+                            </p>
+                        </div>
+                        <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => setIsResetOpen(true)}
+                            className="shrink-0 mt-4"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Apagar Tudo
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Dialog 1: Confirmação de Importação */}
+            <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+                <AlertDialogContent className="w-[95vw] max-w-lg rounded-2xl md:w-full bg-card">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-xl">
+                            <AlertTriangle className="h-5 w-5 text-amber-500" />
+                            Atenção
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-sm leading-relaxed text-left">
+                            O banco de dados não está vazio. Como deseja processar o arquivo:
+                            <span className="block mt-1 font-mono text-xs bg-muted p-1 rounded break-all">
+                                {pendingFile?.name}
+                            </span>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <div className="py-4">
+                        <RadioGroup
+                            value={importMode}
+                            onValueChange={(v) => setImportMode(v as 'mesclar' | 'sobrescrever')}
+                            className="grid grid-cols-1 gap-3"
+                        >
+                            {/* Opção: Mesclar */}
+                            <Label
+                                htmlFor="mesclar"
+                                className={cn(
+                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-accent",
+                                    importMode === "mesclar" ? "border-primary bg-primary/5 dark:bg-primary/20" : "border-muted"
+                                )}
+                            >
+                                <RadioGroupItem value="mesclar" id="mesclar" className="sr-only" />
+                                <div className="bg-primary/15 dark:bg-primary/40 p-2 rounded-full shrink-0">
+                                    <RefreshCw className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="font-bold text-sm">Mesclar Dados</p>
+                                    <p className="text-xs text-muted-foreground font-normal leading-tight">
+                                        Adiciona o backup ao que você já tem. Ideal para não perder nada.
+                                    </p>
+                                </div>
+                            </Label>
+
+                            {/* Opção: Sobrescrever */}
+                            <Label
+                                htmlFor="sobrescrever"
+                                className={cn(
+                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-accent",
+                                    importMode === "sobrescrever" ? "border-red-500 bg-red-500/5 dark:bg-destructive/50" : "border-muted"
+                                )}
+                            >
+                                <RadioGroupItem value="sobrescrever" id="sobrescrever" className="sr-only" />
+                                <div className="bg-red-100 dark:bg-destructive p-2 rounded-full shrink-0">
+                                    <FileUp className="h-5 w-5 text-red-600" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="font-bold text-sm">Sobrescrever Tudo</p>
+                                    <p className="text-xs text-muted-foreground font-normal leading-tight">
+                                        Apaga os dados atuais e usa apenas os do arquivo. Use com cautela.
+                                    </p>
+                                </div>
+                            </Label>
+                        </RadioGroup>
+                    </div>
+
+                    <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                        <AlertDialogCancel
+                            className="w-full sm:w-auto"
+                            onClick={() => { if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                        >
+                            Cancelar
+                        </AlertDialogCancel>
+                        <Button
+                            className={cn(
+                                "w-full sm:w-auto",
+                                importMode === 'sobrescrever' ? "bg-red-600 hover:bg-red-700" : "bg-primary hover:bg-primary/90",
+                            )}
+                            onClick={() => pendingFile && executarImportacao(pendingFile, importMode)}
+                        >
+                            Confirmar
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Dialog 2: Confirmação de RESET (NOVO) */}
+            <AlertDialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                            <AlertTriangle className="h-5 w-5" />
+                            Tem certeza absoluta?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-left">
+                            Essa ação não pode ser desfeita. Isso excluirá permanentemente todos os dados.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={handleResetDatabase}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        >
+                            Sim, apagar tudo
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
+}

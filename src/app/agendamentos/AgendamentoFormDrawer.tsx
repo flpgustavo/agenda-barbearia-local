@@ -41,7 +41,7 @@ interface AgendamentoFormDrawerProps {
   onOpenChange: (open: boolean) => void;
   selectedDate: Date | null;
   agendamento?: AgendamentoComDetalhes;
-  onSuccess?: () => void;
+  onSuccess?: any;
   onAddCliente?: () => void;
   clienteSelected?: Cliente | null;
 }
@@ -167,12 +167,14 @@ export function AgendamentoFormDrawer({
       return;
     }
 
+    let agendamento: any;
+
     setLoading(true);
     try {
       const dataHoraIso = format(new Date(`${data}T${hora}:00`), "yyyy-MM-dd'T'HH:mm:ssxxx");
 
       if (isEditing && agendamento?.id) {
-        await atualizar(agendamento.id, {
+        agendamento = await atualizar(agendamento.id, {
           clienteId,
           servicoId,
           dataHora: dataHoraIso,
@@ -181,7 +183,7 @@ export function AgendamentoFormDrawer({
         toast.success("Agendamento atualizado com sucesso!");
       } else {
 
-        await criar({
+        agendamento = await criar({
           clienteId,
           servicoId,
           dataHora: dataHoraIso,
@@ -191,7 +193,7 @@ export function AgendamentoFormDrawer({
       }
 
       onOpenChange(false);
-      onSuccess?.();
+      onSuccess?.(agendamento);
 
       if (!isEditing) {
         setClienteId("");

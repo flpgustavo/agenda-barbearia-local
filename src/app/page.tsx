@@ -52,12 +52,12 @@ export default function Home() {
       <Card className="w-[calc(100%-2rem)] max-w-md shadow-lg animate-enter ">
 
         <CardHeader className="space-y-1 text-center">
-          <div className="w-full flex items-center justify-center invert dark:invert-0">
+          <div className="w-full flex items-center justify-center drop-shadow-xl drop-shadow-primary/40">
             <Image
               src="/logo.png"
               alt="Agenda Barbearia Pro"
-              width={100}
-              height={100}
+              width={150}
+              height={150}
             />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">

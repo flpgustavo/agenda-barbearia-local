@@ -17,7 +17,7 @@ import {
     getMonth,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, ChevronRight, CalendarDays } from "lucide-react";
+import { Plus, ChevronRight, CalendarDays, Smartphone, MessageCircle } from "lucide-react";
 
 // --- Componentes Shadcn ---
 import {
@@ -39,6 +39,8 @@ import { AgendamentoDetails } from "./AgendamentoDetail";
 import { toast } from "sonner";
 import { ClienteFormDrawer } from "../clientes/ClienteFormDrawer";
 import { Cliente } from "@/core/models/Cliente";
+import { cli } from "cypress";
+import { clienteService } from "@/core/services/ClienteService";
 
 export type AgendamentoStatus = "CONCLUIDO" | "CONFIRMADO" | "CANCELADO";
 
@@ -70,7 +72,7 @@ export default function AgendaMensal() {
     const [agendamentosMap, setAgendamentosMap] = useState<Record<string, AgendamentoComDetalhes[]>>({});
 
     // --- Hooks ---
-    const { verificarDisponibilidade, agendamentos, remover, atualizar } = useAgendamento();
+    const { verificarDisponibilidade, agendamentos, remover, atualizar, getDetails } = useAgendamento();
 
     // Refs
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -238,12 +240,35 @@ export default function AgendaMensal() {
         setIsDrawerOpen(true);
     }
 
-    const handleFormSuccess = () => {
+    const handleFormSuccess = async (agendamento: any) => {
         const diaCadastrado = selectedDate || new Date();
         const dateKey = diaCadastrado.toISOString().split("T")[0];
         const el = diasRefs.current[dateKey];
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
         setRefreshTrigger(prev => prev + 1);
+
+        const dataFormatada = format(diaCadastrado, "cccc, dd/MM/yyyy 'às' HH:mm", {
+            locale: ptBR
+        });
+
+        const ag = await getDetails(agendamento);
+
+        return toast.message('Lembre seu cliente!', {
+            icon: <MessageCircle className="w-5 h-5 text-primary" />,
+            action: {
+                label: 'Avisar',
+                onClick: () => {
+                    const dataMsg = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+
+                    if (!ag.cliente) return;
+
+                    window.open(
+                        `https://wa.me/${ag?.cliente.telefone}?text=Olá, este é um lembrete do seu agendamento para ${dataMsg}.%0A%0AAté lá!`,
+                        '_blank'
+                    );
+                },
+            },
+        });
     }
 
     const handleDelete = async (id: string) => {

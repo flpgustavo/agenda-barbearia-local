@@ -4,7 +4,7 @@ export const dynamic = 'force-static';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Agenda Barbearia Pro",
+    name: "NoteBarber",
     short_name: "NoteBarber",
     description: "Gerenciamento de agendamentos offline para barbearias.",
     start_url: "/",
@@ -30,13 +30,13 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         name: "Novo Agendamento",
         short_name: "Agendar",
-        description: "Adicionar cliente rapidamente",
+        description: "Adicionar um novo agendamento",
         url: "/agendamentos?action=novo",
         icons: [
           {
             src: "/actionadd.png",
             sizes: "252x252",
-            type: "image/png", // É boa prática adicionar o type
+            type: "image/png",
           }
         ]
       }

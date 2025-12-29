@@ -18,10 +18,15 @@ export function useAgendamento() {
         return await AgendamentoService.listWithDetails();
     }, []);
 
+    const getDetails = useCallback(async (id: string) => {
+        return await AgendamentoService.getDetails(id);
+    }, []);
+
     return {
         ...base,
         verificarDisponibilidade,
         buscarHorarios,
-        agendamentos
+        agendamentos,
+        getDetails
     };
 }

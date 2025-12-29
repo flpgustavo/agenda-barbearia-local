@@ -155,6 +155,24 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         );
     }
 
+    async getDetails(id: string): Promise<AgendamentoComDetalhes> {
+        const ag = await this.get(id);
+
+        if (!ag) {
+            throw new Error("Agendamento não encontrado.");
+        }
+
+        const cliente = await db.clientes.get(ag.clienteId);
+        const servico = await db.servicos.get(ag.servicoId);
+
+        return {
+            ...ag,
+            cliente,
+            servico,
+        };
+
+    }
+
     async verificarDisponibilidadeDia(data: Date): Promise<boolean> {
         const hoje = new Date();
         const dataStr = data.toISOString().split("T")[0];

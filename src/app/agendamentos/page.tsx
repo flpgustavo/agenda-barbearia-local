@@ -241,7 +241,8 @@ export default function AgendaMensal() {
     }
 
     const handleFormSuccess = async (agendamento: any) => {
-        const diaCadastrado = selectedDate || new Date();
+        const ag = await getDetails(agendamento);
+        const diaCadastrado = ag.dataHora ? new Date(ag.dataHora) : new Date();
         const dateKey = diaCadastrado.toISOString().split("T")[0];
         const el = diasRefs.current[dateKey];
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -251,7 +252,6 @@ export default function AgendaMensal() {
             locale: ptBR
         });
 
-        const ag = await getDetails(agendamento);
 
         return toast.message('Lembre seu cliente!', {
             icon: <MessageCircle className="w-5 h-5 text-primary" />,

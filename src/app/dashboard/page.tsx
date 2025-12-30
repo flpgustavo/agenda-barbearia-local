@@ -50,6 +50,7 @@ export default function DashboardPage() {
         receitaPorDiaSemana,
         topClientes,
         frequenciaRetorno,
+        agendamentos,
         lifetimeClientes,
     } = useDashboardAgendamentos(filters);
 
@@ -60,7 +61,7 @@ export default function DashboardPage() {
 
 
     // Função para alternar a seleção
-    const handleBarClick = (dia) => {
+    const handleBarClick = (dia: any) => {
         setDiaSelecionado(prev => prev === dia ? null : dia);
     };
 
@@ -127,15 +128,15 @@ export default function DashboardPage() {
                     />
                     <KPICard
                         title="Agendamentos"
-                        value={loading ? "..." : `${receitaPorDiaSemana.porDia.reduce((total, dia) => total + dia.atendimentos, 0)}`}
-                        subValue="total de agendamentos"
-                        icon={<Users className="h-4 w-4 text-orange-500" />}
+                        value={loading ? "..." : `${agendamentos.length}`}
+                        subValue={"Total em aberto: " + agendamentos.filter(a => a.status == "CONFIRMADO").length}
+                        icon={<Users className="h-4 w-4 text-primary" />}
                         loading={loading}
                     />
                 </section>
 
                 {/* 2. Receita Semanal (Gráfico de Barras CSS) */}
-                <Card onClick={() => setDiaSelecionado(null)}> {/* Fecha ao clicar fora das barras */}
+                <Card onClick={() => setDiaSelecionado(null)}>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-base font-semibold">Receita por Dia da Semana</CardTitle>
                         <CardDescription>Toque na barra para ver o valor</CardDescription>
@@ -160,14 +161,12 @@ export default function DashboardPage() {
                                                 handleBarClick(item.dia);
                                             }}
                                         >
-                                            {/* Tooltip Ativado por Clique */}
                                             <div className={`absolute -top-10 text-white dark:text-black bg-accent-foreground text-sm py-1 px-2 rounded shadow-lg transition-all duration-200 z-20 pointer-events-none ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                                                 }`}>
                                                 {formatCurrency(item.totalReceita)}
                                                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-accent-foreground rotate-45"></div>
                                             </div>
 
-                                            {/* Barra do Gráfico */}
                                             <div
                                                 className={`w-full rounded-t-sm transition-all duration-300 ${isSelected ? 'ring-2 ring-offset-2 ring-slate-400' : ''
                                                     } ${isBest ? 'bg-primary' : 'bg-primary/25'}`}

@@ -224,8 +224,9 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             cursor = Math.max(cursor, agoraMin);
         }
 
-        for (const intervalo of intervalosOcupados) {
-            if (intervalo.inicio - cursor >= menorDuracao) {
+        for (let i = 0; i < intervalosOcupados.length; i++) {
+            const intervalo = intervalosOcupados[i];
+            if (intervalo.inicio - cursor >= menorDuracao && i !== intervalosOcupados.length - 1) {
                 return true;
             }
             cursor = Math.max(cursor, intervalo.fim);

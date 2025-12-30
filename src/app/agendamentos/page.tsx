@@ -452,8 +452,8 @@ export default function AgendaMensal() {
                         })}
 
                         <div className="pt-2 pb-6 px-4 flex justify-center">
-                            <Button variant="outline" size="lg" onClick={handleNextMonth} className="w-full max-w-md">
-                                Ir para {format(addMonths(dataAtual, 1), "MMMM", { locale: ptBR })} <ChevronRight className="w-4 h-4" />
+                            <Button variant="primary_outline" size="lg" onClick={handleNextMonth} className="w-full min-h-12 max-w-sm">
+                                Ir para {format(addMonths(dataAtual, 1), "MMMM", { locale: ptBR })} <ChevronRight className="size-6" />
                             </Button>
                         </div>
                     </div>

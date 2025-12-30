@@ -21,10 +21,11 @@ interface ServicoFormDrawerProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     servico?: Servico;
+    onSuccess?: (servico: Servico) => void;
+
 }
 
-export function ServicoFormDrawer({ open, onOpenChange, servico }: ServicoFormDrawerProps) {
-
+export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: ServicoFormDrawerProps) {
     // Estados do Formulário
     const { criar, atualizar } = useServico();
     const [nome, setNome] = useState("");
@@ -69,10 +70,18 @@ export function ServicoFormDrawer({ open, onOpenChange, servico }: ServicoFormDr
                 result = await atualizar(id, { nome: nome, duracaoMinutos: duracaoMinutos, preco: preco });
             }
 
+            const novo = {
+                id: id || result,
+                nome,
+                duracaoMinutos,
+                preco
+            };
+
             toast.success(`Serviço ${!id ? "criado" : "atualizado"} com sucesso!`);
             onOpenChange(false);
             setDuracaoMinutos(0);
             setPreco(0);
+            onSuccess?.(novo as Servico);
             return result;
         } catch (error) {
             console.error("Erro ao criar serviço:", error);
@@ -107,7 +116,7 @@ export function ServicoFormDrawer({ open, onOpenChange, servico }: ServicoFormDr
                                 <Input
                                     type="number"
                                     placeholder="Duração em minutos"
-                                    value={duracaoMinutos}
+                                    value={duracaoMinutos || ""}
                                     onChange={(e) => setDuracaoMinutos(Number(e.target.value))}
                                 />
                             </div>
@@ -120,7 +129,7 @@ export function ServicoFormDrawer({ open, onOpenChange, servico }: ServicoFormDr
                                     type="number"
                                     step="0.01"
                                     placeholder="Preço do serviço"
-                                    value={preco}
+                                    value={preco || ""}
                                     onChange={(e) => setPreco(Number(e.target.value))}
                                 />
                             </div>

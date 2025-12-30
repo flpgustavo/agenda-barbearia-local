@@ -19,9 +19,14 @@ import { useState } from "react";
 
 export default function Servicos() {
 
-    const { items, remover } = useServico()
+    const { items, remover, recarregar } = useServico()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedServico, setSelectedServico] = useState<Servico | null>(null);
+
+    const handleSuccess = () => {
+        setIsDrawerOpen(false);
+        recarregar?.();
+    }
 
     const handleForm = (servico?: Servico) => {
         setSelectedServico(servico || null);
@@ -126,6 +131,7 @@ export default function Servicos() {
                 open={isDrawerOpen}
                 onOpenChange={setIsDrawerOpen}
                 servico={selectedServico!}
+                onSuccess={handleSuccess}
             />
 
         </div>

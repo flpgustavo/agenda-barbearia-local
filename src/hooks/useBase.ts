@@ -9,7 +9,7 @@ export interface BaseFilters<T> {
 export interface UseBaseOptions<T> {
     filters?: BaseFilters<T>;
     autoLoad?: boolean;
-    transform?: (items: T[]) => T[]; 
+    transform?: (items: T[]) => T[];
 }
 
 export function useBase<T extends BaseModel>(
@@ -39,11 +39,13 @@ export function useBase<T extends BaseModel>(
     }
 
     async function atualizar(id: string, data: Partial<T>) {
+        console.log("2. HOOK: Chamou atualizar"); // LOG
         try {
             await service.update(id, data);
             await carregar();
         } catch (err: any) {
             setError(err.message || "Erro ao atualizar");
+            throw err;
         }
     }
 
@@ -77,8 +79,8 @@ export function useBase<T extends BaseModel>(
     }, [rawItems, options?.filters, options?.transform]);
 
     return {
-        items,          
-        rawItems,       
+        items,
+        rawItems,
         loading,
         error,
         criar,

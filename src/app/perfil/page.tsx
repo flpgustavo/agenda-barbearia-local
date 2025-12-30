@@ -284,7 +284,7 @@ export default function PerfilPage() {
                             <Label
                                 htmlFor="mesclar"
                                 className={cn(
-                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-accent",
+                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-primary/10 hover:border-primary dark:hover:bg-primary/20",
                                     importMode === "mesclar" ? "border-primary bg-primary/5 dark:bg-primary/20" : "border-muted"
                                 )}
                             >
@@ -304,7 +304,7 @@ export default function PerfilPage() {
                             <Label
                                 htmlFor="sobrescrever"
                                 className={cn(
-                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-accent",
+                                    "flex items-center justify-start gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all hover:border-red-500 hover:bg-red-500/5 dark:hover:bg-destructive/50",
                                     importMode === "sobrescrever" ? "border-red-500 bg-red-500/5 dark:bg-destructive/50" : "border-muted"
                                 )}
                             >

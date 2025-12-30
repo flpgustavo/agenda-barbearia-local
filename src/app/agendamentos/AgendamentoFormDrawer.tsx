@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Loader2, Check, ChevronsUpDown, Plus, Trash2Icon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -352,32 +352,55 @@ export function AgendamentoFormDrawer({
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0" align="start">
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>Sem horários livres.</CommandEmpty>
-                        <CommandGroup>
-                          {horariosDisponiveis.map((time) => (
-                            <CommandItem
+
+                  {/* Ajuste de largura para w-auto para caber as colunas */}
+                  <PopoverContent className="w-auto p-0 flex flex-col" align="start">
+
+                    <div className="p-2 border-b bg-muted/10 flex flex-row items-center justify-between">
+                      <p className="ml-2 text-sm font-semibold">Escolha um horário disponível: </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-muted-foreground hover:text-red-700 dark:hover:text-red-500"
+                        disabled={!hora}
+                        onClick={() => {
+                          setHora("");
+                        }}
+                      >
+                        <Trash2Icon className="size-5" />
+                      </Button>
+                    </div>
+
+                    {/* LISTA COM SCROLL */}
+                    <div className="h-[300px] overflow-y-auto p-4">
+                      <div className="grid grid-cols-4 gap-2">
+                        {horariosDisponiveis.length > 0 ? (
+                          horariosDisponiveis.map((time) => (
+                            <Button
                               key={time}
-                              value={time}
-                              onSelect={() => {
+                              variant={hora === time ? "primary_outline" : "outline"}
+                              className={cn(
+                                "rounded-full h-8 text-xs transition-all",
+                                hora === time && "ring-2 ring-primary font-bold bg-primary/5"
+                              )}
+                              onClick={() => {
                                 setHora(time);
                                 setOpenTimePopover(false);
                               }}
                             >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  hora === time ? "opacity-100" : "opacity-0"
-                                )}
-                              />
                               {time}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
+                            </Button>
+                          ))
+                        ) : (
+                          <div className="col-span-4 text-sm text-muted-foreground py-2 text-center w-[200px]">
+                            {!loadingHorarios && "Nenhum horário disponível."}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+
+
                   </PopoverContent>
                 </Popover>
               </div>

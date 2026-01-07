@@ -35,14 +35,13 @@ export default function Clientes() {
     };
 
     const handleDelete = async (id: string) => {
-        toast.promise(
-            remover(id),
-            {
-                loading: `Excluindo cliente...`,
-                success: () => `Cliente removido com sucesso!`,
-                error: (err: Error) => err.message || `Falha ao cliente.`,
-            }
-        )
+        try {
+            const result = await remover(id);
+            console.log(result);
+            toast.success(`Cliente removido com sucesso!`);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Erro desconhecido");
+        }
     }
 
     return (

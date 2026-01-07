@@ -55,6 +55,7 @@ export function useBase<T extends BaseModel>(
             await carregar();
         } catch (err: any) {
             setError(err.message || "Erro ao remover");
+            throw err;
         }
     }
 

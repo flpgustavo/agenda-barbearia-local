@@ -180,7 +180,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         const servicos = await db.servicos.toArray();
         if (servicos.length === 0) return false;
 
-        const menorDuracao = Math.min(...servicos.map(s => s.duracaoMinutos));
+        const menorDuracao = Math.min(...servicos.map((s: { duracaoMinutos: any; }) => s.duracaoMinutos));
 
         const agendamentos = await db.agendamentos
             .where("dataHora")
@@ -200,7 +200,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             if (ag.status === "CANCELADO") continue;
 
             const inicio = this.toMinutes(ag.dataHora.slice(11, 16));
-            const servico = servicos.find(s => s.id === ag.servicoId);
+            const servico = servicos.find((s: { id: any; }) => s.id === ag.servicoId);
             const duracao = servico?.duracaoMinutos ?? 0;
 
             intervalosOcupados.push({ inicio, fim: inicio + duracao });

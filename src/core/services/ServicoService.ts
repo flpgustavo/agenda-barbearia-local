@@ -43,7 +43,7 @@ class ServicoService extends BaseService<Servico> {
         const agendamentosAtivos = await db.agendamentos
             .where("servicoId")
             .equals(id)
-            .filter(ag => ag.status !== "CANCELADO")
+            .filter((ag: { status: string; }) => ag.status !== "CANCELADO")
             .toArray();
 
         if (agendamentosAtivos.length > 0) {

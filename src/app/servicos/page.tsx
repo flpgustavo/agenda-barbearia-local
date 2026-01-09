@@ -34,14 +34,12 @@ export default function Servicos() {
     };
 
     const handleDelete = async (id: string) => {
-        toast.promise(
-            remover(id),
-            {
-                loading: `Excluindo cliente...`,
-                success: () => `Cliente removido com sucesso!`,
-                error: (err: Error) => err.message || `Falha ao cliente.`,
-            }
-        )
+        try {
+            await remover(id);
+            toast.success(`Serviço removido com sucesso!`);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Erro desconhecido");
+        }
     }
 
     return (

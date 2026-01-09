@@ -11,7 +11,7 @@ export class ClienteService extends BaseService<Cliente> {
         const agendamentosAtivos = await db.agendamentos
             .where("clienteId")
             .equals(id)
-            .filter(ag => ag.status !== "CANCELADO")
+            .filter((ag: { status: string; }) => ag.status !== "CANCELADO")
             .toArray();
 
         if (agendamentosAtivos.length > 0) {

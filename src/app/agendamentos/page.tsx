@@ -37,10 +37,7 @@ import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService"; // 
 import { AgendamentoCard } from "./AgendamentoCard";
 import { AgendamentoDetails } from "./AgendamentoDetail";
 import { toast } from "sonner";
-import { ClienteFormDrawer } from "../clientes/ClienteFormDrawer";
-import { Cliente } from "@/core/models/Cliente";
 import { cli } from "cypress";
-import { clienteService } from "@/core/services/ClienteService";
 
 export type AgendamentoStatus = "CONCLUIDO" | "CONFIRMADO" | "CANCELADO";
 
@@ -59,8 +56,6 @@ export default function AgendaMensal() {
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-    const [isClienteDrawerOpen, setIsClienteDrawerOpen] = useState(false);
-    const [newCliente, setNewCliente] = useState<Cliente>();
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedAgendamento, setSelectedAgendamento] = useState<AgendamentoComDetalhes | null>(null);
@@ -215,16 +210,6 @@ export default function AgendaMensal() {
         const dateKey = dia.toISOString().split("T")[0];
         return (agendamentosMap[dateKey] || []).sort((a, b) => a.dataHora.localeCompare(b.dataHora));
     }
-
-    const handleOpenClienteForm = () => {
-        setIsClienteDrawerOpen(true);
-    };
-
-    const handleClienteSuccess = (novoCliente: any) => {
-        setIsClienteDrawerOpen(false);
-        setNewCliente(novoCliente);
-        setRefreshTrigger(prev => prev + 1);
-    };
 
     const handleCreate = (dateStr: string) => {
         const date = new Date(dateStr);
@@ -464,15 +449,10 @@ export default function AgendaMensal() {
                 open={isDrawerOpen}
                 onOpenChange={(open) => {
                     setIsDrawerOpen(open);
-                    if (!open) {
-                        setNewCliente(undefined);
-                    }
                 }}
                 selectedDate={selectedDate}
                 agendamento={agendamentoParaEditar}
                 onSuccess={handleFormSuccess}
-                onAddCliente={handleOpenClienteForm}
-                clienteSelected={newCliente}
             />
 
             <AgendamentoDetails
@@ -481,12 +461,6 @@ export default function AgendaMensal() {
                 agendamento={selectedAgendamento}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-            />
-
-            <ClienteFormDrawer
-                open={isClienteDrawerOpen}
-                onOpenChange={setIsClienteDrawerOpen}
-                onSuccess={handleClienteSuccess}
             />
         </div>
     );

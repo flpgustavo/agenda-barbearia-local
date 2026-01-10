@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, User, Home, Settings, LogOut, Loader2, Sun, Moon, LayoutList, CalendarDaysIcon, BarChart2Icon } from "lucide-react";
+import { Menu, User, Home, Settings, LogOut, Loader2, Sun, Moon, LayoutList, CalendarDaysIcon, BarChart2Icon, SheetIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,6 +52,11 @@ const menuItems = [
         label: "Clientes",
         href: "/clientes",
         icon: User
+    },
+    {
+        label: "Transações",
+        href: "/transacoes",
+        icon: SheetIcon
     }
 ];
 

@@ -11,42 +11,7 @@ export interface TransacaoComDetalhes extends Transacao {
 
 export class TransacaoService extends BaseService<Transacao> {
     constructor() {
-        super("agendamentos" as keyof typeof db);
-    }
-
-    async listWithDetails(): Promise<TransacaoComDetalhes[]> {
-        const agendamentos = await this.list();
-
-        return Promise.all(
-            agendamentos.map(async (ag) => {
-                const cliente = await db.clientes.get(ag.clienteId);
-                const servico = await db.servicos.get(ag.servicoId);
-
-                return {
-                    ...ag,
-                    cliente,
-                    servico,
-                };
-            })
-        );
-    }
-
-    async getDetails(id: string): Promise<TransacaoComDetalhes> {
-        const ag = await this.get(id);
-
-        if (!ag) {
-            throw new Error("Agendamento não encontrado.");
-        }
-
-        const cliente = await db.clientes.get(ag.clienteId);
-        const servico = await db.servicos.get(ag.servicoId);
-
-        return {
-            ...ag,
-            cliente,
-            servico,
-        };
-
+        super("transacoes" as keyof typeof db);
     }
 
    
@@ -70,12 +35,7 @@ export class TransacaoService extends BaseService<Transacao> {
         if (!data.valor || data.valor < 0) {
             throw new Error("O valor da transação não pode ser negativo.");
         }
-        if (!data.clienteId) {
-            throw new Error("O cliente é obrigatório.");
-        }
-        if (!data.servicoId) {
-            throw new Error("O serviço é obrigatório.");
-        }
+       
         return;
     }
 

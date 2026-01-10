@@ -3,9 +3,9 @@ import { BaseModel } from "./BaseModel";
 export type TransacaoStatus = 'AGENDADO' | 'CONFIRMADO' | 'CANCELADO';
 
 export interface Transacao extends BaseModel {
-    clienteId: string;
     dataHora: string;
-    servicoId: string;
+    agendamentoId?: string;
+    tipo: 'ENTRADA' | 'SAIDA';
     status: TransacaoStatus;
     valor: number;
     observacoes?: string;

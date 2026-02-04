@@ -9,10 +9,12 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { TransacaoFormDrawer } from "./TransacaoFormDrawer";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAgendamento } from "@/hooks/useAgendamento";
 
 export default function Transacoes() {
 
     const { items, remover, recarregar } = useTransacao()
+    const { getDetails, loading} = useAgendamento()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedTransacao, setSelectedTransacao] = useState<Transacao | null>(null);
 
@@ -54,17 +56,29 @@ export default function Transacoes() {
                         <TableRow>
                             <TableHead>Descrição</TableHead>
                             <TableHead>Situação</TableHead>
-                            <TableHead>Tipo</TableHead>
                             <TableHead className="text-right">Valor</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {items.map((transacao) => (
                             <TableRow key={transacao.id}>
-                                <TableCell>{transacao.observacoes || 'Sem descrição'}</TableCell>
-                                <TableCell>{transacao.status}</TableCell>
-                                <TableCell>{transacao.tipo}</TableCell>
-                                <TableCell className="text-right">{transacao.valor}</TableCell>
+                                <TableCell>{transacao.observacoes || 'Sem descrição'}
+                                    {transacao.agendamentoId &&
+                                        <span className="ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                            Agendamento
+                                        </span>
+                                    }
+                                </TableCell>
+                                <TableCell>
+                                    <span className={`px-3 py-2 rounded-full text-xs font-bold
+                                        ${transacao.status === 'AGENDADO' ? 'text-yellow-500 bg-yellow-500/10' : transacao.status === 'CANCELADO' ? 'text-red-500 bg-red-500/10' : 'text-green-500 bg-green-500/10'}`}>
+                                        {transacao.status}
+                                    </span>
+                                </TableCell>
+
+                                <TableCell className={`text-right ${transacao.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}`}>
+                                    R$ {transacao.tipo === 'ENTRADA' ? '' : ' -'}{transacao.valor}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -92,6 +106,7 @@ export default function Transacoes() {
                 open={isDrawerOpen}
                 onOpenChange={setIsDrawerOpen}
                 Transacao={selectedTransacao!}
+                onSuccess={handleSuccess}
             />
 
         </div>

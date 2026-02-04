@@ -19,7 +19,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"; // Certifique-se de ter instalado o Select do shadcn
+} from "@/components/ui/select";
 
 import { toast } from "sonner";
 import { useTransacao } from "@/hooks/useTransacao";
@@ -32,13 +32,15 @@ interface TransacaoFormDrawerProps {
     onOpenChange: (open: boolean) => void;
     Transacao?: Transacao;
     agendamentoId?: string;
+    onSuccess?: (transacao: Transacao) => void;
 }
 
 export function TransacaoFormDrawer({
     open,
     onOpenChange,
     Transacao,
-    agendamentoId
+    agendamentoId,
+    onSuccess,
 }: TransacaoFormDrawerProps) {
 
     const { criar, atualizar } = useTransacao();
@@ -109,6 +111,7 @@ export function TransacaoFormDrawer({
             }
 
             toast.success(`Transação ${!id ? "criada" : "atualizada"} com sucesso!`);
+            onSuccess?.(payload as Transacao);
             onOpenChange(false);
 
             return result;
@@ -130,7 +133,7 @@ export function TransacaoFormDrawer({
 
                     <div className="p-4 space-y-4">
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col">
                             <div>
                                 <Label
                                     className="mb-2"
@@ -144,32 +147,8 @@ export function TransacaoFormDrawer({
                                     onChange={(e) => setDataHora(e.target.value)}
                                 />
                             </div>
-
-                            <div>
-                                <Label
-                                    className="mb-2"
-                                >
-                                    Status
-                                </Label>
-                                <Select
-                                    value={status}
-                                    onValueChange={(val: TransacaoStatus) => setStatus(val)}
-                                >
-                                    <SelectTrigger
-                                        className="w-full"
-                                    >
-                                        <SelectValue placeholder="Selecione o status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="AGENDADO">Agendado</SelectItem>
-                                        <SelectItem value="CONCLUIDO">Concluído</SelectItem>
-                                        <SelectItem value="CANCELADO">Cancelado</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
                         </div>
 
-                        {/* Campo Tipo (Select) */}
                         <div className="space-y-2 flex flex-col">
                             <Label>Tipo *</Label>
                             <RadioGroup
@@ -204,19 +183,46 @@ export function TransacaoFormDrawer({
                             </RadioGroup>
                         </div>
 
-                        {/* Campo Valor */}
-                        <div className="space-y-2 flex flex-col">
-                            <Label>Valor (R$) *</Label>
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                step="0.01"
-                                value={valor}
-                                onChange={(e) => setValor(e.target.value)}
-                            />
+                        <div className="space-y-2 grid grid-cols-2 gap-2">
+                            <div>
+                                <Label
+                                    className="mb-2"
+                                >
+                                    Valor (R$) *
+                                </Label>
+                                <Input
+                                    type="number"
+                                    placeholder="0.00"
+                                    step="0.01"
+                                    value={valor}
+                                    onChange={(e) => setValor(e.target.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <Label
+                                    className="mb-2"
+                                >
+                                    Status
+                                </Label>
+                                <Select
+                                    value={status}
+                                    onValueChange={(val: TransacaoStatus) => setStatus(val)}
+                                >
+                                    <SelectTrigger
+                                        className="w-full"
+                                    >
+                                        <SelectValue placeholder="Selecione o status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="AGENDADO">Agendado</SelectItem>
+                                        <SelectItem value="CONCLUIDO">Concluído</SelectItem>
+                                        <SelectItem value="CANCELADO">Cancelado</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
 
-                        {/* Campo Observações */}
                         <div className="space-y-2 flex flex-col">
                             <Label>Observações</Label>
                             <Textarea

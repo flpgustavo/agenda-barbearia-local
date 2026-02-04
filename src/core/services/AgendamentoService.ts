@@ -200,7 +200,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             if (ag.status === "CANCELADO") continue;
 
             const inicio = this.toMinutes(ag.dataHora.slice(11, 16));
-            const servico = servicos.find((s: { id: any; }) => s.id === ag.servicoId);
+            const servico = servicos.find((s: Servico) => s.id === ag.servicoId);
             const duracao = servico?.duracaoMinutos ?? 0;
 
             intervalosOcupados.push({ inicio, fim: inicio + duracao });

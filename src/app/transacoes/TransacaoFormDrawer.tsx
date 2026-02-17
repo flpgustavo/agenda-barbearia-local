@@ -26,12 +26,13 @@ import { useTransacao } from "@/hooks/useTransacao";
 import { Transacao, TransacaoStatus } from "@/core/models/Transacao";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService";
 
 interface TransacaoFormDrawerProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     Transacao?: Transacao;
-    agendamentoId?: string;
+    agendamento?: AgendamentoComDetalhes;
     onSuccess?: (transacao: Transacao) => void;
 }
 
@@ -39,7 +40,7 @@ export function TransacaoFormDrawer({
     open,
     onOpenChange,
     Transacao,
-    agendamentoId,
+    agendamento,
     onSuccess,
 }: TransacaoFormDrawerProps) {
 
@@ -80,6 +81,13 @@ export function TransacaoFormDrawer({
             setDataHora(new Date().toISOString().slice(0, 16));
         }
 
+        if (agendamento) {
+            setStatus("AGENDADO");
+            setTipo("ENTRADA");
+            setValor(String(agendamento?.servico?.preco));
+            setObservacoes('Agendamento de ' + agendamento?.servico?.nome + ' para ' + agendamento?.cliente?.nome);
+        }
+
     }, [open, Transacao]);
 
     const handleSave = async () => {
@@ -100,7 +108,7 @@ export function TransacaoFormDrawer({
                 // Se estiver editando e já existir no objeto, mantém.
                 // Se for novo e vier por prop, usa a prop.
                 // Se não vier nada, envia undefined (oculto/opcional).
-                agendamentoId: Transacao?.agendamentoId || agendamentoId || undefined
+                agendamentoId: Transacao?.agendamentoId || agendamento?.id || undefined
             };
 
             let result;

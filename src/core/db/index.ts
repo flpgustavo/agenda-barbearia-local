@@ -11,7 +11,7 @@ export class Database extends Dexie {
     servicos!: Table<Servico, string>;
     usuarios!: Table<Usuario, string>;
     agendamentos!: Table<Agendamento, string>;
-    transacoes!: Table<Transacao, string>; // Ad
+    transacoes!: Table<Transacao, string>;
 
     constructor() {
         super("agenda-barbearia");

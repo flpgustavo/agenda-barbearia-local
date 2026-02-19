@@ -1,5 +1,8 @@
 describe('Gestão de Clientes', () => {
 
+    const nome = 'João Silva';
+    const telefone = '11999999999';
+
     beforeEach(() => {
         // Visita a home para ter acesso ao window e IndexedDB
         cy.visit('/');
@@ -16,8 +19,8 @@ describe('Gestão de Clientes', () => {
         cy.get('button[aria-label="Criar novo cliente"]').click();
 
         // Preenche o formulário
-        cy.get('input[placeholder="Nome do cliente"]').type('João Silva');
-        cy.get('input[placeholder="(99) 99999-9999"]').type('11999999999');
+        cy.get('input[placeholder="Nome do cliente"]').type(nome);
+        cy.get('input[placeholder="(99) 99999-9999"]').type(telefone);
 
         // Salva
         cy.contains('button', 'Salvar').click();
@@ -26,15 +29,15 @@ describe('Gestão de Clientes', () => {
         cy.contains('Cliente criado com sucesso!').should('be.visible');
 
         // Verifica se o cliente aparece na lista
-        cy.contains('João Silva').should('be.visible');
-        cy.contains('(11) 99999-9999').should('be.visible');
+        cy.contains(nome).should('be.visible');
+        cy.contains(telefone).should('be.visible');
     });
 
     it('Editando', () => {
         // Cria um cliente primeiro para editar
         cy.get('button[aria-label="Criar novo cliente"]').click();
-        cy.get('input[placeholder="Nome do cliente"]').type('Maria Santos');
-        cy.get('input[placeholder="(99) 99999-9999"]').type('11988888888');
+        cy.get('input[placeholder="Nome do cliente"]').type(nome);
+        cy.get('input[placeholder="(99) 99999-9999"]').type(telefone);
         cy.contains('button', 'Salvar').click();
         cy.contains('Cliente criado com sucesso!').should('be.visible');
 
@@ -46,19 +49,19 @@ describe('Gestão de Clientes', () => {
         cy.contains('Editar').click();
 
         // Altera os dados
-        cy.get('input[placeholder="Nome do cliente"]').clear().type('Maria Editada');
+        cy.get('input[placeholder="Nome do cliente"]').clear().type(nome + ' Editado');
         cy.contains('button', 'Salvar').click();
 
         // Verifica sucesso
         cy.contains('Cliente atualizado com sucesso!').should('be.visible');
-        cy.contains('Maria Editada').should('be.visible');
+        cy.contains(nome + ' Editado').should('be.visible');
     });
 
     it('Excluindo', () => {
         // Cria um cliente para excluir
         cy.get('button[aria-label="Criar novo cliente"]').click();
-        cy.get('input[placeholder="Nome do cliente"]').type('Carlos Silva');
-        cy.get('input[placeholder="(99) 99999-9999"]').type('11977777777');
+        cy.get('input[placeholder="Nome do cliente"]').type(nome);
+        cy.get('input[placeholder="(99) 99999-9999"]').type(telefone);
         cy.contains('button', 'Salvar').click();
         cy.contains('Cliente criado com sucesso!').should('be.visible');
 
@@ -71,7 +74,7 @@ describe('Gestão de Clientes', () => {
 
         // Verifica se foi removido
         cy.contains('Cliente removido com sucesso!').should('be.visible');
-        cy.contains('Carlos Silva').should('not.exist');
+        cy.contains(nome).should('not.exist');
     });
 
     it('Campos obrigatórios', () => {
@@ -83,7 +86,7 @@ describe('Gestão de Clientes', () => {
 
     it('Telefone incompleto', () => {
         cy.get('button[aria-label="Criar novo cliente"]').click();
-        cy.get('input[placeholder="Nome do cliente"]').type('Ana Clara');
+        cy.get('input[placeholder="Nome do cliente"]').type(nome);
         cy.get('input[placeholder="(99) 99999-9999"]').type('119999'); // Telefone incompleto
         cy.contains('button', 'Salvar').click();
 
@@ -93,7 +96,7 @@ describe('Gestão de Clientes', () => {
     it('Nome muito curto', () => {
         cy.get('button[aria-label="Criar novo cliente"]').click();
         cy.get('input[placeholder="Nome do cliente"]').type('Ab'); // Nome curto
-        cy.get('input[placeholder="(99) 99999-9999"]').type('11999999999');
+        cy.get('input[placeholder="(99) 99999-9999"]').type(telefone);
         cy.contains('button', 'Salvar').click();
 
         cy.contains('O nome deve ter pelo menos 3 caracteres.').should('exist');

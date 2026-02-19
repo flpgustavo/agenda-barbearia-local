@@ -29,6 +29,17 @@ export default function Clientes() {
         recarregar?.();
     }
 
+    const formatarTelefone = (telefone?: string) => {
+        const telefoneLimpo = telefone?.replace(/\D/g, "") || "";
+        if (telefoneLimpo.length === 11) {
+            return `(${telefoneLimpo.slice(0, 2)}) ${telefoneLimpo.slice(2, 7)}-${telefoneLimpo.slice(7)}`;
+        }
+        if (telefoneLimpo.length === 10) {
+            return `(${telefoneLimpo.slice(0, 2)}) ${telefoneLimpo.slice(2, 6)}-${telefoneLimpo.slice(6)}`;
+        }
+        return telefoneLimpo || telefone;
+    };
+
     const handleForm = (cliente?: Cliente) => {
         setSelectedCliente(cliente || null);
         setIsDrawerOpen(true);
@@ -66,6 +77,7 @@ export default function Clientes() {
                                         <Button
                                             variant="ghost"
                                             size="icon"
+                                            aria-label="Abrir menu"
                                             className="-mt-2 -mr-2 h-8 w-8 text-muted-foreground hover:text-foreground"
                                         >
                                             <MoreVertical className="h-4 w-4" />
@@ -96,7 +108,7 @@ export default function Clientes() {
                         <CardContent>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1 text-lg font-semibold">
-                                    {cliente.telefone}
+                                    {formatarTelefone(cliente.telefone)}
                                 </div>
                             </div>
                         </CardContent>

@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { useServico } from "@/hooks/useServico";
 import { Servico } from "@/core/models/Servico";
+import { InputMask } from "@/components/ui/input-mask";
 
 interface ServicoFormDrawerProps {
     open: boolean;
@@ -31,6 +32,7 @@ export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: Se
     const [nome, setNome] = useState("");
     const [duracaoMinutos, setDuracaoMinutos] = useState(0);
     const [preco, setPreco] = useState(0);
+    const [precoDisplay, setPrecoDisplay] = useState("");
     const [id, setId] = useState("");
 
     const [loading, setLoading] = useState(false);
@@ -41,6 +43,7 @@ export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: Se
                 setNome("");
                 setDuracaoMinutos(0);
                 setPreco(0);
+                setPrecoDisplay("");
             }, 300);
 
             return () => clearTimeout(timeout);
@@ -50,6 +53,7 @@ export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: Se
             setNome(servico.nome);
             setDuracaoMinutos(servico.duracaoMinutos || 0);
             setPreco(servico.preco || 0);
+            setPrecoDisplay(servico.preco ? servico.preco.toString().replace('.', ',') : "");
             setId(servico.id || "");
         }
 
@@ -58,6 +62,21 @@ export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: Se
     const handleSave = async () => {
         if (!nome || !duracaoMinutos || !preco) {
             toast.error("Por favor, preencha todos os campos.");
+            return;
+        }
+
+        if (nome.length < 3) {
+            toast.error("O nome deve ter pelo menos 3 caracteres.");
+            return;
+        }
+
+        if (duracaoMinutos <= 0) {
+            toast.error("A duração deve ser maior que 0.");
+            return;
+        }
+
+        if (preco <= 0) {
+            toast.error("O preço deve ser maior que 0.");
             return;
         }
 
@@ -81,6 +100,7 @@ export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: Se
             onOpenChange(false);
             setDuracaoMinutos(0);
             setPreco(0);
+            setPrecoDisplay("");
             onSuccess?.(novo as Servico);
             return result;
         } catch (error) {
@@ -112,7 +132,7 @@ export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: Se
 
                         <div className="space-y-2">
                             <div className="space-y-2 flex flex-col">
-                                <Label>Duração (minutos) *</Label>
+                                <Label>Duração *</Label>
                                 <Input
                                     type="number"
                                     placeholder="Duração em minutos"
@@ -126,11 +146,20 @@ export function ServicoFormDrawer({ open, onOpenChange, servico, onSuccess }: Se
                             <div className="space-y-2 flex flex-col">
                                 <Label>Preço *</Label>
                                 <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="Preço do serviço"
-                                    value={preco || ""}
-                                    onChange={(e) => setPreco(Number(e.target.value))}
+                                    type="text"
+                                    inputMode="decimal"
+                                    placeholder="0,00"
+                                    value={precoDisplay}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        value = value.replace(/[^0-9,-]/g, '');
+                                        const parts = value.split(',');
+                                        if (parts.length > 2) {
+                                            value = parts[0] + ',' + parts.slice(1).join('');
+                                        }
+                                        setPrecoDisplay(value);
+                                        setPreco(Number(value.replace(',', '.')));
+                                    }}
                                 />
                             </div>
                         </div>

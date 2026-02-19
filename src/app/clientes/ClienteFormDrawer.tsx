@@ -61,6 +61,11 @@ export function ClienteFormDrawer({ open, onOpenChange, cliente, onSuccess }: Cl
             return;
         }
 
+        if (nome.length < 3) {
+            toast.warning("O nome deve ter pelo menos 3 caracteres.");
+            return;
+        }
+
         if (telefone.length < 10) {
             toast.warning("O telefone parece incompleto. Digite o DDD + Número.");
             return;

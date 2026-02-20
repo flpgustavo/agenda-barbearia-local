@@ -12,7 +12,6 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCliente } from "@/hooks/useCliente";
 import { Plus, MoreVertical, Clock, DollarSign, Edit, Trash2 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import { ClienteFormDrawer } from "./ClienteFormDrawer";
 import { toast } from "sonner";

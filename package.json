@@ -45,6 +45,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.16.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

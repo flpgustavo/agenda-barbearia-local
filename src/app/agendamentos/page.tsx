@@ -37,10 +37,8 @@ import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService"; // 
 import { AgendamentoCard } from "./AgendamentoCard";
 import { AgendamentoDetails } from "./AgendamentoDetail";
 import { toast } from "sonner";
-import { ClienteFormDrawer } from "../clientes/ClienteFormDrawer";
-import { Cliente } from "@/core/models/Cliente";
 import { cli } from "cypress";
-import { clienteService } from "@/core/services/ClienteService";
+import { TransacaoFormDrawer } from "../transacoes/TransacaoFormDrawer";
 
 export type AgendamentoStatus = "CONCLUIDO" | "CONFIRMADO" | "CANCELADO";
 
@@ -59,8 +57,9 @@ export default function AgendaMensal() {
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-    const [isClienteDrawerOpen, setIsClienteDrawerOpen] = useState(false);
-    const [newCliente, setNewCliente] = useState<Cliente>();
+
+    const [isTransacaoOpen, setIsTransacaoOpen] = useState(false);
+    const [agendamentoParaConcluir, setAgendamentoParaConcluir] = useState<AgendamentoComDetalhes | null>(null);
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedAgendamento, setSelectedAgendamento] = useState<AgendamentoComDetalhes | null>(null);
@@ -216,16 +215,6 @@ export default function AgendaMensal() {
         return (agendamentosMap[dateKey] || []).sort((a, b) => a.dataHora.localeCompare(b.dataHora));
     }
 
-    const handleOpenClienteForm = () => {
-        setIsClienteDrawerOpen(true);
-    };
-
-    const handleClienteSuccess = (novoCliente: any) => {
-        setIsClienteDrawerOpen(false);
-        setNewCliente(novoCliente);
-        setRefreshTrigger(prev => prev + 1);
-    };
-
     const handleCreate = (dateStr: string) => {
         const date = new Date(dateStr);
         setSelectedDate(date);
@@ -312,35 +301,38 @@ export default function AgendaMensal() {
         setIsDetailsOpen(true);
     };
 
-    const handleConcluir = async (agendamento: any) => {
-        const dateKey = agendamento.dataHora.split("T")[0];
+    const handleConcluir = (agendamento: any) => {
+        setAgendamentoParaConcluir(agendamento);
+        setIsTransacaoOpen(true);
+    };
 
-        setAgendamentosMap((prevMap) => {
-            const listaDoDia = prevMap[dateKey] || [];
+    const confirmarConclusaoAgendamento = async () => {
+        if (!agendamentoParaConcluir) return;
 
-            const novaLista = listaDoDia.map((item) =>
-                item.id === agendamento.id
-                    ? { ...item, status: "CONCLUIDO" as AgendamentoStatus }
-                    : item
-            );
-
-            return {
-                ...prevMap,
-                [dateKey]: novaLista
-            };
-        });
+        const ag = agendamentoParaConcluir;
+        const dateKey = ag.dataHora.split("T")[0];
 
         try {
-            await atualizar(agendamento.id, {
-                id: agendamento.id,
+            // Atualização Otimista na UI
+            setAgendamentosMap((prevMap) => {
+                const listaDoDia = prevMap[dateKey] || [];
+                const novaLista = listaDoDia.map((item: AgendamentoComDetalhes) =>
+                    item.id === ag.id ? { ...item, status: "CONCLUIDO" as AgendamentoStatus } : item
+                );
+                return { ...prevMap, [dateKey]: novaLista };
+            });
+
+            // Persistência no Banco
+            await atualizar(ag.id as string, {
+                id: ag.id,
                 status: "CONCLUIDO"
             });
 
-            toast.success('Agendamento concluído com sucesso!');
+            toast.success('Agendamento concluido com sucesso !');
+            setAgendamentoParaConcluir(null);
         } catch (error) {
-            console.error(error);
-            toast.error('Erro ao concluir o agendamento.');
-            setRefreshTrigger(prev => prev + 1);
+            toast.error('Erro ao atualizar status do agendamento.');
+            setRefreshTrigger(prev => prev + 1); // Reverte se der erro
         }
     };
 
@@ -464,15 +456,10 @@ export default function AgendaMensal() {
                 open={isDrawerOpen}
                 onOpenChange={(open) => {
                     setIsDrawerOpen(open);
-                    if (!open) {
-                        setNewCliente(undefined);
-                    }
                 }}
                 selectedDate={selectedDate}
                 agendamento={agendamentoParaEditar}
                 onSuccess={handleFormSuccess}
-                onAddCliente={handleOpenClienteForm}
-                clienteSelected={newCliente}
             />
 
             <AgendamentoDetails
@@ -483,10 +470,14 @@ export default function AgendaMensal() {
                 onDelete={handleDelete}
             />
 
-            <ClienteFormDrawer
-                open={isClienteDrawerOpen}
-                onOpenChange={setIsClienteDrawerOpen}
-                onSuccess={handleClienteSuccess}
+            <TransacaoFormDrawer
+                open={isTransacaoOpen}
+                onOpenChange={setIsTransacaoOpen}
+                agendamento={agendamentoParaConcluir!}
+                onSuccess={() => {
+                    confirmarConclusaoAgendamento();
+                    setIsTransacaoOpen(false);
+                }}
             />
         </div>
     );

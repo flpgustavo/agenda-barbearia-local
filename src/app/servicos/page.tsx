@@ -64,6 +64,7 @@ export default function Servicos() {
                                         <Button
                                             variant="ghost"
                                             size="icon"
+                                            aria-label="Abrir menu"
                                             className="-mt-2 -mr-2 h-8 w-8 text-muted-foreground hover:text-foreground"
                                         >
                                             <MoreVertical className="h-4 w-4" />
@@ -94,7 +95,7 @@ export default function Servicos() {
                         <CardContent>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1 text-2xl font-bold text-primary">
-                                    <span><sup className="">R$</sup>{service.preco}</span>
+                                    <span><sup className="text-sm mr-1">R$</sup>{service.preco?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-lg font-semibold">
                                     <sup><Clock size={14} /></sup>

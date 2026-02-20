@@ -34,16 +34,14 @@ import { useServico } from "@/hooks/useServico";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService";
-import { Cliente } from "@/core/models/Cliente";
+import { ClienteFormDrawer } from "../clientes/ClienteFormDrawer";
 
 interface AgendamentoFormDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedDate: Date | null;
   agendamento?: AgendamentoComDetalhes;
-  onSuccess?: any;
-  onAddCliente?: () => void;
-  clienteSelected?: Cliente | null;
+  onSuccess?: (id: string) => void;
 }
 
 export function AgendamentoFormDrawer({
@@ -52,23 +50,23 @@ export function AgendamentoFormDrawer({
   selectedDate: initialDate,
   agendamento,
   onSuccess,
-  onAddCliente,
-  clienteSelected
 }: AgendamentoFormDrawerProps) {
 
-  const { items: clientes } = useCliente();
+  const { items: clientes, recarregar } = useCliente();
   const { items: servicos } = useServico();
-
   const { criar, atualizar, buscarHorarios } = useAgendamento();
 
+  // --- Estados do Formulário ---
   const [data, setData] = useState<string>("");
   const [hora, setHora] = useState<string>("");
   const [clienteId, setClienteId] = useState<string>("");
   const [servicoId, setServicoId] = useState<string>("");
 
+  // --- Estados de UI ---
   const [openClienteCombobox, setOpenClienteCombobox] = useState(false);
   const [openServicoCombobox, setOpenServicoCombobox] = useState(false);
   const [openTimePopover, setOpenTimePopover] = useState(false);
+  const [openClienteForm, setOpenClienteForm] = useState(false);
 
   const [horariosDisponiveis, setHorariosDisponiveis] = useState<string[]>([]);
   const [loadingHorarios, setLoadingHorarios] = useState(false);
@@ -76,14 +74,10 @@ export function AgendamentoFormDrawer({
 
   const isEditing = !!agendamento;
 
+  // --- Labels ---
   const getClienteLabel = () => {
     const clienteNaLista = clientes?.find((c: any) => c.id === clienteId);
     if (clienteNaLista) return clienteNaLista.nome;
-
-    if (clienteSelected && clienteSelected.id === clienteId) {
-      return clienteSelected.nome;
-    }
-
     return "Selecione o cliente";
   };
 
@@ -92,6 +86,7 @@ export function AgendamentoFormDrawer({
     return servico ? `${servico.nome} (${servico.duracaoMinutos} min)` : "Selecione o serviço";
   };
 
+  // --- Reset ao fechar ---
   useEffect(() => {
     if (!open) {
       const timer = setTimeout(() => {
@@ -105,6 +100,7 @@ export function AgendamentoFormDrawer({
     }
   }, [open]);
 
+  // --- Inicialização ---
   useEffect(() => {
     if (open) {
       if (agendamento) {
@@ -119,13 +115,11 @@ export function AgendamentoFormDrawer({
         }
       } else if (initialDate) {
         setData(initialDate.toISOString().split("T")[0]);
-        if (clienteSelected) {
-          setClienteId(clienteSelected.id || "");
-        }
       }
     }
-  }, [open, agendamento, initialDate, clienteSelected]);
+  }, [open, agendamento, initialDate]);
 
+  // --- Busca de Horários ---
   useEffect(() => {
     const carregarHorarios = async () => {
       if (!data || !servicoId || !servicos) {
@@ -139,7 +133,6 @@ export function AgendamentoFormDrawer({
       setLoadingHorarios(true);
       try {
         const slots = await buscarHorarios(data, servicoSelecionado.duracaoMinutos);
-
         let slotsFinais = slots;
 
         if (isEditing && hora && !slots.includes(hora)) {
@@ -160,6 +153,16 @@ export function AgendamentoFormDrawer({
 
     carregarHorarios();
   }, [data, servicoId, servicos, buscarHorarios, isEditing]);
+
+  // --- Handlers ---
+
+  const handleClienteSuccess = async (novoCliente: any) => {
+    setOpenClienteForm(false);
+    await recarregar();
+    if (novoCliente?.id) {
+        setClienteId(novoCliente.id);
+    }
+  };
 
   const handleSave = async () => {
     if (!clienteId || !servicoId || !data || !hora) {
@@ -210,226 +213,226 @@ export function AgendamentoFormDrawer({
   if (!initialDate && !agendamento) return null;
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="bg-card">
-        <div className="mx-auto w-full max-w-sm">
-          <DrawerHeader>
-            <DrawerTitle>
-              {isEditing ? "Editar Agendamento" : "Novo Agendamento"}
-            </DrawerTitle>
-          </DrawerHeader>
+    <>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="bg-card">
+            <div className="mx-auto w-full max-w-sm">
+            <DrawerHeader>
+                <DrawerTitle>
+                {isEditing ? "Editar Agendamento" : "Novo Agendamento"}
+                </DrawerTitle>
+            </DrawerHeader>
 
-          <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4">
 
-            <div className="space-y-2 flex flex-row items-center justify-between gap-2">
-              <div className="w-full space-y-2 flex flex-col">
-                <Label>Cliente *</Label>
-                <Popover open={openClienteCombobox} onOpenChange={setOpenClienteCombobox} modal={true}>
-                  <PopoverTrigger asChild>
+                <div className="space-y-2 flex flex-row items-center justify-between gap-2">
+                <div className="w-full space-y-2 flex flex-col">
+                    <Label>Cliente *</Label>
+                    <Popover open={openClienteCombobox} onOpenChange={setOpenClienteCombobox} modal={true}>
+                    <PopoverTrigger asChild>
+                        <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openClienteCombobox}
+                        className="w-full justify-between font-normal"
+                        >
+                        {clienteId ? getClienteLabel() : "Pesquisar cliente..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0" align="start">
+                        <Command>
+                        <CommandInput placeholder="Escreva o nome..." />
+                        <CommandList>
+                            <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                            <CommandGroup>
+                            {clientes?.map((cliente: any) => (
+                                <CommandItem
+                                key={cliente.id}
+                                value={cliente.nome}
+                                onSelect={() => {
+                                    setClienteId(cliente.id);
+                                    setOpenClienteCombobox(false);
+                                }}
+                                >
+                                <Check
+                                    className={cn(
+                                    "mr-2 h-4 w-4",
+                                    clienteId === cliente.id ? "opacity-100" : "opacity-0"
+                                    )}
+                                />
+                                {cliente.nome}
+                                </CommandItem>
+                            ))}
+                            </CommandGroup>
+                        </CommandList>
+                        </Command>
+                    </PopoverContent>
+                    </Popover>
+                </div>
+                
+                <Button
+                    type="button"
+                    variant="default"
+                    size="icon"
+                    disabled={loading}
+                    className="mt-3"
+                    onClick={() => setOpenClienteForm(true)}
+                    title="Cadastrar novo cliente"
+                >
+                    <Plus className="size-5 font-bold" />
+                </Button>
+                </div>
+
+                <div className="space-y-2 flex flex-col">
+                <Label>Serviço *</Label>
+                <Popover open={openServicoCombobox} onOpenChange={setOpenServicoCombobox} modal={true}>
+                    <PopoverTrigger asChild>
                     <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openClienteCombobox}
-                      className="w-full justify-between font-normal"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openServicoCombobox}
+                        className="w-full justify-between font-normal"
                     >
-                      {clienteId ? getClienteLabel() : "Pesquisar cliente..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        {servicoId ? getServicoLabel() : "Pesquisar serviço..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0" align="start">
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Escreva o nome..." />
-                      <CommandList>
-                        <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                        <CommandInput placeholder="Escreva o nome..." />
+                        <CommandList>
+                        <CommandEmpty>Nenhum serviço encontrado.</CommandEmpty>
                         <CommandGroup>
-                          {clientes?.map((cliente: any) => (
+                            {servicos?.map((servico: any) => (
                             <CommandItem
-                              key={cliente.id}
-                              value={cliente.nome}
-                              onSelect={() => {
-                                setClienteId(cliente.id);
-                                setOpenClienteCombobox(false);
-                              }}
+                                key={servico.id}
+                                value={servico.nome}
+                                onSelect={() => {
+                                setServicoId(servico.id);
+                                setOpenServicoCombobox(false);
+                                }}
                             >
-                              <Check
+                                <Check
                                 className={cn(
-                                  "mr-2 h-4 w-4",
-                                  clienteId === cliente.id ? "opacity-100" : "opacity-0"
+                                    "mr-2 h-4 w-4",
+                                    servicoId === servico.id ? "opacity-100" : "opacity-0"
                                 )}
-                              />
-                              {cliente.nome}
+                                />
+                                {servico.nome} ({servico.duracaoMinutos} min)
                             </CommandItem>
-                          ))}
+                            ))}
                         </CommandGroup>
-                      </CommandList>
+                        </CommandList>
                     </Command>
-                  </PopoverContent>
+                    </PopoverContent>
                 </Popover>
-              </div>
-              <Button
-                type="button"
-                variant="default"
-                size="icon"
-                disabled={loading}
-                className="mt-3"
-                onClick={onAddCliente}
-                title="Cadastrar novo cliente"
-              >
-                <Plus className="size-5 font-bold" />
-              </Button>
-            </div>
+                </div>
 
-            <div className="space-y-2 flex flex-col">
-              <Label>Serviço *</Label>
-              <Popover open={openServicoCombobox} onOpenChange={setOpenServicoCombobox} modal={true}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={openServicoCombobox}
-                    className="w-full justify-between font-normal"
-                  >
-                    {servicoId ? getServicoLabel() : "Pesquisar serviço..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Escreva o nome..." />
-                    <CommandList>
-                      <CommandEmpty>Nenhum serviço encontrado.</CommandEmpty>
-                      <CommandGroup>
-                        {servicos?.map((servico: any) => (
-                          <CommandItem
-                            key={servico.id}
-                            value={servico.nome}
-                            onSelect={() => {
-                              setServicoId(servico.id);
-                              setOpenServicoCombobox(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                servicoId === servico.id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            {servico.nome} ({servico.duracaoMinutos} min)
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="grid grid-cols-[2fr_1fr] gap-2">
-
-              <div className="space-y-2 flex flex-col">
-                <Label>Horário *</Label>
-                <Popover open={openTimePopover} onOpenChange={setOpenTimePopover} modal={true}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openTimePopover}
-                      className={cn(
-                        "w-full justify-between font-normal",
-                        !hora && "text-muted-foreground"
-                      )}
-                      disabled={!servicoId || !data || loadingHorarios}
-                    >
-                      {loadingHorarios ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" /> Buscando...
-                        </span>
-                      ) : hora ? (
-                        hora
-                      ) : (
-                        "Selecione..."
-                      )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-
-                  {/* Ajuste de largura para w-auto para caber as colunas */}
-                  <PopoverContent className="w-auto p-0 flex flex-col" align="start">
-
-                    <div className="p-2 border-b bg-muted/10 flex flex-row items-center justify-between">
-                      <p className="ml-2 text-sm font-semibold">Escolha um horário disponível: </p>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs text-muted-foreground hover:text-red-700 dark:hover:text-red-500"
-                        disabled={!hora}
-                        onClick={() => {
-                          setHora("");
-                        }}
-                      >
-                        <Trash2Icon className="size-5" />
-                      </Button>
-                    </div>
-
-                    {/* LISTA COM SCROLL */}
-                    <div className="h-[300px] overflow-y-auto p-4">
-                      <div className="grid grid-cols-4 gap-2">
-                        {horariosDisponiveis.length > 0 ? (
-                          horariosDisponiveis.map((time) => (
-                            <Button
-                              key={time}
-                              variant={hora === time ? "primary_outline" : "outline"}
-                              className={cn(
-                                "rounded-full h-8 text-xs transition-all",
-                                hora === time && "ring-2 ring-primary font-bold bg-primary/5"
-                              )}
-                              onClick={() => {
-                                setHora(time);
-                                setOpenTimePopover(false);
-                              }}
-                            >
-                              {time}
-                            </Button>
-                          ))
-                        ) : (
-                          <div className="col-span-4 text-sm text-muted-foreground py-2 text-center w-[200px]">
-                            {!loadingHorarios && "Nenhum horário disponível."}
-                          </div>
+                <div className="grid grid-cols-[2fr_1fr] gap-2">
+                <div className="space-y-2 flex flex-col">
+                    <Label>Horário *</Label>
+                    <Popover open={openTimePopover} onOpenChange={setOpenTimePopover} modal={true}>
+                    <PopoverTrigger asChild>
+                        <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openTimePopover}
+                        className={cn(
+                            "w-full justify-between font-normal",
+                            !hora && "text-muted-foreground"
                         )}
-                      </div>
-                    </div>
+                        disabled={!servicoId || !data || loadingHorarios}
+                        >
+                        {loadingHorarios ? (
+                            <span className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" /> Buscando...
+                            </span>
+                        ) : hora ? (
+                            hora
+                        ) : (
+                            "Selecione..."
+                        )}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 flex flex-col" align="start">
+                        <div className="p-2 border-b bg-muted/10 flex flex-row items-center justify-between">
+                        <p className="ml-2 text-sm font-semibold">Escolha um horário: </p>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs text-muted-foreground hover:text-red-700 dark:hover:text-red-500"
+                            disabled={!hora}
+                            onClick={() => {
+                            setHora("");
+                            }}
+                        >
+                            <Trash2Icon className="size-5" />
+                        </Button>
+                        </div>
+                        <div className="h-[300px] overflow-y-auto p-4">
+                        <div className="grid grid-cols-4 gap-2">
+                            {horariosDisponiveis.length > 0 ? (
+                            horariosDisponiveis.map((time) => (
+                                <Button
+                                key={time}
+                                variant={hora === time ? "primary_outline" : "outline"}
+                                className={cn(
+                                    "rounded-full h-8 text-xs transition-all",
+                                    hora === time && "ring-2 ring-primary font-bold bg-primary/5"
+                                )}
+                                onClick={() => {
+                                    setHora(time);
+                                    setOpenTimePopover(false);
+                                }}
+                                >
+                                {time}
+                                </Button>
+                            ))
+                            ) : (
+                            <div className="col-span-4 text-sm text-muted-foreground py-2 text-center w-[200px]">
+                                {!loadingHorarios && "Nenhum horário disponível."}
+                            </div>
+                            )}
+                        </div>
+                        </div>
+                    </PopoverContent>
+                    </Popover>
+                </div>
 
-
-
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="date">Data *</Label>
-                <Input
-                  type="date"
-                  id="date"
-                  required
-                  value={data}
-                  onClick={(e) => e.currentTarget.showPicker()}
-                  onChange={(e) => setData(e.target.value)}
-                />
-              </div>
+                <div className="space-y-2">
+                    <Label htmlFor="date">Data *</Label>
+                    <Input
+                    type="date"
+                    id="date"
+                    required
+                    value={data}
+                    onClick={(e) => e.currentTarget.showPicker()}
+                    onChange={(e) => setData(e.target.value)}
+                    />
+                </div>
+                </div>
             </div>
-          </div>
 
-          <DrawerFooter>
-            <Button onClick={handleSave} disabled={loading || !hora}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {loading ? "Salvando..." : isEditing ? "Salvar Alterações" : "Confirmar Agendamento"}
-            </Button>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancelar</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </div>
-      </DrawerContent>
-    </Drawer>
+            <DrawerFooter>
+                <Button onClick={handleSave} disabled={loading || !hora}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {loading ? "Salvando..." : isEditing ? "Salvar Alterações" : "Confirmar Agendamento"}
+                </Button>
+                <DrawerClose asChild>
+                <Button variant="outline">Cancelar</Button>
+                </DrawerClose>
+            </DrawerFooter>
+            </div>
+        </DrawerContent>
+        </Drawer>
+
+        <ClienteFormDrawer 
+            open={openClienteForm} 
+            onOpenChange={setOpenClienteForm} 
+            onSuccess={handleClienteSuccess} 
+        />
+    </>
   );
 }

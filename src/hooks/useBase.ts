@@ -39,7 +39,6 @@ export function useBase<T extends BaseModel>(
     }
 
     async function atualizar(id: string, data: Partial<T>) {
-        console.log("2. HOOK: Chamou atualizar"); // LOG
         try {
             await service.update(id, data);
             await carregar();
@@ -78,6 +77,7 @@ export function useBase<T extends BaseModel>(
 
         return result;
     }, [rawItems, options?.filters, options?.transform]);
+
 
     return {
         items,

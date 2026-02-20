@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "npx serve@latest out",
     "lint": "eslint",
-    "build:worker": "npx @opennextjs/cloudflare"
+    "build:worker": "npx @opennextjs/cloudflare build",
+    "deploy:worker": "npx @opennextjs/cloudflare deploy"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",

@@ -7,7 +7,6 @@ import {
     endOfMonth,
     eachWeekOfInterval,
     getISOWeek,
-    isSameDay,
     isSameWeek,
     eachDayOfInterval,
     addMonths,
@@ -17,7 +16,7 @@ import {
     getMonth,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, ChevronRight, CalendarDays, Smartphone, MessageCircle } from "lucide-react";
+import { Plus, ChevronRight, CalendarDays, MessageCircle } from "lucide-react";
 
 // --- Componentes Shadcn ---
 import {
@@ -37,7 +36,6 @@ import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService"; // 
 import { AgendamentoCard } from "./AgendamentoCard";
 import { AgendamentoDetails } from "./AgendamentoDetail";
 import { toast } from "sonner";
-import { cli } from "cypress";
 import { TransacaoFormDrawer } from "../transacoes/TransacaoFormDrawer";
 
 export type AgendamentoStatus = "CONCLUIDO" | "CONFIRMADO" | "CANCELADO";
@@ -465,7 +463,7 @@ export default function AgendaMensal() {
             <AgendamentoDetails
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
-                agendamento={selectedAgendamento}
+                agendamento={selectedAgendamento as AgendamentoComDetalhes}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />

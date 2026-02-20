@@ -10,26 +10,25 @@ import {
     MessageCircle,
     Pencil,
     Trash2,
-    X
 } from "lucide-react";
 
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService";
 
 // Defina a interface ou importe do seu serviço
 interface AgendamentoDetailsProps {
-    agendamento: any; // Pode trocar 'any' pelo tipo AgendamentoComDetalhes se tiver importado
+    agendamento: AgendamentoComDetalhes;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onEdit: (ag: any) => void;
+    onEdit: (ag: AgendamentoComDetalhes) => void;
     onDelete: (id: string) => void;
 }
 
@@ -49,7 +48,7 @@ export function AgendamentoDetails({
     const dataExtenso = format(dataObj, "EEEE, dd 'de' MMMM", { locale: ptBR });
 
     // Preparar WhatsApp
-    const telefoneLimpo = agendamento.cliente.telefone?.replace(/\D/g, "") || "";
+    const telefoneLimpo = agendamento.cliente && agendamento.cliente.telefone?.replace(/\D/g, "") || "";
     const whatsappLink = `https://wa.me/55${telefoneLimpo}`;
 
     return (
@@ -127,7 +126,7 @@ export function AgendamentoDetails({
                             className="flex-1 hover:bg-red-600 hover:text-white"
                             onClick={() => {
                                 if (confirm("Tem certeza que deseja apagar?")) {
-                                    onDelete(agendamento.id);
+                                    onDelete(agendamento.id || "");
                                     onOpenChange(false);
                                 }
                             }}

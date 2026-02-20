@@ -1,32 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Check, 
   Clock, 
-  CheckCircle2, 
-  XCircle, 
   AlertCircle, 
-  CalendarClock, 
-  CheckCheck,
+  CalendarClock,
   CheckCircle2Icon
 } from "lucide-react";
 import useLongPress from "@/hooks/useLongPress";
 import { AgendamentoStatus } from "@/core/models/Agendamento";
 import { format } from "date-fns";
-// Importações do Framer Motion para animações
 import { motion, useAnimation, PanInfo } from "framer-motion";
+import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService";
 
 interface AgendamentoCardProps {
-  agendamento: any;
-  onLongPress: (ag: any) => void;
-  onClick: (ag: any) => void;
-  // Nova prop opcional para lidar com a conclusão via swipe
-  onConcluirSwipe?: (ag: any) => void;
+  agendamento: AgendamentoComDetalhes;
+  onLongPress: (ag: Record<string, any>) => void;
+  onClick: (ag: Record<string, any>) => void;
+  onConcluirSwipe?: (ag: Record<string, any>) => void;
 }
 
-// Configuração visual baseada no status
 const getStatusConfig = (status: AgendamentoStatus) => {
   switch (status) {
     case "CONFIRMADO":
@@ -67,7 +62,7 @@ export function AgendamentoCard({
   );
 
   // Lógica do Swipe (Arrastar)
-  const handleDragEnd = async (event: any, info: PanInfo) => {
+  const handleDragEnd = async (event: Record<string, any>, info: PanInfo) => {
     const swipeThreshold = -150; // Distância necessária para ativar (negativo é para esquerda)
     
     // Só permite arrastar se estiver CONFIRMADO
@@ -75,7 +70,7 @@ export function AgendamentoCard({
       if (onConcluirSwipe) {
         // Dispara a ação de concluir
         onConcluirSwipe(agendamento);
-        // Anima o card a sair da tela ou voltar (opcional, aqui ele volta ao centro)
+        // Anima o card a sair da tela ou voltar
         controls.start({ x: 0 });
       }
     } else {

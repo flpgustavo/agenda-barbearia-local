@@ -76,13 +76,13 @@ export function AgendamentoFormDrawer({
 
   // --- Labels ---
   const getClienteLabel = () => {
-    const clienteNaLista = clientes?.find((c: any) => c.id === clienteId);
+    const clienteNaLista = clientes?.find((c: Record<string, any>) => c.id === clienteId);
     if (clienteNaLista) return clienteNaLista.nome;
     return "Selecione o cliente";
   };
 
   const getServicoLabel = () => {
-    const servico = servicos?.find((s: any) => s.id === servicoId);
+    const servico = servicos?.find((s: Record<string, any>) => s.id === servicoId);
     return servico ? `${servico.nome} (${servico.duracaoMinutos} min)` : "Selecione o serviço";
   };
 
@@ -127,7 +127,7 @@ export function AgendamentoFormDrawer({
         return;
       }
 
-      const servicoSelecionado = servicos.find((s: any) => s.id === servicoId);
+      const servicoSelecionado = servicos.find((s: Record<string, any>) => s.id === servicoId);
       if (!servicoSelecionado) return;
 
       setLoadingHorarios(true);
@@ -152,11 +152,11 @@ export function AgendamentoFormDrawer({
     };
 
     carregarHorarios();
-  }, [data, servicoId, servicos, buscarHorarios, isEditing]);
+  }, [hora, data, servicoId, servicos, buscarHorarios, isEditing]);
 
   // --- Handlers ---
 
-  const handleClienteSuccess = async (novoCliente: any) => {
+  const handleClienteSuccess = async (novoCliente: Record<string, any>) => {
     setOpenClienteForm(false);
     await recarregar();
     if (novoCliente?.id) {
@@ -246,7 +246,7 @@ export function AgendamentoFormDrawer({
                         <CommandList>
                             <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
                             <CommandGroup>
-                            {clientes?.map((cliente: any) => (
+                            {clientes?.map((cliente: Record<string, any>) => (
                                 <CommandItem
                                 key={cliente.id}
                                 value={cliente.nome}
@@ -304,7 +304,7 @@ export function AgendamentoFormDrawer({
                         <CommandList>
                         <CommandEmpty>Nenhum serviço encontrado.</CommandEmpty>
                         <CommandGroup>
-                            {servicos?.map((servico: any) => (
+                            {servicos?.map((servico: Record<string, any>) => (
                             <CommandItem
                                 key={servico.id}
                                 value={servico.nome}

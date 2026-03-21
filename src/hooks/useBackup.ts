@@ -1,18 +1,30 @@
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BackupService } from "../core/services/BackupService";
 
 export function useBackup() {
-    const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
+
+    const backupMutation = useMutation({
+        mutationFn: (password: string) => BackupService.export(password),
+    });
+
+    const restaurarMutation = useMutation({
+        mutationFn: ({
+            file,
+            password,
+            modo,
+        }: {
+            file: File;
+            password: string;
+            modo: 'sobrescrever' | 'mesclar';
+        }) => BackupService.import(file, password, modo),
+        onSuccess: () => {
+            queryClient.invalidateQueries();
+        },
+    });
 
     async function fazerBackup(password: string) {
-        setLoading(true);
-        try {
-            await BackupService.export(password);
-        } catch (error: any) {
-            throw error;
-        } finally {
-            setLoading(false);
-        }
+        return backupMutation.mutateAsync(password);
     }
 
     async function restaurarBackup(
@@ -20,15 +32,10 @@ export function useBackup() {
         password: string,
         modo: 'sobrescrever' | 'mesclar' = 'sobrescrever'
     ) {
-        setLoading(true);
-        try {
-            await BackupService.import(file, password, modo);
-        } catch (error: any) {
-            throw error;
-        } finally {
-            setLoading(false);
-        }
+        return restaurarMutation.mutateAsync({ file, password, modo });
     }
+
+    const loading = backupMutation.isPending || restaurarMutation.isPending;
 
     return { fazerBackup, restaurarBackup, loading };
 }

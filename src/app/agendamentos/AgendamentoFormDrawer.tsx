@@ -158,7 +158,6 @@ export function AgendamentoFormDrawer({
 
   const handleClienteSuccess = async (novoCliente: Record<string, any>) => {
     setOpenClienteForm(false);
-    await recarregar();
     if (novoCliente?.id) {
         setClienteId(novoCliente.id);
     }

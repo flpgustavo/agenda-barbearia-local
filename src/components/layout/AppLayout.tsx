@@ -204,7 +204,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-
                 </div>
 
             </header>

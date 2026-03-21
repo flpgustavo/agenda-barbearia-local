@@ -25,7 +25,6 @@ export default function Clientes() {
 
     const handleSuccess = () => {
         setIsDrawerOpen(false);
-        recarregar?.();
     }
 
     const formatarTelefone = (telefone?: string) => {

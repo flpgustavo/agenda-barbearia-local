@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ThemeProvider } from "@/components/theme-provider";
+import { QueryProvider } from "@/components/QueryProvider";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -36,9 +37,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppLayout>
-            {children}
-          </AppLayout>
+          <QueryProvider>
+            <AppLayout>
+              {children}
+            </AppLayout>
+          </QueryProvider>
           <Toaster richColors position="top-center"/>
         </ThemeProvider>
       </body>

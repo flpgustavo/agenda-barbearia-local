@@ -20,7 +20,6 @@ export default function Transacoes() {
 
     const handleSuccess = () => {
         setIsDrawerOpen(false);
-        recarregar?.();
     }
 
     const handleForm = (Transacao?: Transacao) => {

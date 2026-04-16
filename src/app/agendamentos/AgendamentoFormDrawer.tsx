@@ -95,8 +95,12 @@ export function AgendamentoFormDrawer({
     setIsSharing(true);
 
     try {
-      // Formata a data para exibir bonito (ex: 15/04/2026)
-      const dataFormatada = data.split("-").reverse().join("/");
+      const diaFormatado = new Date(data).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+        weekday: "long"
+      });
 
       // Gera a imagem com um fundo branco (evita fundo transparente no iOS)
       const blob = await toBlob(popoverPrintRef.current, {
@@ -112,7 +116,7 @@ export function AgendamentoFormDrawer({
         await navigator.share({
           files: [file],
           title: "Horários Disponíveis",
-          text: `Confira os horários disponíveis para o dia ${dataFormatada}.`,
+          text: `Confira os horários disponíveis para o dia ${diaFormatado}.`,
         });
       } else {
         // Fallback: Tenta copiar para a área de transferência

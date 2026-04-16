@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 import { Transacao } from "@/core/models/Transacao";
 import { useTransacao } from "@/hooks/useTransacao";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { TransacaoFormDrawer } from "./TransacaoFormDrawer";
@@ -56,6 +56,7 @@ export default function Transacoes() {
                             <TableHead>Descrição</TableHead>
                             <TableHead>Situação</TableHead>
                             <TableHead className="text-right">Valor</TableHead>
+                            <TableHead className="w-12"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -77,6 +78,16 @@ export default function Transacoes() {
 
                                 <TableCell className={`text-right ${transacao.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}`}>
                                     R$ {transacao.tipo === 'ENTRADA' ? '' : ' -'}{transacao.valor}
+                                </TableCell>
+                                <TableCell>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleForm(transacao)}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         ))}

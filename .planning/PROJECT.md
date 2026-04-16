@@ -17,6 +17,16 @@
 
 ## Histórico de Marcos
 
+### Marco 2: UI de Transações Mobile
+
+**Objetivo:** Melhorar listagem de transações para mobile com UI limpa e bonita
+
+**Status:** Planejado
+
+- Fase 2.1: Component List (Mobile-first)
+- Fase 2.2: Integração
+- Fase 2.3: Validação
+
 ### Marco 1: Modal de Transações
 
 **Objetivo:** Substituir Drawer por Modal para gestão de transações

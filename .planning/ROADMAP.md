@@ -1,70 +1,66 @@
-# Roadmap - Marco 2: UI de Transações Mobile
+# Roadmap - Marco 3: Filtros de Período em Transações
 
-## Fase 2.1: Componente de Lista Mobile
+**Plans:** 3 plans in 3 waves
 
-**Objetivo:** Criar componente de lista responsivo para transações
+### Phase 3.1: Reutilizar DateRangeFilter
+
+**Objetivo:** Importar e adaptar componente de filtro existente
 
 ### Tarefas
 
-- [x] Analisar componentes existentes (Card, Badge, Button)
-- [x] Criar componente `TransacaoListItem` para item individual
-- [x] Criar componente `TransacaoList` container com layout responsivo
-- [x] Implementar totais no header da lista
-- [x] Adicionar empty state
+- [x] Copiar DateRangeFilter para pasta de componentes compartilhados OU importar do dashboard
+- [x] Verificar compatibilidade de props
+- [x] Testar funcionamento básico
 
-**Critério de conclusão:** Componente renderiza corretamente em mobile e desktop
-
-**Plano:** 02-01-PLAN.md
+**Critério de conclusão:** DateRangeFilter rendering no header de transações
 
 ---
 
-## Fase 2.2: Integração
+### Phase 3.2: Integrar Filtro com useTransacao
 
-**Objetivo:** Substituir Table pelo novo componente na página de transações
+**Objetivo:** Conectar filtro ao hook de transações
 
 ### Tarefas
 
-- [x] Importar novos componentes em `/transacoes/page.tsx`
-- [x] Substituir Table por TransacaoList
-- [x] Manter FAB (Floating Action Button) para criar
-- [x] Adaptar click handler para abrir edição
-- [x] Preservar funcionalidade de deletar
+- [x] Adicionar parâmetros de filtro (dataInicio, dataFim) ao componente de página
+- [x] Passar datas para o hook ou filtrar localmente
+- [x] Implementar filtro por dataHora
 
-**Critério de conclusão:** Página de transações usa novo layout
-
-**Plano:** 02-02-PLAN.md
+**Critério de conclusão:** Liste filtra corretamente por período
 
 ---
 
-## Fase 2.3: Validação
+### Phase 3.3: Totais Atualizados
 
-**Objetivo:** Validar UX em diferentes tamanhos de tela
+**Objetivo:** Recalcular totais conforme filtro ativo
 
 ### Tarefas
 
-- [x] Testar em viewport mobile (375px)
-- [x] Testar em viewport tablet (768px)
-- [x] Testar em viewport desktop (1024px+)
-- [x] Verificar touch targets
-- [x] Validar empty state
+- [x] Modificar TransacaoList para aceitar período
+- [x] Calcular totais baseados no período filtrado
+- [x] Exibir totais no rodapé
 
-**Critério de conclusão:** UI funciona em todos os breakpoints
-
-**Plano:** 02-03-PLAN.md
+**Critério de conclusão:** Totais correspondem ao período selecionado
 
 ---
 
-## Fase 2.4: Refinamento Visual
+### Phase 3.4: Validação
 
-**Objetivo:** Ajustar detalhes visuais para UI limpa e bonita
+**Objetivo:** Testar funcionalidades em diferentes cenários
 
 ### Tarefas
 
-- [ ] Ajustar espaçamentos
-- [ ] Refinar cores e tipografia
-- [ ] Adicionar transições suaves
-- [ ] Verificar acessibilidade
+- [ ] Testar filtro "Este mês"
+- [ ] Testar filtro "Personalizado"
+- [ ] Testar empty state com filtro
+- [ ] Testar responsividade mobile
 
-**Critério de conclusão:** UI atende padrão visual do projeto
+**Critério de conclusão:** Filtros funcionam corretamente
 
-**Plano:** 02-04-PLAN.md
+---
+
+## Plans
+
+- [ ] 03-01-PLAN.md — Import and integrate DateRangeFilter
+- [ ] 03-02-PLAN.md — Connect filter to transaction list
+- [ ] 03-03-PLAN.md — Verify filter functionality

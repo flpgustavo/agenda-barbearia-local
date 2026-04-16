@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService";
 import { ClienteFormDrawer } from "../clientes/ClienteFormDrawer";
+import { dataTagSymbol } from "@tanstack/react-query";
 
 interface AgendamentoFormDrawerProps {
   open: boolean;
@@ -95,17 +96,15 @@ export function AgendamentoFormDrawer({
     setIsSharing(true);
 
     try {
-      const diaFormatado = new Date(data).toLocaleDateString("pt-BR", {
+      const diaFormatado = new Date(data.replace("-","/")).toLocaleDateString("pt-BR", {
         day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
+        month: "long",
         weekday: "long"
       });
 
       // Gera a imagem com um fundo branco (evita fundo transparente no iOS)
       const blob = await toBlob(popoverPrintRef.current, {
         cacheBust: true,
-        backgroundColor: "#ffffff"
       });
 
       if (!blob) throw new Error("Falha ao gerar imagem.");
@@ -116,7 +115,7 @@ export function AgendamentoFormDrawer({
         await navigator.share({
           files: [file],
           title: "Horários Disponíveis",
-          text: `Confira os horários disponíveis para o dia ${diaFormatado}.`,
+          text: `Confira os horários disponíveis para ${data == new Date().toISOString().split("T")[0] ? "hoje" : diaFormatado}.`,
         });
       } else {
         // Fallback: Tenta copiar para a área de transferência
@@ -136,6 +135,7 @@ export function AgendamentoFormDrawer({
 
   // --- Reset ao fechar ---
   useEffect(() => {
+
     if (!open) {
       const timer = setTimeout(() => {
         setClienteId("");

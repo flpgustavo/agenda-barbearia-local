@@ -7,10 +7,11 @@ Abril 2026
 Em Progresso
 
 ## Fases Completas
+- Fase 3: Filtros por Período (03-period-filters)
 - Fase 2: UI de Transações Mobile (02-mobile-transactions)
 
 ## Fases em Andamento
-- Fase 3: Filtros por Período
+- Fase 4: Tutorial de Boas Vindas (Planejado - 3 planos, 3 waves)
 
 ## Tarefas em Andamento
 Nenhuma

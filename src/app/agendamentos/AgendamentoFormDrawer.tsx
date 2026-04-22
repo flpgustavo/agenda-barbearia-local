@@ -102,9 +102,12 @@ export function AgendamentoFormDrawer({
         weekday: "long"
       });
 
-      // Gera a imagem com um fundo branco (evita fundo transparente no iOS)
+      const cardColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--card');
+
       const blob = await toBlob(popoverPrintRef.current, {
         cacheBust: true,
+        backgroundColor: `hsl(${cardColor})`,
       });
 
       if (!blob) throw new Error("Falha ao gerar imagem.");

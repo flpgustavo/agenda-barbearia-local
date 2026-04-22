@@ -1,13 +1,16 @@
-# Estado Atual - Marco 2: UI de Transações Mobile
+# Estado Atual - Marco 3: Filtros por Período
 
 ## Início
 Abril 2026
 
 ## Status
-Planejado
+Em Progresso
 
 ## Fases Completas
-Nenhuma
+- Fase 2: UI de Transações Mobile (02-mobile-transactions)
+
+## Fases em Andamento
+- Fase 3: Filtros por Período
 
 ## Tarefas em Andamento
 Nenhuma
@@ -16,5 +19,5 @@ Nenhuma
 Nenhum
 
 ## Notas
-- Substituir Table por componente responsivo mobile-first
-- Manter funcionalidade existente
+- Fase 2 concluída manualmente
+- Avançando para fase 3

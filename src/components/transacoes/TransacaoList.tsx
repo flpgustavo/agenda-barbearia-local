@@ -9,32 +9,43 @@ interface TransacaoListProps {
     onEdit?: (transacao: Transacao) => void
     onDelete?: (id: string) => void
     className?: string
+    dateRange?: { start: string; end: string }
 }
 
 export function TransacaoList({
     items,
     onEdit,
     onDelete,
-    className
+    className,
+    dateRange
 }: TransacaoListProps) {
-    if (items.length === 0) {
+    const filteredItems = dateRange
+        ? items.filter(t => {
+            const transacaoDate = new Date(t.dataHora)
+            const start = new Date(dateRange.start)
+            const end = new Date(dateRange.end)
+            return transacaoDate >= start && transacaoDate <= end
+        })
+        : items
+
+    if (filteredItems.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
                 <p className="text-lg text-muted-foreground mb-2">
-                    Nenhuma transação encontrada
+                    {dateRange ? "Nenhuma transação neste período" : "Nenhuma transação encontrada"}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                    Toque no botão + para criar sua primeira transação
+                    {dateRange ? "Tente selecionar outro período" : "Toque no botão + para criar sua primeira transação"}
                 </p>
             </div>
         )
     }
 
-    const totalEntrada = items
+    const totalEntrada = filteredItems
         .filter(t => t.tipo === "ENTRADA" && t.status !== "CANCELADO")
         .reduce((acc, t) => acc + t.valor, 0)
     
-    const totalSaida = items
+    const totalSaida = filteredItems
         .filter(t => t.tipo === "SAIDA" && t.status !== "CANCELADO")
         .reduce((acc, t) => acc + t.valor, 0)
 
@@ -50,7 +61,7 @@ export function TransacaoList({
             </div>
             
             <div className="flex flex-col gap-3">
-                {items.map((transacao) => (
+                {filteredItems.map((transacao) => (
                     <TransacaoListItem
                         key={transacao.id}
                         transacao={transacao}

@@ -1,17 +1,18 @@
-# Estado Atual - Marco 3: Filtros por Período
+# Estado Atual - Marco 4: Tutorial de Criação de Entidades
 
 ## Início
 Abril 2026
 
 ## Status
-Em Progresso
+Completo
 
 ## Fases Completas
+- Fase 4: Tutorial de Criação de Entidades (04-tutorial-entidades)
 - Fase 3: Filtros por Período (03-period-filters)
 - Fase 2: UI de Transações Mobile (02-mobile-transactions)
 
 ## Fases em Andamento
-- Fase 4: Tutorial de Boas Vindas (Planejado - 3 planos, 3 waves)
+Nenhuma
 
 ## Tarefas em Andamento
 Nenhuma
@@ -20,5 +21,4 @@ Nenhuma
 Nenhum
 
 ## Notas
-- Fase 2 concluída manualmente
-- Avançando para fase 3
+- Fase 4 concluída: 3 planos, tutorial completo em clientes → servicos → agendamentos

@@ -27,7 +27,6 @@ import {
 import { usuarioService } from "@/core/services/UsuarioService";
 import { Usuario } from "@/core/models/Usuario";
 import { useTheme } from "next-themes";
-import { useTutorial } from "@/hooks/useTutorial";
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -65,7 +64,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     const pathname = usePathname();
     const router = useRouter();
     const { theme, setTheme } = useTheme()
-    const { start: startTutorial } = useTutorial();
 
     const [usuarioAtual, setUsuarioAtual] = useState<Usuario | null>(null);
     const [isChecking, setIsChecking] = useState(true);
@@ -198,10 +196,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                             <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/perfil')}>
                                 <User className="mr-2 h-4 w-4" />
                                 <span>Perfil</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => startTutorial()}>
-                                <LayoutList className="mr-2 h-4 w-4" />
-                                <span>Iniciar Tutorial</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={() => router.push('/')}>

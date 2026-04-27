@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
@@ -8,61 +8,18 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useCliente } from "@/hooks/useCliente"
-import { useTutorial } from "@/hooks/useTutorial"
-import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay"
-import { TutorialStep } from "@/core/models/TutorialStep"
-import { Plus, MoreVertical, Clock, DollarSign, Edit, Trash2 } from "lucide-react"
-import { useState } from "react"
-import { ClienteFormDrawer } from "./ClienteFormDrawer"
-import { toast } from "sonner"
-import { Cliente } from "@/core/models/Cliente"
-
-const tutorialSteps: TutorialStep[] = [
-    {
-        id: "clientes-criar",
-        targetType: "clientes",
-        targetSelector: "[aria-label='Criar novo cliente']",
-        title: "Adicione seus clientes",
-        description: "Clique no botão (+) para cadastrar seu primeiro cliente. Nome e telefone são obrigatórios.",
-        position: "left",
-        actionLabel: "Próximo"
-    },
-    {
-        id: "clientes-editar",
-        targetType: "clientes",
-        targetSelector: "[aria-label='Abrir menu']",
-        title: "Gerencie clientes",
-        description: "Clique nos três pontinhos para editar ou excluir um cliente.",
-        position: "bottom",
-        actionLabel: "Próximo"
-    },
-    {
-        id: "clientes-proximo",
-        targetType: "clientes",
-        targetSelector: "[href='/servicos']",
-        title: "Próximo passo",
-        description: "Agora que você conhece os clientes, vamos adicionar serviços!",
-        position: "right",
-        actionLabel: "Ir para Serviços"
-    }
-]
+} from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useCliente } from "@/hooks/useCliente";
+import { Plus, MoreVertical, Clock, DollarSign, Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ClienteFormDrawer } from "./ClienteFormDrawer";
+import { toast } from "sonner";
+import { Cliente } from "@/core/models/Cliente";
 
 export default function Clientes() {
 
     const { items, remover, recarregar } = useCliente()
-    const {
-        isActive,
-        currentStep,
-        currentStepIndex,
-        totalSteps,
-        goToNext,
-        goToPrevious,
-        skip,
-        complete
-    } = useTutorial(tutorialSteps)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
 
@@ -182,18 +139,6 @@ export default function Clientes() {
                 cliente={selectedCliente!}
                 onSuccess={handleSuccess}
             />
-
-            {isActive && currentStep && (
-                <TutorialOverlay
-                    step={currentStep}
-                    isFirst={currentStepIndex === 0}
-                    isLast={currentStepIndex === totalSteps - 1}
-                    onNext={goToNext}
-                    onPrevious={goToPrevious}
-                    onSkip={skip}
-                    onComplete={complete}
-                />
-            )}
         </div>
     );
 }

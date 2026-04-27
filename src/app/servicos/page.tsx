@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
@@ -8,52 +8,18 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Servico } from "@/core/models/Servico"
-import { useServico } from "@/hooks/useServico"
-import { useTutorial } from "@/hooks/useTutorial"
-import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay"
-import { TutorialStep } from "@/core/models/TutorialStep"
-import { Plus, MoreVertical, Clock, Edit, Trash2 } from "lucide-react"
-import { ServicoFormDrawer } from "./ServicoFormDrawer"
-import { toast } from "sonner"
-import { useState } from "react"
-
-const tutorialSteps: TutorialStep[] = [
-    {
-        id: "servicos-criar",
-        targetType: "servicos",
-        targetSelector: "[aria-label='Criar novo servico']",
-        title: "Adicione seus serviços",
-        description: "Defina os serviços que oferece: nome, preço e duração em minutos.",
-        position: "left",
-        actionLabel: "Próximo"
-    },
-    {
-        id: "servicos-proximo",
-        targetType: "servicos",
-        targetSelector: "[href='/agendamentos']",
-        title: "Próximo passo",
-        description: "Agora você pode criar agendamentos! Vamos lá.",
-        position: "right",
-        actionLabel: "Ir para Agendamentos"
-    }
-]
+} from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Servico } from "@/core/models/Servico";
+import { useServico } from "@/hooks/useServico";
+import { Plus, MoreVertical, Clock, Edit, Trash2 } from "lucide-react";
+import { ServicoFormDrawer } from "./ServicoFormDrawer";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Servicos() {
 
     const { items, remover, recarregar } = useServico()
-    const {
-        isActive,
-        currentStep,
-        currentStepIndex,
-        totalSteps,
-        goToNext,
-        goToPrevious,
-        skip,
-        complete
-    } = useTutorial(tutorialSteps)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedServico, setSelectedServico] = useState<Servico | null>(null);
 
@@ -152,7 +118,7 @@ export default function Servicos() {
                 <Button
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
-                    aria-label="Criar novo servico"
+                    aria-label="Criar novo serviço"
                     onClick={() => handleForm()}
                 >
                     <Plus className="size-5 font-bold text-primary-foreground" />
@@ -166,17 +132,6 @@ export default function Servicos() {
                 onSuccess={handleSuccess}
             />
 
-            {isActive && currentStep && (
-                <TutorialOverlay
-                    step={currentStep}
-                    isFirst={currentStepIndex === 0}
-                    isLast={currentStepIndex === totalSteps - 1}
-                    onNext={goToNext}
-                    onPrevious={goToPrevious}
-                    onSkip={skip}
-                    onComplete={complete}
-                />
-            )}
         </div>
     );
 }

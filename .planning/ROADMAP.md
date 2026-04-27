@@ -31,23 +31,16 @@
 
 ## v4.0 — Tutoriais e Onboarding
 
-### Decisões de UX (definidas em .planning/notes/tutorial-v4-decisoes-ux.md)
-- Estilo: direto e funcional
-- Fluxo: sequencial criando entidades em ordem (cliente → serviço → agendamento)
-- UI: overlay com destaque visual + texto informativo
-- Progressão: clique em "próximo" em cada passo
-- Término: parabéns + botão encerrar
-
-### Phase 4.1: Tutorial de Criação de Entidades (COMPLETO)
+### Phase 4.1: Tutorial de Criação de Entidades
 
 **Objetivo:** Criar componente de tutorial para guiar o usuário na criação de entidades
 
 ### Tarefas
 
-- [x] Criar componente TutorialOverlay com passos
-- [x] Adicionar tutorial na página de clientes
-- [x] Adicionar tutorial na página de serviços
-- [x] Adicionar tutorial na página de agendamentos
+- [ ] Criar componente TutorialOverlay com passos
+- [ ] Adicionar tutorial na página de clientes
+- [ ] Adicionar tutorial na página de serviços
+- [ ] Adicionar tutorial na página de agendamentos
 
 **Critério de conclusão:** Usuário consegue seguir tutorial e criar ENTITY
 
@@ -84,9 +77,9 @@
 
 ## Plans
 
-- [x] 04-01-01-PLAN.md — useTutorial hook + TutorialStep types
-- [x] 04-01-02-PLAN.md — TutorialOverlay + StepIndicator + clientes page
-- [x] 04-01-03-PLAN.md — servicos + agendamentos page integrations
+- [ ] 04-01-01-PLAN.md — useTutorial hook + TutorialStep types
+- [ ] 04-01-02-PLAN.md — TutorialOverlay + StepIndicator + clientes page
+- [ ] 04-01-03-PLAN.md — servicos + agendamentos page integrations
 
 ---
 
@@ -96,6 +89,6 @@
 | --------------------- | --------- | ---------------| ----------- | ---------- |
 | 2. UI Mobile          | v3.0      | 4/4            | Complete    | 2026-04-22 |
 | 3. Filters            | v3.0      | 3/3            | Complete    | 2026-04-22 |
-| 4.1 Tutorial Entities| v4.0      | 3/3            | Complete    | 2026-04-27 |
+| 4.1 Tutorial Entities| v4.0      | 0/3            | Not started  | -          |
 | 4.2 Tutorial Backup  | v4.0      | 0/2            | Not started  | -          |
 | 4.3 Auto Display     | v4.0      | 0/2            | Not started  | -          |

@@ -31,6 +31,13 @@
 
 ## v4.0 — Tutoriais e Onboarding
 
+### Decisões de UX (definidas em .planning/notes/tutorial-v4-decisoes-ux.md)
+- Estilo: direto e funcional
+- Fluxo: sequencial criando entidades em ordem (cliente → serviço → agendamento)
+- UI: overlay com destaque visual + texto informativo
+- Progressão: clique em "próximo" em cada passo
+- Término: parabéns + botão encerrar
+
 ### Phase 4.1: Tutorial de Criação de Entidades
 
 **Objetivo:** Criar componente de tutorial para guiar o usuário na criação de entidades

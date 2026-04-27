@@ -31,6 +31,9 @@ import { Button } from "@/components/ui/button";
 
 // --- Hooks e Componentes Customizados ---
 import { useAgendamento } from "@/hooks/useAgendamento";
+import { useTutorial } from "@/hooks/useTutorial";
+import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
+import { TutorialStep } from "@/core/models/TutorialStep";
 import { AgendamentoFormDrawer } from "./AgendamentoFormDrawer";
 import { AgendamentoComDetalhes } from "@/core/services/AgendamentoService"; // Ajuste o caminho se necessário
 import { AgendamentoCard } from "./AgendamentoCard";
@@ -46,6 +49,36 @@ const MESES = [
 ];
 
 const ANOS = [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035];
+
+const tutorialSteps: TutorialStep[] = [
+    {
+        id: "agendamentos-criar",
+        targetType: "agendamentos",
+        targetSelector: "[aria-label='Novo agendamento']",
+        title: "Crie agendamentos",
+        description: "Selecione cliente, serviço, data e horário para criar um agendamento.",
+        position: "bottom",
+        actionLabel: "Próximo"
+    },
+    {
+        id: "agendamentos-transacao",
+        targetType: "agendamentos",
+        targetSelector: "[data-tutorial-transacao]",
+        title: "Conclua e controle de caixa",
+        description: "Arraste o agendamento para a esquerda para concluir. Isso cria uma transação de entrada.",
+        position: "right",
+        actionLabel: "Próximo"
+    },
+    {
+        id: "agendamentos-finalizar",
+        targetType: "agendamentos",
+        targetSelector: "",
+        title: "Parabéns!",
+        description: "Você completou o tutorial de criação de entidades. Agora pode gerenciar sua barbearia!",
+        position: "center",
+        actionLabel: "Encerrar Tutorial"
+    }
+]
 
 export default function AgendaMensal() {
 
@@ -70,6 +103,16 @@ export default function AgendaMensal() {
 
     // --- Hooks ---
     const { verificarDisponibilidade, agendamentos, remover, atualizar, getDetails } = useAgendamento();
+    const {
+        isActive,
+        currentStep,
+        currentStepIndex,
+        totalSteps,
+        goToNext,
+        goToPrevious,
+        skip,
+        complete
+    } = useTutorial(tutorialSteps);
 
     // Refs
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -368,7 +411,7 @@ export default function AgendaMensal() {
                             </SelectContent>
                         </Select>
 
-                        <Button variant='default' onClick={() => handleCreate(new Date().toISOString().split("T")[0])}>
+                        <Button variant='default' onClick={() => handleCreate(new Date().toISOString().split("T")[0])} aria-label="Novo agendamento">
                             <Plus className="h-4 w-4" /> Novo
                         </Button>
                     </div>
@@ -477,6 +520,18 @@ export default function AgendaMensal() {
                     setIsTransacaoOpen(false);
                 }}
             />
+
+            {isActive && currentStep && (
+                <TutorialOverlay
+                    step={currentStep}
+                    isFirst={currentStepIndex === 0}
+                    isLast={currentStepIndex === totalSteps - 1}
+                    onNext={goToNext}
+                    onPrevious={goToPrevious}
+                    onSkip={skip}
+                    onComplete={complete}
+                />
+            )}
         </div>
     );
 }

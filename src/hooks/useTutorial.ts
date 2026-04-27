@@ -28,8 +28,9 @@ function loadState(): StoredState {
     }
 }
 
-export function useTutorial(steps: TutorialStep[]): UseTutorialReturn {
-    const totalSteps = steps.length;
+export function useTutorial(steps?: TutorialStep[]): UseTutorialReturn {
+    const validSteps = steps || [];
+    const totalSteps = validSteps.length;
 
     const [state, setState] = useState<StoredState>(() => loadState());
 
@@ -98,8 +99,8 @@ export function useTutorial(steps: TutorialStep[]): UseTutorialReturn {
 
     return {
         isActive: state.isActive,
-        currentStep: state.isActive && steps[state.currentStepIndex]
-            ? steps[state.currentStepIndex]
+        currentStep: state.isActive && validSteps[state.currentStepIndex]
+            ? validSteps[state.currentStepIndex]
             : null,
         currentStepIndex: state.currentStepIndex,
         totalSteps,

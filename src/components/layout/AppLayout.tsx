@@ -28,9 +28,6 @@ import { usuarioService } from "@/core/services/UsuarioService";
 import { Usuario } from "@/core/models/Usuario";
 import { useTheme } from "next-themes";
 
-import { TourProvider } from "@/components/tour/TourContext";
-import { TourTrigger } from "@/components/tour/TourTrigger";
-import { WelcomeTour } from "@/components/tour/WelcomeTour";
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -103,8 +100,10 @@ export function AppLayout({ children }: AppLayoutProps) {
             }
         }
 
-        validarUsuario();
-    }, [pathname, isPublicPage, router]);
+        if (!usuarioAtual) {
+            validarUsuario();
+        }
+    }, [pathname, isPublicPage, router, usuarioAtual]);
 
     if (isPublicPage) {
         return <>{children}</>;
@@ -132,9 +131,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
 
     return (
-        <TourProvider>
-            <TourTrigger />
-            <WelcomeTour />
         <div className="min-h-screen bg-background flex flex-col">
             <header className="border-b h-16 px-4 flex items-center shadow-md justify-between bg-card top-0 z-50">
                 
@@ -229,6 +225,5 @@ export function AppLayout({ children }: AppLayoutProps) {
                 {children}
             </main>
         </div>
-        </TourProvider>
     );
 }

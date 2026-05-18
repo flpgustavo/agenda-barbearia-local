@@ -3,7 +3,6 @@
 ## Marcos
 
 - ✅ **v3.0** — Filtros por Período + UI Mobile (shipped 2026-04-22)
-- 🚧 **v4.0** — Tutoriais e Onboarding (in progress)
 
 ---
 
@@ -29,57 +28,24 @@
 
 ---
 
-## v4.0 — Tutoriais e Onboarding
+## v4.0 — Tutorial de Boas Vindas (PLANEJADO)
 
-### Phase 4.1: Tutorial de Criação de Entidades
+<details>
+<summary>Phase 4: Tutorial de Boas Vindas</summary>
 
-**Objetivo:** Criar componente de tutorial para guiar o usuário na criação de entidades
+### 04-01: Tour Core System
 
-### Tarefas
+- [ ] 04-01-PLAN.md — Sistema de Tour/Tooltip
 
-- [ ] Criar componente TutorialOverlay com passos
-- [ ] Adicionar tutorial na página de clientes
-- [ ] Adicionar tutorial na página de serviços
-- [ ] Adicionar tutorial na página de agendamentos
+### 04-02: Integração de Entidades
 
-**Critério de conclusão:** Usuário consegue seguir tutorial e criar ENTITY
+- [ ] 04-02-PLAN.md — 5 Entidades no Tour
 
----
+### 04-03: Gatilho e Persistência
 
-### Phase 4.2: Tutorial de Backup
+- [ ] 04-03-PLAN.md — Trigger + Persistência
 
-**Objetivo:** Criar tutorial de backup e restauração
-
-### Tarefas
-
-- [ ] Adicionar tutorial de backup na página de perfil
-- [ ] Adicionar tutorial de restauração
-- [ ] Explicar uso de senha
-
-**Critério de conclusão:** Usuário entende como fazer backup
-
----
-
-### Phase 4.3: Exibição Automática
-
-**Objetivo:** Exibir tutorial automaticamente no primeiro acesso
-
-### Tarefas
-
-- [ ] Detectar primeiro acesso via localStorage
-- [ ] Mostrar tutorial automaticamente
-- [ ] Adicionar opção de pular
-- [ ] Adicionar opção de rever tutorial
-
-**Critério de conclusão:** Tutorial exibe no primeiro acesso
-
----
-
-## Plans
-
-- [ ] 04-01-01-PLAN.md — useTutorial hook + TutorialStep types
-- [ ] 04-01-02-PLAN.md — TutorialOverlay + StepIndicator + clientes page
-- [ ] 04-01-03-PLAN.md — servicos + agendamentos page integrations
+</details>
 
 ---
 
@@ -89,6 +55,4 @@
 | --------------------- | --------- | ---------------| ----------- | ---------- |
 | 2. UI Mobile          | v3.0      | 4/4            | Complete    | 2026-04-22 |
 | 3. Filters            | v3.0      | 3/3            | Complete    | 2026-04-22 |
-| 4.1 Tutorial Entities| v4.0      | 0/3            | Not started  | -          |
-| 4.2 Tutorial Backup  | v4.0      | 0/2            | Not started  | -          |
-| 4.3 Auto Display     | v4.0      | 0/2            | Not started  | -          |
+| 4. Welcome Tour       | v4.0      | 0/3            | Planned     | —          |

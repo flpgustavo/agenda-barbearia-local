@@ -368,7 +368,7 @@ export default function AgendaMensal() {
                             </SelectContent>
                         </Select>
 
-                        <Button variant='default' data-tour="add-agendamento" onClick={() => handleCreate(new Date().toISOString().split("T")[0])}>
+                        <Button variant='default' onClick={() => handleCreate(new Date().toISOString().split("T")[0])}>
                             <Plus className="h-4 w-4" /> Novo
                         </Button>
                     </div>

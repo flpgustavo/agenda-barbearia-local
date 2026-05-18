@@ -100,7 +100,6 @@ export function AgendamentoCard({
       >
         <Card
           {...longPressProps}
-          data-tour="concluir-agendamento"
           className={`relative border-3 shadow-sm transition-all hover:shadow-md py-2 cursor-pointer select-none ${statusConfig.bgClass}`}
         >
           {/* ÍCONE DE STATUS (Canto Superior Direito) */}

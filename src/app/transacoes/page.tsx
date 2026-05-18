@@ -77,6 +77,7 @@ export default function Transacoes() {
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                     aria-label="Criar nova transação"
+                    data-tour="add-transacao"
                     onClick={() => handleForm()}
                 >
                     <Plus className="size-5 font-bold text-primary-foreground" />

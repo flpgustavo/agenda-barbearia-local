@@ -119,6 +119,7 @@ export default function Servicos() {
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                     aria-label="Criar novo serviço"
+                    data-tour="add-servico"
                     onClick={() => handleForm()}
                 >
                     <Plus className="size-5 font-bold text-primary-foreground" />

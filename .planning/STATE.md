@@ -45,6 +45,12 @@ Em Progresso (Aguardando Verificação)
 
 - [checkpoint:human-verify] Aguardando verificação visual do sistema completo
 
+## Quick Tasks Completed
+
+| Data | Tarefa | Slug |
+|---|---|---|
+| 2026-05-18 | Mover Backup/Restore e Zona de Perigo para "Meus Dados" | mover-backup-perfil |
+
 ## Notas
 
 - Fase 2 concluída manualmente

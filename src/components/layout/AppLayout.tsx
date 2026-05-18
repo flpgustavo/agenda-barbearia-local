@@ -162,6 +162,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 <User className="mr-2 h-4 w-4" />
                                 <span>Perfil</span>
                             </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/meus-dados')}>
+                                <Settings className="mr-2 h-4 w-4" />
+                                <span>Meus Dados</span>
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={() => router.push('/')}>
                                 <LogOut className="mr-2 h-4 w-4" />

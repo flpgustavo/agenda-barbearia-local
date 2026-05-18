@@ -25,7 +25,6 @@ export default function Servicos() {
 
     const handleSuccess = () => {
         setIsDrawerOpen(false);
-        recarregar?.();
     }
 
     const handleForm = (servico?: Servico) => {

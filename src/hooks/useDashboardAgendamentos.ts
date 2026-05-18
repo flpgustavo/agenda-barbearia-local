@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AgendamentoStatus } from "../core/models/Agendamento";
 import { AgendamentoService, AgendamentoComDetalhes } from "../core/services/AgendamentoService";
+import { queryKeys } from "../lib/queryKeys";
 
 export interface DashboardFilters {
     dataInicio?: string; 
@@ -31,25 +33,18 @@ function diffMonths(a: Date, b: Date) {
 }
 
 export function useDashboardAgendamentos(filters: DashboardFilters) {
-    const [agendamentos, setAgendamentos] = useState<AgendamentoComDetalhes[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    async function carregar() {
-        try {
-            setLoading(true);
-            const data = await AgendamentoService.listWithDetails();
-            setAgendamentos(data);
-        } catch (err: any) {
-            setError(err.message || "Erro ao carregar agendamentos");
-        } finally {
-            setLoading(false);
-        }
-    }
+    const {
+        data: agendamentos = [],
+        isLoading: loading,
+        error: queryError,
+    } = useQuery({
+        queryKey: queryKeys.agendamentosDetalhes,
+        queryFn: () => AgendamentoService.listWithDetails(),
+    });
 
-    useEffect(() => {
-        carregar();
-    }, []);
+    const error = queryError ? (queryError as Error).message : null;
 
     const filtrados = useMemo(() => {
         return agendamentos.filter((ag) => {
@@ -311,7 +306,7 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
     return {
         loading,
         error,
-        recarregar: carregar,
+        recarregar: () => queryClient.invalidateQueries({ queryKey: queryKeys.agendamentosDetalhes }),
 
         agendamentos: filtrados,
 

@@ -1,6 +1,6 @@
 import { BaseModel } from "./BaseModel";
 
-export type TransacaoStatus = 'AGENDADO' | 'CONFIRMADO' | 'CANCELADO';
+export type TransacaoStatus = 'AGENDADO' | 'CONCLUIDO' | 'CANCELADO';
 
 export interface Transacao extends BaseModel {
     dataHora: string;

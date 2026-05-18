@@ -12,11 +12,9 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from "@/components/ui/drawer";
-import { IMaskInput } from "react-imask";
 import { useCliente } from "@/hooks/useCliente";
 import { toast } from "sonner";
 import { Cliente } from "@/core/models/Cliente";
-import { cn } from "@/lib/utils";
 import { InputMask } from "@/components/ui/input-mask";
 
 interface ClienteFormDrawerProps {

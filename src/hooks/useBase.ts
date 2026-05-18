@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery, useMutation, useQueryClient, QueryKey } from "@tanstack/react-query";
 import { BaseModel } from "../core/models/BaseModel";
 import { BaseService } from "../core/services/BaseService";
 
@@ -14,55 +15,57 @@ export interface UseBaseOptions<T> {
 
 export function useBase<T extends BaseModel>(
     service: BaseService<T>,
+    queryKey: QueryKey,
     options?: UseBaseOptions<T>
 ) {
-    const [rawItems, setRawItems] = useState<T[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    async function carregar() {
-        try {
-            setLoading(true);
-            const data = await service.list();
-            setRawItems(data);
-        } catch (err: any) {
-            setError(err.message || "Erro ao carregar dados");
-        } finally {
-            setLoading(false);
-        }
-    }
+    const {
+        data: rawItems = [],
+        isLoading: loading,
+        error: queryError,
+    } = useQuery({
+        queryKey,
+        queryFn: () => service.list(),
+        enabled: options?.autoLoad ?? true,
+    });
+
+    const error = queryError ? (queryError as Error).message : null;
+
+    const criarMutation = useMutation({
+        mutationFn: (data: Omit<T, "id" | "createdAt" | "updatedAt">) =>
+            service.create(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey });
+        },
+    });
+
+    const atualizarMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<T> }) =>
+            service.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey });
+        },
+    });
+
+    const removerMutation = useMutation({
+        mutationFn: (id: string) => service.remove(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey });
+        },
+    });
 
     async function criar(data: Omit<T, "id" | "createdAt" | "updatedAt">) {
-        const id = await service.create(data);
-        await carregar();
-        return id;
+        return criarMutation.mutateAsync(data);
     }
 
     async function atualizar(id: string, data: Partial<T>) {
-        try {
-            await service.update(id, data);
-            await carregar();
-        } catch (err: any) {
-            setError(err.message || "Erro ao atualizar");
-            throw err;
-        }
+        return atualizarMutation.mutateAsync({ id, data });
     }
 
     async function remover(id: string) {
-        try {
-            await service.remove(id);
-            await carregar();
-        } catch (err: any) {
-            setError(err.message || "Erro ao remover");
-            throw err;
-        }
+        return removerMutation.mutateAsync(id);
     }
-
-    useEffect(() => {
-        if (options?.autoLoad ?? true) {
-            carregar();
-        }
-    }, []);
 
     const items = useMemo(() => {
         let result = [...rawItems];
@@ -78,7 +81,6 @@ export function useBase<T extends BaseModel>(
         return result;
     }, [rawItems, options?.filters, options?.transform]);
 
-
     return {
         items,
         rawItems,
@@ -87,6 +89,6 @@ export function useBase<T extends BaseModel>(
         criar,
         atualizar,
         remover,
-        recarregar: carregar,
+        recarregar: () => queryClient.invalidateQueries({ queryKey }),
     };
 }

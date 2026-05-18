@@ -1,0 +1,111 @@
+# Agenda Barbearia - Projeto
+
+## Visão Geral
+
+**Inicio:** Abril 2026  
+**Stack:** Next.js, TypeScript, Tailwind CSS, Radix UI, Dexie (IndexedDB), PWA  
+**Current Version:** v3.0
+
+## Estado Atual
+
+### v3.0 — SHIPPED (2026-04-22)
+
+**Features shipping:**
+- UI de transações mobile-first com cards responsivos
+- Filtros por período (Este mês, Mês anterior, Personalizado)
+- Empty state contextual
+
+## Funcionalidades
+
+- Dashboard com agendamentos do dia
+- Gestão de clientes
+- Gestão de serviços
+- Gestão de agendamentos
+- Gestão de transações financeiras
+- Backup local (criptografado)
+- Sistema PWA offline-first
+
+## Histórico de Marcos
+
+### Marco 3: Filtros por Período ✅ COMPLETO
+
+**Objetivo:** Filtrar transações por período na página de transações
+
+**Status:** Completo (2026-04-22)
+
+- Fase 3.1: DateRangeFilter Integration
+- Fase 3.2: Filter + Empty State
+- Fase 3.3: Human Verification
+
+<details>
+<summary>Detalhes</summary>
+
+- DateRangeFilter integrado na página de transações
+- Filtros: Este mês, Mês anterior, Personalizado
+- Label mostra 01/MM até DD/MM (último dia do mês)
+- Empty state contextual por período
+
+</details>
+
+### Marco 2: UI de Transações Mobile ✅ COMPLETO
+
+**Objetivo:** Melhorar listagem de transações para mobile com UI limpa e bonita
+
+**Status:** Completo (2026-04-22)
+
+- Fase 2.1: Component List (Mobile-first)
+- Fase 2.2: Integração
+- Fase 2.3: Validação
+
+<details>
+<summary>Detalhes</summary>
+
+- TransacaoListItem + TransacaoList componentes
+- Breakpoint 640px para mobile/desktop
+- Badge de status com cores
+- Valor verde (ENTRADA) / vermelho (SAIDA)
+
+</details>
+
+### Marco 1: Modal de Transações
+
+**Objetivo:** Substituir Drawer por Modal para gestão de transações
+
+**Status:** Planejado
+
+- Fase 1.1: Componente Modal
+- Fase 1.2: Integração
+- Fase 1.3: Validação
+
+## Próximos Marcos
+
+### Marco 4: Tutoriais e Onboarding
+
+**Objetivo:** Criar tutorial de boas-vindas para guiar novos usuários
+
+**Fases planejadas:**
+- Phase 4.1: Tutorial de Criação de Entidades
+- Phase 4.2: Tutorial de Backup
+- Phase 4.3: Exibição Automática
+
+## Tech Stack
+
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Radix UI (Shadcn)
+- Dexie (IndexedDB)
+- Zustand (state management)
+- TanStack Query
+- PWA (Service Worker)
+- i18n (pt-BR)
+
+## Limitações Atuais
+
+- Dados apenas no browser (sem sync server)
+- Sem autenticação real
+- backup usa senha hardcoded
+
+---
+
+_Last updated: 2026-04-22 after v3.0 milestone_

@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
+import { DateRangeFilter } from "@/app/dashboard/DateRangeFilter";
 
 import { Transacao } from "@/core/models/Transacao";
 import { useTransacao } from "@/hooks/useTransacao";
@@ -8,23 +9,29 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { TransacaoFormDrawer } from "./TransacaoFormDrawer";
-import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useAgendamento } from "@/hooks/useAgendamento";
+import { TransacaoList } from "@/components/transacoes/TransacaoList";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export default function Transacoes() {
-
-    const { items, remover, recarregar } = useTransacao()
-    const { getDetails, loading} = useAgendamento()
+    const { items, remover } = useTransacao()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedTransacao, setSelectedTransacao] = useState<Transacao | null>(null);
+    const [filterStart, setFilterStart] = useState(() => format(startOfMonth(new Date()), "yyyy-MM-dd"));
+    const [filterEnd, setFilterEnd] = useState(() => format(endOfMonth(new Date()), "yyyy-MM-dd"));
+
+    const dateRange = { start: filterStart, end: filterEnd };
+
+    const handleFilterChange = (inicio: string, fim: string) => {
+        setFilterStart(inicio);
+        setFilterEnd(fim);
+    };
 
     const handleSuccess = () => {
         setIsDrawerOpen(false);
-        recarregar?.();
     }
 
-    const handleForm = (Transacao?: Transacao) => {
-        setSelectedTransacao(Transacao || null);
+    const handleForm = (transacao?: Transacao) => {
+        setSelectedTransacao(transacao || null);
         setIsDrawerOpen(true);
     };
 
@@ -39,7 +46,7 @@ export default function Transacoes() {
 
     return (
         <div className="min-h-screen bg-background pb-24 p-6">
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Transações</h1>
 
@@ -49,46 +56,20 @@ export default function Transacoes() {
                 </div>
             </div>
 
-            <div className="w-full overflow-auto">
-                <Table>
-                    <TableCaption>Suas transações</TableCaption>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Descrição</TableHead>
-                            <TableHead>Situação</TableHead>
-                            <TableHead className="text-right">Valor</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {items.map((transacao) => (
-                            <TableRow key={transacao.id}>
-                                <TableCell>{transacao.observacoes || 'Sem descrição'}
-                                    {transacao.agendamentoId &&
-                                        <span className="ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                                            Agendamento
-                                        </span>
-                                    }
-                                </TableCell>
-                                <TableCell>
-                                    <span className={`px-3 py-2 rounded-full text-xs font-bold
-                                        ${transacao.status === 'AGENDADO' ? 'text-yellow-500 bg-yellow-500/10' : transacao.status === 'CANCELADO' ? 'text-red-500 bg-red-500/10' : 'text-green-500 bg-green-500/10'}`}>
-                                        {transacao.status}
-                                    </span>
-                                </TableCell>
+            <div className="mb-4">
+                <DateRangeFilter
+                    onFilterChange={handleFilterChange}
+                    className="max-w-md"
+                />
+            </div>
 
-                                <TableCell className={`text-right ${transacao.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}`}>
-                                    R$ {transacao.tipo === 'ENTRADA' ? '' : ' -'}{transacao.valor}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow>
-                            <TableCell colSpan={2}>Total</TableCell>
-                            <TableCell className="text-right">R$ {items.reduce((acc, item) => acc + item.valor, 0).toFixed(2)}</TableCell>
-                        </TableRow>
-                    </TableFooter>
-                </Table>
+            <div className="w-full">
+                <TransacaoList
+                    items={items}
+                    onEdit={handleForm}
+                    onDelete={handleDelete}
+                    dateRange={dateRange}
+                />
             </div>
 
             <div className="fixed bottom-6 right-6 z-50">
@@ -108,7 +89,6 @@ export default function Transacoes() {
                 Transacao={selectedTransacao!}
                 onSuccess={handleSuccess}
             />
-
         </div>
     );
 }

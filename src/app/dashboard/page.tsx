@@ -161,14 +161,14 @@ export default function DashboardPage() {
                                                 handleBarClick(item.dia);
                                             }}
                                         >
-                                            <div className={`absolute -top-10 text-white dark:text-black bg-accent-foreground text-sm py-1 px-2 rounded shadow-lg transition-all duration-200 z-20 pointer-events-none ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                                            <div className={`absolute -top-10 text-white dark:text-black bg-accent-foreground text-sm py-1 px-2 rounded shadow-lg transition-all duration-200 pointer-events-none ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                                                 }`}>
                                                 {formatCurrency(item.totalReceita)}
                                                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-accent-foreground rotate-45"></div>
                                             </div>
 
                                             <div
-                                                className={`w-full rounded-t-sm transition-all duration-300 ${isSelected ? 'ring-2 ring-offset-2 ring-slate-400' : ''
+                                                className={`w-full rounded-t-sm transition-all duration-300 ${isSelected ? 'ring-1 ring-offset-1 ring-slate-400' : ''
                                                     } ${isBest ? 'bg-primary' : 'bg-primary/25'}`}
                                                 style={{ height: `${Math.max(percent, 4)}%` }}
                                             ></div>

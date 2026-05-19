@@ -33,17 +33,17 @@
 <details>
 <summary>Phase 4: Tutorial de Boas Vindas</summary>
 
-### 04-01: Tour Core System
+### 04-01: Core Tour System
 
-- [ ] 04-01-PLAN.md — Sistema de Tour/Tooltip
+- [ ] 04-01-PLAN.md — Tooltip, overlay, provider, state machine, AppLayout integration
 
-### 04-02: Integração de Entidades
+### 04-02: Entity Pages + Auto-Advance
 
-- [ ] 04-02-PLAN.md — 5 Entidades no Tour
+- [ ] 04-02-PLAN.md — 5 step configs, data-tour attributes, auto-navigation
 
-### 04-03: Gatilho e Persistência
+### 04-03: Trigger + Persistence
 
-- [ ] 04-03-PLAN.md — Trigger + Persistência
+- [ ] 04-03-PLAN.md — First-visit detection, confirmation modal, manual restart
 
 </details>
 
@@ -56,3 +56,4 @@
 | 2. UI Mobile          | v3.0      | 4/4            | Complete    | 2026-04-22 |
 | 3. Filters            | v3.0      | 3/3            | Complete    | 2026-04-22 |
 | 4. Welcome Tour       | v4.0      | 0/3            | Planned     | —          |
+|                        |           | **Plans:** 3   | **Waves:** 3 |             |

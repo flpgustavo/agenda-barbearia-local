@@ -1,58 +1,47 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: — Phases 2-3
-status: em_andamento
+milestone: v4.0
+milestone_name: Reformulação do Dashboard
+status: definindo_requisitos
 last_updated: "2026-05-19T10:00:00.000Z"
 progress:
-  total_phases: 4
-  completed_phases: 2
-  total_plans: 9
-  completed_plans: 7
-  percent: 50
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
-# Estado Atual - Fase 4: Tutorial de Boas Vindas (RE-PLANEJAR)
+## Current Position
 
-## Início
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-19 — Milestone v4.0 started
 
-Maio 2026
+## Milestones
 
-## Status
+- ✅ **v3.0** — Filtros por Período + UI Mobile (shipped 2026-04-22)
+- ◆ **v4.0** — Reformulação do Dashboard (defining requirements)
 
-Replanejamento — Fase 4 foi revertida no commit 29d32ae. Iniciando discussão para nova abordagem.
+## Accumulated Context
 
-## Fases Completas
+### Previous Milestone: v3.0
 
-- Fase 3: Filtros por Período (03-period-filters)
-- Fase 2: UI de Transações Mobile (02-mobile-transactions)
+- Phase 3 (Filters) and Phase 2 (Mobile UI) completed
+- Phase 4 (Welcome Tour) was planned and reverted in commit 29d32ae
+- Existing codebase has TourProvider, data-tour attributes in pages
+- Quick task completed: Mover Backup/Restore para "Meus Dados"
 
-## Fases a Re-planejar
+### Codebase State
 
-- Fase 4: Tutorial de Boas Vindas (04-welcome-tour) — revertida. Necessária nova abordagem.
-
-## Planos Concluídos (anteriores ao revert)
-
-- 04-01, 04-02, 04-03 — todos revertidos em 29d32ae. Serão re-planejados.
-
-## Tarefas em Andamento
-
-- Contexto da Fase 4 capturado — pronto para planejamento
-
-## Quick Tasks Completed
-
-| Data | Tarefa | Slug |
-|---|---|---|
-| 2026-05-18 | Mover Backup/Restore e Zona de Perigo para "Meus Dados" | mover-backup-perfil |
-
-## Notas
-
-- Fase 2 concluída manualmente
-- Fase 4 (primeira versão) foi completamente revertida em 29d32ae
-- Iniciando discussão para nova abordagem do tutorial
+- **Stack:** Next.js 14, TypeScript, Tailwind CSS, Radix UI/Shadcn, Dexie (IndexedDB), Zustand, TanStack Query, PWA
+- **Models:** Agendamento (clienteId, dataHora, servicoId, status), Servico (nome, duracaoMinutos, preco), Transacao (tipo ENTRADA/SAIDA, valor, agendamentoId), Cliente (nome, telefone)
+- **Dashboard metrics already available in useDashboardAgendamentos:** receitaPorDiaSemana, topClientes, frequenciaRetorno, lifetimeClientes
+- **Appointment availability:** AgendamentoService.gerarHorariosDisponiveis() and .verificarDisponibilidadeDia() already exist
+- Hidden (commented) retention section with MetricsRow, lifetime client distribution
 
 ## Session Continuity
 
 Last session: 2026-05-19
-Stopped at: Phase 4 context gathered, ready for planning
-Resume file: .planning/phases/04-welcome-tour/04-CONTEXT.md
+Stopped at: Milestone v4.0 started — defining requirements

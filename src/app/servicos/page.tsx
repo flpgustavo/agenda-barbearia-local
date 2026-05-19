@@ -53,6 +53,8 @@ export default function Servicos() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {!items.length && <p className="text-muted-foreground text-center">Nenhum serviço encontrado.</p>}
+
                 {items.map((service) => (
                     <Card key={service.id} className="flex flex-col gap-2 pb-4 justify-between shadow-md hover:scale-[1.02] hover:shadow-lg transition-shadow">
                         <CardHeader className="relative">

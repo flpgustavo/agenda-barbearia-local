@@ -54,14 +54,14 @@ export const TOUR_STEPS: TourStep[] = [
     targetSelector: "[data-tour='step-4']",
     title: "Conclua o atendimento",
     description:
-      "Deslize o card do agendamento para a esquerda para marcar como concluído.",
+      "Deslize o card do agendamento para a esquerda para marcar como concluído. Finalize registrando o valor recebido pelo serviço prestado.",
   },
   {
     stepIndex: 4,
     pageUrl: "/transacoes",
     targetSelector: "[data-tour='step-5']",
-    title: "Registre a transação",
+    title: "Confira suas transações",
     description:
-      "Finalize registrando o valor recebido pelo serviço prestado.",
+      "Cadastre despesas e receitas para acompanhar o fluxo de caixa do seu negócio. Toque no botão + para adicionar uma nova transação.",
   },
 ];

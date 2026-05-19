@@ -4,20 +4,16 @@ import { useId } from "react";
 
 interface TourOverlayProps {
   targetRect: DOMRect | null;
-  onSkip: () => void;
 }
 
-export default function TourOverlay({ targetRect, onSkip }: TourOverlayProps) {
+export default function TourOverlay({ targetRect }: TourOverlayProps) {
   const id = useId();
   const maskId = `spotlight-${id}`;
 
   // Sem targetRect: overlay simples sem recorte
   if (!targetRect) {
     return (
-      <div
-        className="fixed inset-0 z-50 bg-black/60"
-        onClick={onSkip}
-      />
+      <div className="fixed inset-0 z-49 bg-black/60 pointer-events-none" />
     );
   }
 
@@ -28,11 +24,10 @@ export default function TourOverlay({ targetRect, onSkip }: TourOverlayProps) {
   const h = targetRect.height + padding * 2;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-49 pointer-events-none">
       <svg
         className="w-full h-full"
-        style={{ pointerEvents: "auto" }}
-        onClick={onSkip}
+        style={{ pointerEvents: "none" }}
       >
         <defs>
           <mask id={maskId}>

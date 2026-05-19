@@ -173,7 +173,7 @@ export function TransacaoFormDrawer({
                                 >
                                     <RadioGroupItem value="ENTRADA" id="ENTRADA" className="sr-only" />
                                     <div className="space-y-1">
-                                        <p className="text-sm tracking-wider">Entrada</p>
+                                        <p className="text-sm">Entrada</p>
                                     </div>
                                 </Label>
                                 <Label
@@ -185,7 +185,7 @@ export function TransacaoFormDrawer({
                                 >
                                     <RadioGroupItem value="SAIDA" id="SAIDA" className="sr-only" />
                                     <div className="space-y-1">
-                                        <p className=" text-sm tracking-wider">Saída</p>
+                                        <p className="text-sm">Saída</p>
                                     </div>
                                 </Label>
                             </RadioGroup>
@@ -211,7 +211,7 @@ export function TransacaoFormDrawer({
                                 <Label
                                     className="mb-2"
                                 >
-                                    Status
+                                    Situação *
                                 </Label>
                                 <Select
                                     value={status}
@@ -220,11 +220,11 @@ export function TransacaoFormDrawer({
                                     <SelectTrigger
                                         className="w-full"
                                     >
-                                        <SelectValue placeholder="Selecione o status" />
+                                        <SelectValue placeholder="Selecione" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="AGENDADO">Agendado</SelectItem>
                                         <SelectItem value="CONCLUIDO">Concluído</SelectItem>
+                                        <SelectItem value="AGENDADO">Agendado</SelectItem>
                                         <SelectItem value="CANCELADO">Cancelado</SelectItem>
                                     </SelectContent>
                                 </Select>

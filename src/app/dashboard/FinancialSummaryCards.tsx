@@ -34,11 +34,11 @@ export function FinancialSummaryCards({ receitaTotal, despesaTotal, saldo, loadi
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Income Card */}
             <Card className="border-l-4 border-emerald-500 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 py-0">
                     <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Receita</CardTitle>
                     <TrendingUp className="h-4 w-4 text-emerald-500" />
                 </CardHeader>
-                <CardContent className="p-4 pt-0">
+                <CardContent className="p-4 py-0">
                     <div className="text-xl font-bold">{formatCurrency(receitaTotal)}</div>
                     <p className="text-[12px] text-muted-foreground mt-1">Total de entradas</p>
                 </CardContent>
@@ -46,11 +46,11 @@ export function FinancialSummaryCards({ receitaTotal, despesaTotal, saldo, loadi
 
             {/* Expense Card */}
             <Card className="border-l-4 border-red-500 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 py-0">
                     <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Despesa</CardTitle>
                     <TrendingDown className="h-4 w-4 text-red-500" />
                 </CardHeader>
-                <CardContent className="p-4 pt-0">
+                <CardContent className="p-4 py-0">
                     <div className="text-xl font-bold">{formatCurrency(despesaTotal)}</div>
                     <p className="text-[12px] text-muted-foreground mt-1">Total de saídas</p>
                 </CardContent>
@@ -58,11 +58,11 @@ export function FinancialSummaryCards({ receitaTotal, despesaTotal, saldo, loadi
 
             {/* Balance Card */}
             <Card className={`shadow-sm border-l-4 ${saldo >= 0 ? 'border-emerald-500' : 'border-red-500'}`}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 py-0">
                     <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Saldo</CardTitle>
                     <Wallet className="h-4 w-4 text-primary" />
                 </CardHeader>
-                <CardContent className="p-4 pt-0">
+                <CardContent className="p-4 py-0">
                     <div className={`text-xl font-bold ${saldo >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                         {formatCurrency(saldo)}
                     </div>

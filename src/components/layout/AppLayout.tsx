@@ -134,7 +134,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return (
         <TourProvider>
             <div className="min-h-screen bg-background flex flex-col">
-                <header className="border-b h-16 px-4 flex items-center shadow-md justify-between bg-card top-0 z-50">
+                <header className="border-b h-16 px-4 flex items-center shadow-md justify-between bg-card top-0 z-49">
                     
                     <div className="flex items-center gap-2">
                         <DropdownMenu>

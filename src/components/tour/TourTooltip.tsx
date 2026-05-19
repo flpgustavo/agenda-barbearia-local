@@ -61,7 +61,7 @@ export default function TourTooltip({
       ? targetRect.top - gap - tooltipHeight
       : targetRect.bottom + gap;
 
-    setStyle({ position: "fixed", left, top, zIndex: 60 });
+    setStyle({ position: "fixed", left, top, zIndex: 49 });
   }, [targetRect]);
 
   // Escuta scroll e resize para forçar recálculo
@@ -88,45 +88,46 @@ export default function TourTooltip({
   // Fallback quando elemento alvo não está na página
   if (!targetRect) {
     return (
-      <motion.div
-        ref={tooltipRef}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
-        style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", zIndex: 60 }}
-        className="w-[calc(100vw-32px)] max-w-xs bg-card border rounded-xl shadow-lg p-4"
-      >
-        <h3 className="font-semibold text-sm">{step.title}</h3>
-        <p className="text-muted-foreground text-xs mt-1">
-          Elemento não encontrado — navegue até a página correta
-        </p>
-        <div className="mt-3 mb-3">
-          <p className="text-xs text-muted-foreground mb-1">
-            Passo {step.stepIndex + 1} de {totalSteps}
-          </p>
-          <Progress value={progressValue} className="h-1.5" />
-        </div>
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onSkip}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Pular tutorial
-          </button>
-          <div className="flex items-center gap-2">
-            {!isFirst && (
-              <Button variant="outline" size="sm" onClick={onPrev}>
-                Anterior
-              </Button>
-            )}
-            <Button variant="default" size="sm" onClick={onNext}>
-              {isFirst ? "Começar" : isLast ? "Finalizar" : "Próximo"}
-            </Button>
-          </div>
-        </div>
-      </motion.div>
+      // <motion.div
+      //   ref={tooltipRef}
+      //   initial={{ opacity: 0, y: 10 }}
+      //   animate={{ opacity: 1, y: 0 }}
+      //   exit={{ opacity: 0, y: 10 }}
+      //   transition={{ duration: 0.2, ease: "easeOut" }}
+      //   style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", zIndex: 49 }}
+      //   className="w-[calc(100vw-32px)] max-w-xs bg-card border rounded-xl shadow-lg p-4"
+      // >
+      //   <h3 className="font-semibold text-sm">{step.title}</h3>
+      //   <p className="text-muted-foreground text-xs mt-1">
+      //     Elemento não encontrado — navegue até a página correta
+      //   </p>
+      //   <div className="mt-3 mb-3">
+      //     <p className="text-xs text-muted-foreground mb-1">
+      //       Passo {step.stepIndex + 1} de {totalSteps}
+      //     </p>
+      //     <Progress value={progressValue} className="h-1.5" />
+      //   </div>
+      //   <div className="flex items-center justify-between">
+      //     <button
+      //       type="button"
+      //       onClick={onSkip}
+      //       className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+      //     >
+      //       Pular tutorial
+      //     </button>
+      //     <div className="flex items-center gap-2">
+      //       {!isFirst && (
+      //         <Button variant="outline" size="sm" onClick={onPrev}>
+      //           Anterior
+      //         </Button>
+      //       )}
+      //       <Button variant="default" size="sm" onClick={onNext}>
+      //         {isFirst ? "Feito" : isLast ? "Finalizar" : "Próximo"}
+      //       </Button>
+      //     </div>
+      //   </div>
+      // </motion.div>
+      <p></p>
     );
   }
 
@@ -181,7 +182,7 @@ export default function TourTooltip({
             </Button>
           )}
           <Button variant="default" size="sm" onClick={onNext}>
-            {isFirst ? "Começar" : isLast ? "Finalizar" : "Próximo"}
+            {isFirst ? "Feito" : isLast ? "Finalizar" : "Próximo"}
           </Button>
         </div>
       </div>

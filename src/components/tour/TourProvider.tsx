@@ -291,7 +291,7 @@ export function TourProvider({
 
       {isTourVisible && (
         <>
-          <TourOverlay targetRect={targetRect} onSkip={actions.skipTour} />
+          <TourOverlay targetRect={targetRect} />
           {currentStep && (
             <TourTooltip
               targetRect={targetRect}

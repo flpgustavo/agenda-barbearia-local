@@ -17,11 +17,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-19)
 
 **Core value:** Barbearias podem gerenciar agendamentos, clientes e finanças de forma simples e offline-first
-**Current focus:** Phase 4 — Métricas Financeiras
+**Current focus:** Phase 5 — Métricas Financeiras
 
 ## Current Position
 
-Phase: 4 of 7 (Métricas Financeiras)
+Phase: 5 of 8 (Métricas Financeiras)
 Plan: 0 of 0 in current phase
 Status: Ready to plan
 Last activity: 2026-05-19 — Roadmap v4.0 defined (4 phases)
@@ -52,8 +52,8 @@ Progress: [░░░░░░░░░░] 0%
 ### Decisions
 
 - **[v4.0]**: Welcome Tour (Phase 4 originally) discarded per user instruction — all tour code reverted
-- **[v4.0]**: Dashboard reformulation starts at Phase 4 (continuing from v3.0's Phase 3)
-- **[v4.0]**: 4 phases derived from 15 requirements: Financial Metrics → Rankings & Insights → Schedule & Occupancy → Retention
+- **[v4.0]**: Dashboard reformulation starts at Phase 5 (Phase 4 preserved for Welcome Tour numbering)
+- **[v4.0]**: 4 phases (5-8) derived from 15 requirements: Financial Metrics → Rankings & Insights → Schedule & Occupancy → Retention
 
 ### Codebase State
 

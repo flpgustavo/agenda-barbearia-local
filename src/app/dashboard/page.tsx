@@ -25,6 +25,8 @@ import { Separator } from "@/components/ui/separator";
 // Importe seu hook aqui
 import { useDashboardAgendamentos, DashboardFilters } from "@/hooks/useDashboardAgendamentos";
 import { DateRangeFilter } from "./DateRangeFilter";
+import { FinancialSummaryCards } from "./FinancialSummaryCards";
+import { IncomeVsExpenseChart } from "./IncomeVsExpenseChart";
 
 // Utilitário para formatar moeda
 const formatCurrency = (value: number) => {
@@ -52,6 +54,9 @@ export default function DashboardPage() {
         frequenciaRetorno,
         agendamentos,
         lifetimeClientes,
+        receitaTotal,
+        despesaTotal,
+        saldo,
     } = useDashboardAgendamentos(filters);
 
     // Função simples para mudar datas
@@ -131,6 +136,22 @@ export default function DashboardPage() {
                         value={loading ? "..." : `${agendamentos.length}`}
                         subValue={"Total em aberto: " + agendamentos.filter(a => a.status == "CONFIRMADO").length}
                         icon={<Users className="h-4 w-4 text-primary" />}
+                        loading={loading}
+                    />
+                </section>
+
+                {/* Phase 5 — Métricas Financeiras */}
+                <section className="space-y-4">
+                    <Separator className="my-2" />
+                    <FinancialSummaryCards
+                        receitaTotal={receitaTotal}
+                        despesaTotal={despesaTotal}
+                        saldo={saldo}
+                        loading={loading}
+                    />
+                    <IncomeVsExpenseChart
+                        receitaTotal={receitaTotal}
+                        despesaTotal={despesaTotal}
                         loading={loading}
                     />
                 </section>

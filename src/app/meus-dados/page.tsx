@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBackup } from "@/hooks/useBackup";
 import useUsuario from "@/hooks/useUsuario";
-import { Loader2, Download, Upload, FileUp, RefreshCw, AlertTriangle, Trash2 } from "lucide-react";
+import { useTour } from "@/hooks/useTour";
+import { Loader2, Download, Upload, FileUp, RefreshCw, AlertTriangle, Trash2, PlayCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { BackupService } from "@/core/services/BackupService";
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
 export default function MeusDadosPage() {
     const { fazerBackup, restaurarBackup, loading } = useBackup();
     const { items } = useUsuario();
+    const { startTour } = useTour();
 
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isResetOpen, setIsResetOpen] = useState(false);
@@ -136,6 +138,34 @@ export default function MeusDadosPage() {
                                 <p className="text-xs text-muted-foreground">Suporta arquivos .backup</p>
                             </div>
                         </label>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <PlayCircle className="h-5 w-5 text-primary" />
+                        Tutorial
+                    </CardTitle>
+                    <CardDescription>Reaprenda como usar o aplicativo com o tour guiado.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col items-center gap-3 p-4 border rounded-lg bg-muted/20">
+                        <div className="space-y-1 text-center">
+                            <p className="font-medium">Tour de Boas-Vindas</p>
+                            <p className="text-sm text-muted-foreground">
+                                Refresque sua memória sobre como criar clientes, agendar serviços e registrar transações.
+                            </p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            className="w-full border-primary/20 hover:bg-primary/5 hover:text-primary"
+                            onClick={() => startTour()}
+                        >
+                            <PlayCircle className="mr-2 h-4 w-4" />
+                            Tutorial
+                        </Button>
                     </div>
                 </CardContent>
             </Card>

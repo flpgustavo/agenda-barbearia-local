@@ -14,6 +14,8 @@ import type { TourActions, TourContextValue, TourStatus, TourStep } from "./type
 import { TOUR_STEPS } from "./tourSteps";
 import TourOverlay from "./TourOverlay";
 import TourTooltip from "./TourTooltip";
+import { useTourFirstVisit } from "@/hooks/useTourFirstVisit";
+import { TourConfirmationModal } from "./TourConfirmationModal";
 
 // ─── Tipos internos ────────────────────────────────────────────────
 
@@ -120,6 +122,28 @@ export function TourProvider({
 
   const currentStep = state.steps[state.currentStepIndex];
 
+  // ── First-visit detection + modal state ─────────────────────────
+  const { getStatus, markVisited, markSkipped, markCompleted, reset } =
+    useTourFirstVisit();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // ── Verificar primeira visita ────────────────────────────────────
+  useEffect(() => {
+    if (getStatus() === "first_visit") {
+      setIsModalOpen(true);
+    }
+  }, [getStatus]);
+
+  // ── Persistir status completed/skipped ──────────────────────────
+  useEffect(() => {
+    if (state.status === "completed") {
+      markCompleted();
+    }
+    if (state.status === "skipped") {
+      markSkipped();
+    }
+  }, [state.status, markCompleted, markSkipped]);
+
   // ── Mobile detection (300ms debounce) ────────────────────────────
   useEffect(() => {
     function checkMobile() {
@@ -220,11 +244,31 @@ export function TourProvider({
     setTimeout(() => dispatch({ type: "NEXT" }), 500);
   }, []);
 
+  // ── Modal event handlers ────────────────────────────────────────
+  const handleAcceptTour = () => {
+    setIsModalOpen(false);
+    markCompleted();
+    dispatch({ type: "START" });
+  };
+
+  const handleDismissTour = () => {
+    setIsModalOpen(false);
+    markVisited();
+  };
+
   const actions: TourActions = {
-    startTour: () => dispatch({ type: "START" }),
+    startTour: () => {
+      if (state.status !== "idle") {
+        reset();
+      }
+      dispatch({ type: "START" });
+    },
     nextStep: () => dispatch({ type: "NEXT" }),
     prevStep: () => dispatch({ type: "PREV" }),
-    skipTour: () => dispatch({ type: "SKIP" }),
+    skipTour: () => {
+      markSkipped();
+      dispatch({ type: "SKIP" });
+    },
     goToStep: (index: number) => dispatch({ type: "GO_TO", index }),
     completeStep: (stepIndex: number) =>
       dispatch({ type: "COMPLETE_STEP", stepIndex }),
@@ -262,6 +306,13 @@ export function TourProvider({
           )}
         </>
       )}
+
+      <TourConfirmationModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onAccept={handleAcceptTour}
+        onDismiss={handleDismissTour}
+      />
     </TourContext.Provider>
   );
 }

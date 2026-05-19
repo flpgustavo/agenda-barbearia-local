@@ -45,12 +45,16 @@
 **Depends on**: Phase 3 (DateRangeFilter already integrated in dashboard)
 **Requirements**: FIN-01, FIN-02, FIN-03, FIN-04
 **Success Criteria** (what must be TRUE):
-   1. User can see total income (ENTRADA) displayed as a card for the selected filter period
-   2. User can see total expenses (SAIDA) displayed as a card for the selected filter period
-   3. User can see the balance (income - expenses) clearly highlighted with positive/negative indication
-   4. User can see a visual chart (bars/pie) showing income vs expenses proportion
-   5. All financial cards update reactively when DateRangeFilter period changes
-**Plans**: TBD
+    1. User can see total income (ENTRADA) displayed as a card for the selected filter period
+    2. User can see total expenses (SAIDA) displayed as a card for the selected filter period
+    3. User can see the balance (income - expenses) clearly highlighted with positive/negative indication
+    4. User can see a visual chart (bars/pie) showing income vs expenses proportion
+    5. All financial cards update reactively when DateRangeFilter period changes
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Financial data layer: install recharts, extend hook with income/expense/balance
+- [ ] 05-02-PLAN.md — Financial UI: summary cards + income vs expense chart, integrate into dashboard
 **UI hint**: yes
 
 ### Phase 6: Rankings & Insights
@@ -94,7 +98,7 @@
 |-------|-----------|----------------|--------|-----------|
 | 2. UI Mobile | v3.0 | 4/4 | Complete | 2026-04-22 |
 | 3. Filters | v3.0 | 3/3 | Complete | 2026-04-22 |
-| 5. Métricas Financeiras | v4.0 | 0/0 | Not started | - |
+| 5. Métricas Financeiras | v4.0 | 0/2 | Not started | - |
 | 6. Rankings & Insights | v4.0 | 0/0 | Not started | - |
 | 7. Disponibilidade & Ocupação | v4.0 | 0/0 | Not started | - |
 | 8. Retenção de Clientes | v4.0 | 0/0 | Not started | - |

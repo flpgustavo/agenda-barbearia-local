@@ -24,6 +24,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { TourProvider } from "@/components/tour/TourProvider";
 import { usuarioService } from "@/core/services/UsuarioService";
 import { Usuario } from "@/core/models/Usuario";
 import { useTheme } from "next-themes";
@@ -131,99 +132,101 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
-            <header className="border-b h-16 px-4 flex items-center shadow-md justify-between bg-card top-0 z-50">
-                
-                <div className="flex items-center gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                                <Avatar>
-                                    <AvatarImage src="" alt={usuarioAtual.nome} />
-                                    <AvatarFallback>{getIniciais(usuarioAtual.nome)}</AvatarFallback>
-                                </Avatar>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56" align="end" forceMount>
-                            <DropdownMenuLabel className="font-normal">
-                                <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none">{usuarioAtual.nome}</p>
-                                    <p className="text-xs leading-none text-muted-foreground">
-                                        Usuário Ativo
-                                    </p>
-                                </div>
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/perfil')}>
-                                <User className="mr-2 h-4 w-4" />
-                                <span>Perfil</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/meus-dados')}>
-                                <Settings className="mr-2 h-4 w-4" />
-                                <span>Meus Dados</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={() => router.push('/')}>
-                                <LogOut className="mr-2 h-4 w-4" />
-                                <span>Sair</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <div className="flex flex-col">
-                        <p className="font-medium leading-none">{usuarioAtual.nome}</p>
-                    </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                     <Button variant="ghost" size="icon" onClick={toggleTheme}>
-                        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                        <span className="sr-only">Alternar tema</span>
-                    </Button>
-
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <Menu className="h-6 w-6" />
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="bottom" className="px-4 bg-card">
-                            <SheetHeader className="pl-0 pb-0">
-                                <SheetTitle>Menu</SheetTitle>
-                            </SheetHeader>
-                            <nav className="flex flex-col gap-2 mt-0 mb-10">
-                                {menuItems.map((item) => {
-                                    const isActive = pathname.startsWith(item.href);
-
-                                    return (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            className={`flex items-center gap-2 text-lg transition-colors p-2 rounded-md hover:bg-muted ${isActive
-                                                ? "text-primary font-semibold bg-primary/10"
-                                                : "text-muted-foreground"
-                                                }`}
-                                        >
-                                            <item.icon className="h-5 w-5" />
-                                            {item.label}
-                                        </Link>
-                                    );
-                                })}
-                            </nav>
-
-                        </SheetContent>
-                    </Sheet>
+        <TourProvider>
+            <div className="min-h-screen bg-background flex flex-col">
+                <header className="border-b h-16 px-4 flex items-center shadow-md justify-between bg-card top-0 z-49">
                     
-                </div>
+                    <div className="flex items-center gap-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                    <Avatar>
+                                        <AvatarImage src="" alt={usuarioAtual.nome} />
+                                        <AvatarFallback>{getIniciais(usuarioAtual.nome)}</AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="end" forceMount>
+                                <DropdownMenuLabel className="font-normal">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-medium leading-none">{usuarioAtual.nome}</p>
+                                        <p className="text-xs leading-none text-muted-foreground">
+                                            Usuário Ativo
+                                        </p>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/perfil')}>
+                                    <User className="mr-2 h-4 w-4" />
+                                    <span>Perfil</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/meus-dados')}>
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span>Meus Dados</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={() => router.push('/')}>
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Sair</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <div className="flex flex-col">
+                            <p className="font-medium leading-none">{usuarioAtual.nome}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                            <span className="sr-only">Alternar tema</span>
+                        </Button>
+
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <Menu className="h-6 w-6" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="bottom" className="px-4 bg-card">
+                                <SheetHeader className="pl-0 pb-0">
+                                    <SheetTitle>Menu</SheetTitle>
+                                </SheetHeader>
+                                <nav className="flex flex-col gap-2 mt-0 mb-10">
+                                    {menuItems.map((item) => {
+                                        const isActive = pathname.startsWith(item.href);
+
+                                        return (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                className={`flex items-center gap-2 text-lg transition-colors p-2 rounded-md hover:bg-muted ${isActive
+                                                    ? "text-primary font-semibold bg-primary/10"
+                                                    : "text-muted-foreground"
+                                                    }`}
+                                            >
+                                                <item.icon className="h-5 w-5" />
+                                                {item.label}
+                                            </Link>
+                                        );
+                                    })}
+                                </nav>
+
+                            </SheetContent>
+                        </Sheet>
+                        
+                    </div>
 
 
 
-            </header>
+                </header>
 
-            <main className="flex-1">
-                {children}
-            </main>
-        </div>
+                <main className="flex-1">
+                    {children}
+                </main>
+            </div>
+        </TourProvider>
     );
 }

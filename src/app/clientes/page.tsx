@@ -65,6 +65,8 @@ export default function Clientes() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {!items.length && <p className="text-muted-foreground text-center">Nenhum cliente encontrado.</p>}
+
                 {items.map((cliente) => (
                     <Card key={cliente.id} className="flex flex-col gap-2 pb-4 justify-between shadow-md hover:scale-[1.02] hover:shadow-lg transition-shadow">
                         <CardHeader className="relative">
@@ -124,6 +126,7 @@ export default function Clientes() {
 
             <div className="fixed bottom-6 right-6 z-50">
                 <Button
+                    data-tour="step-1"
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                     aria-label="Criar novo cliente"

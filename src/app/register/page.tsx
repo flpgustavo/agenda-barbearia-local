@@ -57,8 +57,8 @@ export default function Register() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background">
-            <Card className="w-[calc(100%-2rem)] max-w-md shadow-lg">
+        <div className="flex min-h-screen items-center justify-center bg-background py-5">
+            <Card className="w-[calc(100%-2rem)] max-w-md shadow-lg ">
                 <CardHeader className="space-y-1 text-center">
                     <CardTitle className="text-2xl font-bold tracking-tight">
                         Registre-se

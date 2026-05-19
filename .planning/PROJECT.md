@@ -6,6 +6,18 @@
 **Stack:** Next.js, TypeScript, Tailwind CSS, Radix UI, Dexie (IndexedDB), PWA  
 **Current Version:** v3.0
 
+## Current Milestone: v4.0 Reformulação do Dashboard
+
+**Goal:** Reformular o dashboard com métricas financeiras, insights de clientes/serviços, grid de disponibilidade semanal e taxas de ocupação.
+
+**Target features:**
+- Balanço financeiro entradas/saídas (cards + gráfico)
+- Top serviços (por quantidade e receita)
+- Insights sem período fixo (últimos 12 meses): melhores clientes, melhores serviços, clientes inativos
+- Grid de disponibilidade semanal por serviço (com exportação html-to-image)
+- Taxa de ocupação por dia da semana
+- Reativar métricas de retenção (ciclo de retorno + estágio dos clientes)
+
 ## Estado Atual
 
 ### v3.0 — SHIPPED (2026-04-22)
@@ -79,14 +91,9 @@
 
 ## Próximos Marcos
 
-### Marco 4: Tutoriais e Onboarding
+### Marco 4: Reformulação do Dashboard (em andamento)
 
-**Objetivo:** Criar tutorial de boas-vindas para guiar novos usuários
-
-**Fases planejadas:**
-- Phase 4.1: Tutorial de Criação de Entidades
-- Phase 4.2: Tutorial de Backup
-- Phase 4.3: Exibição Automática
+**Objetivo:** Reformular o dashboard com métricas financeiras, insights, disponibilidade e ocupação
 
 ## Tech Stack
 
@@ -106,6 +113,23 @@
 - Sem autenticação real
 - backup usa senha hardcoded
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
 
-_Last updated: 2026-04-22 after v3.0 milestone_
+_Last updated: 2026-05-19 after starting v4.0 milestone_

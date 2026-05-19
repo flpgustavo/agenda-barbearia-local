@@ -9,7 +9,7 @@ import type { TourContextValue } from "@/components/tour/types";
  * Retorna um objeto com:
  * - Estado: `status`, `currentStepIndex`, `steps`, `isMobile`
  * - Ações: `startTour`, `nextStep`, `prevStep`, `skipTour`, `goToStep`,
- *   `completeStep`
+ *   `completeStep`, `onEntityCreated`
  *
  * O tour é mobile-only (viewport <= 640px). Em desktop, `startTour` não
  * ativa a exibição do overlay/tooltip.

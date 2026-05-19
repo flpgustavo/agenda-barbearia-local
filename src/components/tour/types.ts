@@ -22,6 +22,7 @@ export interface TourActions {
   skipTour: () => void;
   goToStep: (index: number) => void;
   completeStep: (stepIndex: number) => void;
+  onEntityCreated: (stepIndex: number) => void;
 }
 
 export type TourContextValue = TourState & TourActions;

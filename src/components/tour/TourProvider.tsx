@@ -8,8 +8,10 @@ import {
   useRef,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
 
 import type { TourActions, TourContextValue, TourStatus, TourStep } from "./types";
+import { TOUR_STEPS } from "./tourSteps";
 import TourOverlay from "./TourOverlay";
 import TourTooltip from "./TourTooltip";
 
@@ -75,20 +77,7 @@ function tourReducer(
       const completed = state.completedSteps.includes(stepKey)
         ? state.completedSteps
         : [...state.completedSteps, stepKey];
-
-      if (action.stepIndex !== state.currentStepIndex) {
-        return { ...state, completedSteps: completed };
-      }
-
-      // Auto-advance se for o passo atual
-      if (state.currentStepIndex >= state.steps.length - 1) {
-        return { ...state, completedSteps: completed, status: "completed" };
-      }
-      return {
-        ...state,
-        completedSteps: completed,
-        currentStepIndex: state.currentStepIndex + 1,
-      };
+      return { ...state, completedSteps: completed };
     }
 
     case "SKIP":
@@ -125,6 +114,7 @@ export function TourProvider({
     steps: initialSteps,
   });
 
+  const router = useRouter();
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -150,6 +140,23 @@ export function TourProvider({
       clearTimeout(timeoutId);
     };
   }, []);
+
+  // ── Carregar steps do TOUR_STEPS no mount ──────────────────────
+  useEffect(() => {
+    if (TOUR_STEPS.length > 0) {
+      dispatch({ type: "SET_STEPS", steps: TOUR_STEPS });
+    }
+  }, []);
+
+  // ── Auto-navegação entre páginas ─────────────────────────────
+  useEffect(() => {
+    if (state.status !== "active") return;
+
+    const step = state.steps[state.currentStepIndex];
+    if (step && step.pageUrl !== window.location.pathname) {
+      router.push(step.pageUrl);
+    }
+  }, [state.currentStepIndex, state.status, state.steps, router]);
 
   // ── Atualizar targetRect ────────────────────────────────────────
   const updateTargetRect = useCallback(() => {
@@ -208,6 +215,11 @@ export function TourProvider({
   }, [state.status, targetRect, updateTargetRect]);
 
   // ── Actions expostas no context ─────────────────────────────────
+  const onEntityCreated = useCallback((stepIndex: number) => {
+    dispatch({ type: "COMPLETE_STEP", stepIndex });
+    setTimeout(() => dispatch({ type: "NEXT" }), 500);
+  }, []);
+
   const actions: TourActions = {
     startTour: () => dispatch({ type: "START" }),
     nextStep: () => dispatch({ type: "NEXT" }),
@@ -216,6 +228,7 @@ export function TourProvider({
     goToStep: (index: number) => dispatch({ type: "GO_TO", index }),
     completeStep: (stepIndex: number) =>
       dispatch({ type: "COMPLETE_STEP", stepIndex }),
+    onEntityCreated,
   };
 
   const contextValue: TourContextValue = {

@@ -67,26 +67,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FIN-01 | — | Pending |
-| FIN-02 | — | Pending |
-| FIN-03 | — | Pending |
-| FIN-04 | — | Pending |
-| SERV-01 | — | Pending |
-| SERV-02 | — | Pending |
-| INSG-01 | — | Pending |
-| INSG-02 | — | Pending |
-| INSG-03 | — | Pending |
-| DISP-01 | — | Pending |
-| DISP-02 | — | Pending |
-| DISP-03 | — | Pending |
-| OCUP-01 | — | Pending |
-| RET-01 | — | Pending |
-| RET-02 | — | Pending |
+| FIN-01 | Phase 4 | Pending |
+| FIN-02 | Phase 4 | Pending |
+| FIN-03 | Phase 4 | Pending |
+| FIN-04 | Phase 4 | Pending |
+| SERV-01 | Phase 5 | Pending |
+| SERV-02 | Phase 5 | Pending |
+| INSG-01 | Phase 5 | Pending |
+| INSG-02 | Phase 5 | Pending |
+| INSG-03 | Phase 5 | Pending |
+| DISP-01 | Phase 6 | Pending |
+| DISP-02 | Phase 6 | Pending |
+| DISP-03 | Phase 6 | Pending |
+| OCUP-01 | Phase 6 | Pending |
+| RET-01 | Phase 7 | Pending |
+| RET-02 | Phase 7 | Pending |
 
 **Coverage:**
 - v4.0 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15
+- Unmapped: 0 ✅
 
 ---
 

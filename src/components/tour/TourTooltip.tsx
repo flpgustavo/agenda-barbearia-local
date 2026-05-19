@@ -83,9 +83,52 @@ export default function TourTooltip({
     };
   }, [targetRect]);
 
-  if (!targetRect) return null;
-
   const progressValue = ((step.stepIndex + 1) / totalSteps) * 100;
+
+  // Fallback quando elemento alvo não está na página
+  if (!targetRect) {
+    return (
+      <motion.div
+        ref={tooltipRef}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", zIndex: 60 }}
+        className="w-[calc(100vw-32px)] max-w-xs bg-card border rounded-xl shadow-lg p-4"
+      >
+        <h3 className="font-semibold text-sm">{step.title}</h3>
+        <p className="text-muted-foreground text-xs mt-1">
+          Elemento não encontrado — navegue até a página correta
+        </p>
+        <div className="mt-3 mb-3">
+          <p className="text-xs text-muted-foreground mb-1">
+            Passo {step.stepIndex + 1} de {totalSteps}
+          </p>
+          <Progress value={progressValue} className="h-1.5" />
+        </div>
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Pular tutorial
+          </button>
+          <div className="flex items-center gap-2">
+            {!isFirst && (
+              <Button variant="outline" size="sm" onClick={onPrev}>
+                Anterior
+              </Button>
+            )}
+            <Button variant="default" size="sm" onClick={onNext}>
+              {isFirst ? "Começar" : isLast ? "Finalizar" : "Próximo"}
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AgendamentoStatus } from "../core/models/Agendamento";
 import { AgendamentoService, AgendamentoComDetalhes } from "../core/services/AgendamentoService";
+import { transacaoService } from "../core/services/TransacaoService";
 import { queryKeys } from "../lib/queryKeys";
 
 export interface DashboardFilters {
@@ -37,13 +38,19 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
 
     const {
         data: agendamentos = [],
-        isLoading: loading,
+        isLoading: loadingAgendamentos,
         error: queryError,
     } = useQuery({
         queryKey: queryKeys.agendamentosDetalhes,
         queryFn: () => AgendamentoService.listWithDetails(),
     });
 
+    const { data: transacoes = [], isLoading: loadingTransacoes } = useQuery({
+        queryKey: queryKeys.transacoes,
+        queryFn: () => transacaoService.list(),
+    });
+
+    const loading = loadingAgendamentos || loadingTransacoes;
     const error = queryError ? (queryError as Error).message : null;
 
     const filtrados = useMemo(() => {
@@ -70,6 +77,26 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
             return true;
         });
     }, [agendamentos, filters]);
+
+    const transacoesFiltradas = useMemo(() => {
+        return transacoes.filter((tx) => {
+            if (tx.status !== 'CONCLUIDO') return false;
+
+            const dt = new Date(tx.dataHora);
+
+            if (filters.dataInicio) {
+                const di = parseDate(filters.dataInicio);
+                if (!sameOrAfter(dt, di)) return false;
+            }
+
+            if (filters.dataFim) {
+                const df = parseDate(filters.dataFim + "T23:59:59");
+                if (!sameOrBefore(dt, df)) return false;
+            }
+
+            return true;
+        });
+    }, [transacoes, filters]);
 
     const receitaPorDiaSemana = useMemo(() => {
         type DiaKey = 0|1|2|3|4|5|6;
@@ -185,6 +212,20 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
             badge: idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : null,
         }));
     }, [filtrados]);
+
+    const receitaTotal = useMemo(() => {
+        return filtrados
+            .filter((ag) => ag.status === 'CONCLUIDO')
+            .reduce((sum, ag) => sum + (ag.servico?.preco ?? 0), 0);
+    }, [filtrados]);
+
+    const despesaTotal = useMemo(() => {
+        return transacoesFiltradas
+            .filter((tx) => tx.tipo === 'SAIDA')
+            .reduce((sum, tx) => sum + tx.valor, 0);
+    }, [transacoesFiltradas]);
+
+    const saldo = receitaTotal - despesaTotal;
 
     const frequenciaRetorno = useMemo(() => {
         const porCliente = new Map<string, Date[]>();
@@ -311,12 +352,15 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         agendamentos: filtrados,
 
         receitaPorDiaSemana,
-        gaugePorDia,        
+        gaugePorDia,
 
-        topClientes,        
+        topClientes,
+        frequenciaRetorno,
+        lifetimeClientes,
 
-        frequenciaRetorno,   
-
-        lifetimeClientes,    
+        // Phase 5 — Financial Metrics
+        receitaTotal,
+        despesaTotal,
+        saldo,
     };
 }

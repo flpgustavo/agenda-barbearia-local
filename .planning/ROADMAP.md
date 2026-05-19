@@ -53,7 +53,7 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Financial data layer: install recharts, extend hook with income/expense/balance
+- [x] 05-01-PLAN.md — Financial data layer: install recharts, extend hook with income/expense/balance
 - [ ] 05-02-PLAN.md — Financial UI: summary cards + income vs expense chart, integrate into dashboard
 **UI hint**: yes
 

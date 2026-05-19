@@ -9,9 +9,9 @@ Requisitos para o marco v4.0 — Reformulação do Dashboard. Cada requisito map
 
 ### Métricas Financeiras
 
-- [ ] **FIN-01**: User can see total income (ENTRADA) for the selected filter period as a card
-- [ ] **FIN-02**: User can see total expenses (SAIDA) for the selected filter period as a card
-- [ ] **FIN-03**: User can see balance (income - expenses) for the selected filter period
+- [x] **FIN-01**: User can see total income (ENTRADA) for the selected filter period as a card
+- [x] **FIN-02**: User can see total expenses (SAIDA) for the selected filter period as a card
+- [x] **FIN-03**: User can see balance (income - expenses) for the selected filter period
 - [ ] **FIN-04**: User can see a visual chart (bars/pie) showing income vs expenses proportion
 
 ### Top Serviços
@@ -67,9 +67,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FIN-01 | Phase 5 | Pending |
-| FIN-02 | Phase 5 | Pending |
-| FIN-03 | Phase 5 | Pending |
+| FIN-01 | Phase 5 | Complete |
+| FIN-02 | Phase 5 | Complete |
+| FIN-03 | Phase 5 | Complete |
 | FIN-04 | Phase 5 | Pending |
 | SERV-01 | Phase 6 | Pending |
 | SERV-02 | Phase 6 | Pending |

@@ -124,6 +124,7 @@ export default function Clientes() {
 
             <div className="fixed bottom-6 right-6 z-50">
                 <Button
+                    data-tour="step-1"
                     size="icon"
                     className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                     aria-label="Criar novo cliente"

@@ -80,7 +80,7 @@ export function AgendamentoCard({
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg mb-2">
+    <div data-tour="step-4" className="relative w-full overflow-hidden rounded-lg mb-2">
    
       <div className="absolute inset-0 bg-emerald-500/10 flex items-center justify-end pr-4 rounded-lg">
         <div className="flex flex-col items-center text-emerald-500 font-bold animate-pulse">

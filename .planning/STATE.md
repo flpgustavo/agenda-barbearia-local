@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: — Phases 2-3
 status: em_andamento
-last_updated: "2026-05-17T22:30:00.000Z"
+last_updated: "2026-05-19T10:00:00.000Z"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 12
-  completed_plans: 9
-  percent: 75
+  total_plans: 9
+  completed_plans: 7
+  percent: 50
 ---
 
-# Estado Atual - Fase 4: Tutorial de Boas Vindas
+# Estado Atual - Fase 4: Tutorial de Boas Vindas (RE-PLANEJAR)
 
 ## Início
 
@@ -20,30 +20,24 @@ Maio 2026
 
 ## Status
 
-Em Progresso (Aguardando Verificação)
+Replanejamento — Fase 4 foi revertida no commit 29d32ae. Iniciando discussão para nova abordagem.
 
 ## Fases Completas
 
 - Fase 3: Filtros por Período (03-period-filters)
 - Fase 2: UI de Transações Mobile (02-mobile-transactions)
 
-## Fases em Andamento
+## Fases a Re-planejar
 
-- Fase 4: Tutorial de Boas Vindas (04-welcome-tour) - 3 planos executados
+- Fase 4: Tutorial de Boas Vindas (04-welcome-tour) — revertida. Necessária nova abordagem.
 
-## Planos Concluídos
+## Planos Concluídos (anteriores ao revert)
 
-- 04-01: Tour Core System (Wave 1) ✓
-- 04-02: Integração de Entidades (Wave 2) ✓
-- 04-03: Gatilho e Persistência (Wave 3) ✓ (pendente verificação manual)
+- 04-01, 04-02, 04-03 — todos revertidos em 29d32ae. Serão re-planejados.
 
 ## Tarefas em Andamento
 
-- 04-03 Task 3: Verificação manual do checkpoint
-
-## Bloqueios
-
-- [checkpoint:human-verify] Aguardando verificação visual do sistema completo
+- Contexto da Fase 4 capturado — pronto para planejamento
 
 ## Quick Tasks Completed
 
@@ -54,5 +48,11 @@ Em Progresso (Aguardando Verificação)
 ## Notas
 
 - Fase 2 concluída manualmente
-- Plans 04-01, 04-02 e 04-03 executados via gsd-execute-phase
-- Todos os commits atômicos por task
+- Fase 4 (primeira versão) foi completamente revertida em 29d32ae
+- Iniciando discussão para nova abordagem do tutorial
+
+## Session Continuity
+
+Last session: 2026-05-19
+Stopped at: Phase 4 context gathered, ready for planning
+Resume file: .planning/phases/04-welcome-tour/04-CONTEXT.md

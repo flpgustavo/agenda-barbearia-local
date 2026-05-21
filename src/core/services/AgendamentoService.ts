@@ -3,10 +3,28 @@ import { Agendamento } from "../models/Agendamento";
 import { db } from "../db";
 import { Cliente } from "../models/Cliente";
 import { Servico } from "../models/Servico";
+import { startOfWeek, endOfWeek, eachDayOfInterval, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export interface AgendamentoComDetalhes extends Agendamento {
     cliente?: Cliente;
     servico?: Servico;
+}
+
+export interface DiaGrade {
+    data: string;
+    diaSemana: string;
+    dataFormatada: string;
+    slotsLivres: string[];
+    totalSlots: number;
+    slotsOcupados: number;
+    ocupacaoPercent: number;
+}
+
+export interface GradeSemanal {
+    semanaLabel: string;
+    dias: DiaGrade[];
+    servicoId: string;
 }
 
 class AgendamentoServiceClass extends BaseService<Agendamento> {
@@ -292,6 +310,100 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         }
 
         return horarios;
+    }
+
+    async gerarGradeSemanal(servicoId: string, weekStart?: Date): Promise<GradeSemanal> {
+        const usuario = await db.usuarios.toCollection().first();
+        if (!usuario) return { semanaLabel: "", dias: [], servicoId };
+
+        const servico = await db.servicos.get(servicoId);
+        if (!servico) return { semanaLabel: "", dias: [], servicoId };
+
+        const start = weekStart ?? startOfWeek(new Date(), { weekStartsOn: 1 });
+        const end = endOfWeek(start, { weekStartsOn: 1 });
+        const days = eachDayOfInterval({ start, end });
+
+        const inicioExpediente = this.toMinutes(usuario.inicio);
+        const fimExpediente = this.toMinutes(usuario.fim);
+        const intervaloInicio = usuario.intervaloInicio ? this.toMinutes(usuario.intervaloInicio) : null;
+        const intervaloFim = usuario.intervaloFim ? this.toMinutes(usuario.intervaloFim) : null;
+        const duracao = servico.duracaoMinutos;
+        const passo = duracao;
+
+        const startISO = format(start, "yyyy-MM-dd");
+        const endISO = format(end, "yyyy-MM-dd");
+        const todosAgendamentos = await db.agendamentos
+            .where("dataHora")
+            .between(startISO, `${endISO}T23:59:59`, true, true)
+            .toArray();
+
+        const hoje = new Date();
+        const hojeStr = format(hoje, "yyyy-MM-dd");
+        const agoraMin = hoje.getHours() * 60 + hoje.getMinutes();
+
+        const dias: DiaGrade[] = days.map((dia) => {
+            const dataStr = format(dia, "yyyy-MM-dd");
+            const diaSemana = format(dia, "EEE", { locale: ptBR }).toUpperCase().replace(".", "").substring(0, 3);
+            const dataFormatada = format(dia, "dd/MM");
+
+            const agendamentosDoDia = todosAgendamentos.filter(
+                (ag) => ag.dataHora.startsWith(dataStr) && ag.status !== "CANCELADO"
+            );
+
+            const intervalosAgendamento = agendamentosDoDia.map((ag) => ({
+                inicio: this.toMinutes(ag.dataHora.slice(11, 16)),
+                fim: this.toMinutes(ag.dataHora.slice(11, 16)) + duracao,
+            }));
+
+            const slotsLivres: string[] = [];
+            let slotsOcupados = 0;
+            let totalSlots = 0;
+
+            for (let tempo = inicioExpediente; tempo + duracao <= fimExpediente; tempo += passo) {
+                const inicioSlot = tempo;
+                const fimSlot = tempo + duracao;
+
+                if (dataStr === hojeStr && inicioSlot < agoraMin) continue;
+
+                let conflito = false;
+
+                if (intervaloInicio !== null && intervaloFim !== null &&
+                    inicioSlot < intervaloFim && fimSlot > intervaloInicio) {
+                    conflito = true;
+                }
+
+                if (!conflito) {
+                    for (const ag of intervalosAgendamento) {
+                        if (inicioSlot < ag.fim && fimSlot > ag.inicio) {
+                            conflito = true;
+                            break;
+                        }
+                    }
+                }
+
+                totalSlots++;
+                if (conflito) {
+                    slotsOcupados++;
+                } else {
+                    const h = Math.floor(tempo / 60).toString().padStart(2, "0");
+                    const m = (tempo % 60).toString().padStart(2, "0");
+                    slotsLivres.push(`${h}:${m}`);
+                }
+            }
+
+            return {
+                data: dataStr,
+                diaSemana,
+                dataFormatada,
+                slotsLivres,
+                totalSlots,
+                slotsOcupados,
+                ocupacaoPercent: totalSlots > 0 ? Math.round((slotsOcupados / totalSlots) * 100) : 0,
+            };
+        });
+
+        const semanaLabel = `Semana de ${format(start, "dd/MM")} a ${format(end, "dd/MM")}`;
+        return { semanaLabel, dias, servicoId };
     }
 
     async create(

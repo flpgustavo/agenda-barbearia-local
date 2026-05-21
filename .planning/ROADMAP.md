@@ -62,13 +62,17 @@ Plans:
 **Depends on**: Phase 5
 **Requirements**: SERV-01, SERV-02, INSG-01, INSG-02, INSG-03
 **Success Criteria** (what must be TRUE):
-   1. User can see services ranked by appointment count in the filtered period
-   2. User can see services ranked by revenue generated in the filtered period
-   3. User can see top clients ranked by number of visits and total spending (last 12 months)
-   4. User can see clients who haven't visited in a configurable period (inactive risk), with days since last visit
-   5. User can see top services by quantity and revenue for the last 12 months (fixed period)
-**Plans**: TBD
+    1. User can see services ranked by appointment count in the filtered period
+    2. User can see services ranked by revenue generated in the filtered period
+    3. User can see top clients ranked by number of visits and total spending (last 12 months)
+    4. User can see clients who haven't visited in a configurable period (inactive risk), with days since last visit
+    5. User can see top services by quantity and revenue for the last 12 months (fixed period)
+**Plans**: 2 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 06-01-PLAN.md — Data layer: extend hook with 12-month and ranking computations
+- [ ] 06-02-PLAN.md — UI: insight components (ServiceRankings, TopClients, InactiveClients) + dashboard integration
 
 ### Phase 7: Disponibilidade & Ocupação
 **Goal**: User can view weekly availability grid by service and occupancy rates per day
@@ -98,7 +102,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 2. UI Mobile | v3.0 | 4/4 | Complete | 2026-04-22 |
 | 3. Filters | v3.0 | 3/3 | Complete | 2026-04-22 |
-| 5. Métricas Financeiras | v4.0 | 0/2 | Not started | - |
-| 6. Rankings & Insights | v4.0 | 0/0 | Not started | - |
+| 5. Métricas Financeiras | v4.0 | 2/2 | Complete | 2026-05-19 |
+| 6. Rankings & Insights | v4.0 | 0/2 | Planned | - |
 | 7. Disponibilidade & Ocupação | v4.0 | 0/0 | Not started | - |
 | 8. Retenção de Clientes | v4.0 | 0/0 | Not started | - |

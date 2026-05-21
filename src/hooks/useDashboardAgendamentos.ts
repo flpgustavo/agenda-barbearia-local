@@ -4,6 +4,7 @@ import { AgendamentoStatus } from "../core/models/Agendamento";
 import { AgendamentoService, AgendamentoComDetalhes } from "../core/services/AgendamentoService";
 import { transacaoService } from "../core/services/TransacaoService";
 import { queryKeys } from "../lib/queryKeys";
+import { subMonths } from "date-fns";
 
 export interface DashboardFilters {
     dataInicio?: string; 
@@ -31,6 +32,25 @@ function diffDays(a: Date, b: Date) {
 
 function diffMonths(a: Date, b: Date) {
     return (a.getFullYear() - b.getFullYear()) * 12 + (a.getMonth() - b.getMonth());
+}
+
+interface ServicoRankingItem {
+    servicoId: string;
+    nome: string;
+    quantidade: number;
+    receita: number;
+}
+
+interface Cliente12mesesItem {
+    clienteId: string;
+    nome: string;
+    visitas: number;
+    gastoTotal: number;
+}
+
+interface UltimaVisitaEntry {
+    nome: string;
+    ultimaData: string;
 }
 
 export function useDashboardAgendamentos(filters: DashboardFilters) {
@@ -227,6 +247,106 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
 
     const saldo = receitaTotal - despesaTotal;
 
+    const servicosRanking = useMemo(() => {
+        const map = new Map<string, ServicoRankingItem>();
+
+        filtrados
+            .filter((ag) => ag.servico && ag.status === "CONCLUIDO")
+            .forEach((ag) => {
+                const id = ag.servicoId;
+                const atual = map.get(id) ?? {
+                    servicoId: id,
+                    nome: ag.servico!.nome,
+                    quantidade: 0,
+                    receita: 0,
+                };
+                atual.quantidade += 1;
+                atual.receita += ag.servico!.preco ?? 0;
+                map.set(id, atual);
+            });
+
+        const lista = Array.from(map.values());
+
+        return {
+            porQuantidade: [...lista].sort((a, b) => b.quantidade - a.quantidade),
+            porReceita: [...lista].sort((a, b) => b.receita - a.receita),
+        };
+    }, [filtrados]);
+
+    const DOZE_MESES_ATRAS = subMonths(new Date(), 12);
+
+    const topServices12meses = useMemo(() => {
+        const map = new Map<string, ServicoRankingItem>();
+
+        agendamentos
+            .filter((ag) => {
+                if (ag.status !== "CONCLUIDO") return false;
+                if (!ag.servico) return false;
+                return new Date(ag.dataHora) >= DOZE_MESES_ATRAS;
+            })
+            .forEach((ag) => {
+                const id = ag.servicoId;
+                const atual = map.get(id) ?? {
+                    servicoId: id,
+                    nome: ag.servico!.nome,
+                    quantidade: 0,
+                    receita: 0,
+                };
+                atual.quantidade += 1;
+                atual.receita += ag.servico!.preco ?? 0;
+                map.set(id, atual);
+            });
+
+        const lista = Array.from(map.values());
+
+        return {
+            porQuantidade: [...lista].sort((a, b) => b.quantidade - a.quantidade),
+            porReceita: [...lista].sort((a, b) => b.receita - a.receita),
+        };
+    }, [agendamentos]);
+
+    const topClientes12meses = useMemo(() => {
+        const map = new Map<string, Cliente12mesesItem>();
+
+        agendamentos
+            .filter((ag) => {
+                if (ag.status === "CANCELADO") return false;
+                if (!ag.cliente) return false;
+                return new Date(ag.dataHora) >= DOZE_MESES_ATRAS;
+            })
+            .forEach((ag) => {
+                const id = ag.clienteId;
+                const atual = map.get(id) ?? {
+                    clienteId: id,
+                    nome: ag.cliente!.nome,
+                    visitas: 0,
+                    gastoTotal: 0,
+                };
+                atual.visitas += 1;
+                atual.gastoTotal += ag.servico?.preco ?? 0;
+                map.set(id, atual);
+            });
+
+        return Array.from(map.values()).sort((a, b) => b.gastoTotal - a.gastoTotal);
+    }, [agendamentos]);
+
+    const ultimaVisitaPorCliente = useMemo(() => {
+        const map = new Map<string, UltimaVisitaEntry>();
+
+        agendamentos
+            .filter((ag) => ag.status !== "CANCELADO" && ag.cliente)
+            .forEach((ag) => {
+                const id = ag.clienteId;
+                const dt = ag.dataHora;
+                const atual = map.get(id);
+                if (!atual || dt > atual.ultimaData) {
+                    map.set(id, { nome: ag.cliente!.nome, ultimaData: dt });
+                }
+            });
+
+        return Object.fromEntries(map);
+    }, [agendamentos]);
+
     const frequenciaRetorno = useMemo(() => {
         const porCliente = new Map<string, Date[]>();
 
@@ -362,5 +482,11 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         receitaTotal,
         despesaTotal,
         saldo,
+
+        // Phase 6 — Rankings & Insights
+        servicosRanking,
+        topServices12meses,
+        topClientes12meses,
+        ultimaVisitaPorCliente,
     };
 }

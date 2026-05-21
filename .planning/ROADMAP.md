@@ -97,8 +97,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
    1. User can see return frequency distribution (weekly, biweekly, monthly, quarterly)
    2. User can see client lifecycle stages (newcomers, testing, established, loyal) with counts per stage
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: yes
+
+Plans:
+- [ ] 08-01-PLAN.md — UI: Frequency + Lifecycle progress bars (ReturnFrequencyCard, ClientLifecycleCard, RetentionSection) + page.tsx integration
 
 ## Progress
 
@@ -109,4 +112,4 @@ Plans:
 | 5. Métricas Financeiras | v4.0 | 2/2 | Complete | 2026-05-19 |
 | 6. Rankings & Insights | v4.0 | 0/2 | Planned | - |
 | 7. Disponibilidade & Ocupação | v4.0 | 0/2 | Planned | - |
-| 8. Retenção de Clientes | v4.0 | 0/0 | Not started | - |
+| 8. Retenção de Clientes | v4.0 | 0/1 | Planned | - |

@@ -71,8 +71,8 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 06-01-PLAN.md — Data layer: extend hook with 12-month and ranking computations
-- [ ] 06-02-PLAN.md — UI: insight components (ServiceRankings, TopClients, InactiveClients) + dashboard integration
+- [x] 06-01-PLAN.md — Data layer: extend hook with 12-month and ranking computations
+- [x] 06-02-PLAN.md — UI: insight components (ServiceRankings, TopClients, InactiveClients) + dashboard integration
 
 ### Phase 7: Disponibilidade & Ocupação
 **Goal**: User can view weekly availability grid by service and occupancy rates per day

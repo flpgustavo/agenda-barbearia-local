@@ -101,7 +101,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 08-01-PLAN.md — UI: Frequency + Lifecycle progress bars (ReturnFrequencyCard, ClientLifecycleCard, RetentionSection) + page.tsx integration
+- [x] 08-01-PLAN.md — UI: Frequency + Lifecycle progress bars (ReturnFrequencyCard, ClientLifecycleCard, RetentionSection) + page.tsx integration
 
 ## Progress
 

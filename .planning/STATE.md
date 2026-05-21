@@ -4,7 +4,7 @@ milestone: v3.0
 milestone_name: — Phases 2-3
 status: executing
 stopped_at: Phase 6 context gathered
-last_updated: "2026-05-21T16:50:23.540Z"
+last_updated: "2026-05-21T18:12:04.919Z"
 last_activity: 2026-05-21
 progress:
   total_phases: 2
@@ -19,13 +19,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-19)
 
 **Core value:** Barbearias podem gerenciar agendamentos, clientes e finanças de forma simples e offline-first
-**Current focus:** Phase 07 — Disponibilidade & Ocupação
+**Current focus:** Phase 08 — Retenção de Clientes
 
 ## Current Position
 
-Phase: 07
+Phase: 08
 Plan: Not started
-Status: Executing Phase 07
+Status: Executing Phase 08
 Last activity: 2026-05-21
 
 Progress: [██████████] 100%
@@ -34,7 +34,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: N/A
 - Total execution time: N/A
 
@@ -45,6 +45,7 @@ Progress: [██████████] 100%
 | — | — | — | — |
 | 06 | 2 | - | - |
 | 07 | 2 | - | - |
+| 08 | 1 | - | - |
 
 **Recent Trend:**
 

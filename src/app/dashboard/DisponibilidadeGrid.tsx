@@ -15,7 +15,7 @@ export function DisponibilidadeGrid({ grade, exportRef, isExporting }: Disponibi
 
   return (
     <div ref={exportRef}>
-      <div className={`pb-4 ${isExporting ? "min-w-[600px]" : ""}`}>
+      <div className={`pb-4 ${isExporting ? "" : ""}`}>
         <div className="flex flex-col gap-2">
           {grade.dias.map((dia) => (
             <DayColumn

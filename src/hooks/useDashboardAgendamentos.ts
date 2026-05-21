@@ -460,6 +460,7 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
                 estabelecidosPercent: (buckets.estabelecidos / totalClientes) * 100,
                 leaisPercent: (buckets.leais / totalClientes) * 100,
             },
+            counts: buckets,
             tempoMedioMeses,
         };
     }, [filtrados]);

@@ -79,12 +79,16 @@ Plans:
 **Depends on**: Phase 6
 **Requirements**: DISP-01, DISP-02, DISP-03, OCUP-01
 **Success Criteria** (what must be TRUE):
-   1. User can select a service to view its available weekly time slots
-   2. User can see a visual grid showing weekdays with free time slots for the selected service
-   3. User can export the availability grid as an image via html-to-image
-   4. User can see occupancy percentage (scheduled vs available slots) broken down per day of week
-**Plans**: TBD
+    1. User can select a service to view its available weekly time slots
+    2. User can see a visual grid showing weekdays with free time slots for the selected service
+    3. User can export the availability grid as an image via html-to-image
+    4. User can see occupancy percentage (scheduled vs available slots) broken down per day of week
+**Plans**: 2 plans
 **UI hint**: yes
+
+Plans:
+- [x] 07-01-PLAN.md — Data layer: add gerarGradeSemanal method + useAvailabilityGrid hook + queryKeys
+- [ ] 07-02-PLAN.md — UI: grid components (DayColumn, DisponibilidadeGrid), ServiceSelectorRow, WeekNavigator, DisponibilidadeTab, bottom tab bar in page.tsx
 
 ### Phase 8: Retenção de Clientes
 **Goal**: User can understand client return patterns and lifecycle stages
@@ -104,5 +108,5 @@ Plans:
 | 3. Filters | v3.0 | 3/3 | Complete | 2026-04-22 |
 | 5. Métricas Financeiras | v4.0 | 2/2 | Complete | 2026-05-19 |
 | 6. Rankings & Insights | v4.0 | 0/2 | Planned | - |
-| 7. Disponibilidade & Ocupação | v4.0 | 0/0 | Not started | - |
+| 7. Disponibilidade & Ocupação | v4.0 | 0/2 | Planned | - |
 | 8. Retenção de Clientes | v4.0 | 0/0 | Not started | - |

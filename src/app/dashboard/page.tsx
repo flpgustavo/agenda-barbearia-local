@@ -25,6 +25,7 @@ import { DateRangeFilter } from "./DateRangeFilter";
 import { FinancialSummaryCards } from "./FinancialSummaryCards";
 import { IncomeVsExpenseChart } from "./IncomeVsExpenseChart";
 import { InsightsSection } from "./InsightsSection";
+import { RetentionSection } from "./RetentionSection";
 import { DisponibilidadeTab } from "./DisponibilidadeTab";
 
 // Utilitário para formatar moeda
@@ -220,6 +221,16 @@ export default function DashboardPage() {
                         topServices12meses={topServices12meses}
                         topClientes12meses={topClientes12meses}
                         ultimaVisitaPorCliente={ultimaVisitaPorCliente}
+                        loading={loading}
+                    />
+
+                    {/* Phase 8 — Retenção de Clientes */}
+                    <RetentionSection
+                        buckets={frequenciaRetorno.buckets}
+                        mediaDias={frequenciaRetorno.mediaDias}
+                        distribuicao={lifetimeClientes.distribuicao}
+                        counts={lifetimeClientes.counts}
+                        tempoMedioMeses={lifetimeClientes.tempoMedioMeses}
                         loading={loading}
                     />
                 </main>

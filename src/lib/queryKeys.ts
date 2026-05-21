@@ -6,4 +6,5 @@ export const queryKeys = {
   agendamentos: ['agendamentos'] as const,
   agendamentosDetalhes: ['agendamentos', 'detalhes'] as const,
   agendamentoDetalhe: (id: string) => ['agendamentos', 'detalhe', id] as const,
+  gradeDisponibilidade: ['gradeDisponibilidade'] as const,
 };

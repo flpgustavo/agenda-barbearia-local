@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { format, subDays, startOfMonth, endOfMonth } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import React, { useState } from "react";
+import { startOfMonth, endOfMonth } from "date-fns";
 import {
-    Calendar,
     RefreshCw,
     TrendingUp,
     Users,

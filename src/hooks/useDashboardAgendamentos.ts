@@ -273,16 +273,15 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
         };
     }, [filtrados]);
 
-    const DOZE_MESES_ATRAS = subMonths(new Date(), 12);
-
     const topServices12meses = useMemo(() => {
+        const DOZE_MESES = subMonths(new Date(), 12);
         const map = new Map<string, ServicoRankingItem>();
 
         agendamentos
             .filter((ag) => {
                 if (ag.status !== "CONCLUIDO") return false;
                 if (!ag.servico) return false;
-                return new Date(ag.dataHora) >= DOZE_MESES_ATRAS;
+                return new Date(ag.dataHora) >= DOZE_MESES;
             })
             .forEach((ag) => {
                 const id = ag.servicoId;
@@ -306,13 +305,14 @@ export function useDashboardAgendamentos(filters: DashboardFilters) {
     }, [agendamentos]);
 
     const topClientes12meses = useMemo(() => {
+        const DOZE_MESES = subMonths(new Date(), 12);
         const map = new Map<string, Cliente12mesesItem>();
 
         agendamentos
             .filter((ag) => {
                 if (ag.status === "CANCELADO") return false;
                 if (!ag.cliente) return false;
-                return new Date(ag.dataHora) >= DOZE_MESES_ATRAS;
+                return new Date(ag.dataHora) >= DOZE_MESES;
             })
             .forEach((ag) => {
                 const id = ag.clienteId;

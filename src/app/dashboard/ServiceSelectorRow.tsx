@@ -35,8 +35,8 @@ export function ServiceSelectorRow({ servicos, servicoId, onSelect }: ServiceSel
           >
             <span>{servico.nome}</span>
             {servico.preco != null && (
-              <span className="ml-2 text-xs opacity-70">
-                {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(servico.preco)}
+              <span className="ml-2 text-xs opacity-80">
+                 {servico.duracaoMinutos} min
               </span>
             )}
           </button>

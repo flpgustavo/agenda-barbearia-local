@@ -88,7 +88,7 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md — Data layer: add gerarGradeSemanal method + useAvailabilityGrid hook + queryKeys
-- [ ] 07-02-PLAN.md — UI: grid components (DayColumn, DisponibilidadeGrid), ServiceSelectorRow, WeekNavigator, DisponibilidadeTab, bottom tab bar in page.tsx
+- [x] 07-02-PLAN.md — UI: grid components (DayColumn, DisponibilidadeGrid), ServiceSelectorRow, WeekNavigator, DisponibilidadeTab, bottom tab bar in page.tsx
 
 ### Phase 8: Retenção de Clientes
 **Goal**: User can understand client return patterns and lifecycle stages

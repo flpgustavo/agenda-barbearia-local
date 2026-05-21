@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import type { GradeSemanal } from "@/core/services/AgendamentoService";
 import { DayColumn } from "./DayColumn";
 
@@ -16,8 +15,8 @@ export function DisponibilidadeGrid({ grade, exportRef, isExporting }: Disponibi
 
   return (
     <div ref={exportRef}>
-      <div className={`overflow-x-auto pb-4 ${isExporting ? "min-w-[980px]" : ""}`}>
-        <div className="flex gap-3 min-w-max">
+      <div className={`pb-4 ${isExporting ? "min-w-[600px]" : ""}`}>
+        <div className="flex flex-col gap-2">
           {grade.dias.map((dia) => (
             <DayColumn
               key={dia.data}

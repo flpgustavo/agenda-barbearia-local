@@ -1,6 +1,5 @@
 import { Database } from './index';
 import { Servico } from "../models/Servico";
-import { Usuario } from "../models/Usuario";
 import { Cliente } from "../models/Cliente";
 import { Agendamento } from "../models/Agendamento";
 import { Transacao } from "../models/Transacao";
@@ -65,6 +64,12 @@ export async function seedDatabase(db: Database) {
       return;
     }
 
+    const usuarioCount = await db.usuarios.count();
+    if (usuarioCount === 0) {
+      console.log('ℹ️  Nenhum usuário cadastrado. Seeder ignorado.');
+      return;
+    }
+
     console.log('🌱  Banco vazio detectado. Gerando dados de demonstração...');
 
     // ── Servicos (5) ──────────────────────────────────────────────────────────
@@ -81,12 +86,6 @@ export async function seedDatabase(db: Database) {
     for (const s of servicos) {
       if (s.id) servicoPreco[s.id] = s.preco ?? 0;
     }
-
-    // ── Usuarios (2) ──────────────────────────────────────────────────────────
-    const usuarios: Usuario[] = [
-      { id: 'usr-1', nome: 'Mestre Barbeiro', inicio: '09:00', fim: '19:00', intervaloInicio: '12:00', intervaloFim: '13:00', createdAt: dataMesesAtras(12), updatedAt: dataMesesAtras(12) },
-      { id: 'usr-2', nome: 'Carlos Jr.', inicio: '09:00', fim: '18:00', intervaloInicio: '12:00', intervaloFim: '13:00', createdAt: dataMesesAtras(6), updatedAt: dataMesesAtras(6) },
-    ];
 
     // ── Clientes (6) ──────────────────────────────────────────────────────────
     const clientes: Cliente[] = [
@@ -288,7 +287,6 @@ export async function seedDatabase(db: Database) {
     // ── Dexie Transaction ────────────────────────────────────────────────────
     await db.transaction('rw', [db.servicos, db.usuarios, db.clientes, db.agendamentos, db.transacoes], async () => {
       await db.servicos.bulkAdd(servicos);
-      await db.usuarios.bulkAdd(usuarios);
       await db.clientes.bulkAdd(clientes);
       await db.agendamentos.bulkAdd(agendamentos);
       await db.transacoes.bulkAdd(transacoes);
@@ -303,7 +301,6 @@ export async function seedDatabase(db: Database) {
 
     console.log(`✅  Seeder concluído!`);
     console.log(`    Serviços: ${servicos.length}`);
-    console.log(`    Usuários: ${usuarios.length}`);
     console.log(`    Clientes: ${clientes.length}`);
     console.log(`    Agendamentos: ${agendamentos.length} (${concluidos} concluídos, ${confirmadosCount} confirmados, ${canceladosCount} cancelados)`);
     console.log(`    Transações: ${transacoes.length} (${entradas} entradas, ${saidasCount} saídas)`);

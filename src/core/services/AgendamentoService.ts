@@ -1,8 +1,9 @@
 import { BaseService } from "./BaseService";
 import { Agendamento } from "../models/Agendamento";
-import { db } from "../db";
+import { getDb } from "../db";
 import { Cliente } from "../models/Cliente";
 import { Servico } from "../models/Servico";
+
 
 export interface AgendamentoComDetalhes extends Agendamento {
     cliente?: Cliente;
@@ -11,7 +12,7 @@ export interface AgendamentoComDetalhes extends Agendamento {
 
 class AgendamentoServiceClass extends BaseService<Agendamento> {
     constructor() {
-        super("agendamentos" as keyof typeof db);
+        super("agendamentos");
     }
 
     private toMinutes(hora: string): number {
@@ -30,12 +31,12 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             throw new Error("Dados do agendamento incompletos.");
         }
 
-        const cliente = await db.clientes.get(clienteId);
+        const cliente = await getDb().clientes.get(clienteId);
         if (!cliente) {
             throw new Error("Cliente não encontrado.");
         }
 
-        const servico = await db.servicos.get(servicoId);
+        const servico = await getDb().servicos.get(servicoId);
         if (!servico) {
             throw new Error("Serviço não encontrado.");
         }
@@ -45,7 +46,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             throw new Error("Data e hora inválidas.");
         }
 
-        const usuario = await db.usuarios.toCollection().first();
+        const usuario = await getDb().usuarios.toCollection().first();
         if (!usuario) {
             throw new Error("Configure seu horário de atendimento antes de criar agendamentos.");
         }
@@ -85,7 +86,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             }
         }
 
-        const agendamentosDoDia = await db.agendamentos
+        const agendamentosDoDia = await getDb().agendamentos
             .where("dataHora")
             .startsWith(dataAgendamentoStr)
             .toArray();
@@ -96,7 +97,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
 
             const inicioAg = this.toMinutes(ag.dataHora.slice(11, 16));
 
-            const servicoAg = await db.servicos.get(ag.servicoId);
+            const servicoAg = await getDb().servicos.get(ag.servicoId);
             const duracaoAg = servicoAg?.duracaoMinutos ?? 0;
             const fimAg = inicioAg + duracaoAg;
 
@@ -134,8 +135,8 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
 
         return Promise.all(
             agendamentos.map(async (ag) => {
-                const cliente = await db.clientes.get(ag.clienteId);
-                const servico = await db.servicos.get(ag.servicoId);
+                const cliente = await getDb().clientes.get(ag.clienteId);
+                const servico = await getDb().servicos.get(ag.servicoId);
 
                 return {
                     ...ag,
@@ -153,8 +154,8 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             throw new Error("Agendamento não encontrado.");
         }
 
-        const cliente = await db.clientes.get(ag.clienteId);
-        const servico = await db.servicos.get(ag.servicoId);
+        const cliente = await getDb().clientes.get(ag.clienteId);
+        const servico = await getDb().servicos.get(ag.servicoId);
 
         return {
             ...ag,
@@ -171,18 +172,18 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
 
         if (dataStr < hojeStr) return false;
 
-        const usuario = await db.usuarios.toCollection().first();
+        const usuario = await getDb().usuarios.toCollection().first();
         if (!usuario) return false;
 
         const inicioExpediente = this.toMinutes(usuario.inicio);
         const fimExpediente = this.toMinutes(usuario.fim);
 
-        const servicos = await db.servicos.toArray();
+        const servicos = await getDb().servicos.toArray();
         if (servicos.length === 0) return false;
 
         const menorDuracao = Math.min(...servicos.map((s: { duracaoMinutos: any; }) => s.duracaoMinutos));
 
-        const agendamentos = await db.agendamentos
+        const agendamentos = await getDb().agendamentos
             .where("dataHora")
             .startsWith(dataStr)
             .toArray();
@@ -231,7 +232,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
         duracaoMinutos: number,
         passoMinutos = 30
     ): Promise<string[]> {
-        const usuario = await db.usuarios.toCollection().first();
+        const usuario = await getDb().usuarios.toCollection().first();
         if (!usuario) return [];
 
         const inicioExpediente = this.toMinutes(usuario.inicio);
@@ -245,7 +246,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
             ? this.toMinutes(usuario.intervaloFim)
             : null;
 
-        const agendamentos = await db.agendamentos
+        const agendamentos = await getDb().agendamentos
             .where("dataHora")
             .startsWith(dataStr)
             .toArray();
@@ -275,7 +276,7 @@ class AgendamentoServiceClass extends BaseService<Agendamento> {
                 if (ag.status === "CANCELADO") continue;
 
                 const inicioAg = this.toMinutes(ag.dataHora.slice(11, 16));
-                const servicoAg = await db.servicos.get(ag.servicoId);
+                const servicoAg = await getDb().servicos.get(ag.servicoId);
                 const fimAg = inicioAg + (servicoAg?.duracaoMinutos ?? 0);
 
                 if (inicioSlot < fimAg && fimSlot > inicioAg) {

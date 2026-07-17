@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Usuario } from "@/core/models/Usuario";
+import { seedDatabase } from "@/core/db/seeder";
+import { getDb } from "@/core/db";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useUsuario from "@/hooks/useUsuario";
@@ -45,7 +47,9 @@ export default function Register() {
             criar(dados),
             {
                 loading: "Configurando sua conta ...",
-                success: () => {
+                success: async () => {
+                    await seedDatabase(getDb());
+                    localStorage.setItem("demo_data_shown", "false");
                     navigate.push("/agendamentos");
                     return "Conta criada com sucesso!";
                 },

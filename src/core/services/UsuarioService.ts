@@ -1,6 +1,5 @@
 import { BaseService } from "./BaseService";
 import { Usuario } from "../models/Usuario";
-import { db } from "../db";
 
 class UsuarioService extends BaseService<Usuario> {
     constructor() {

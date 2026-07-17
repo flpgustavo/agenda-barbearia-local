@@ -199,17 +199,18 @@ export function AppLayout({ children }: AppLayoutProps) {
                                         const isActive = pathname.startsWith(item.href);
 
                                         return (
-                                            <Link
-                                                key={item.href}
-                                                href={item.href}
-                                                className={`flex items-center gap-2 text-lg transition-colors p-2 rounded-md hover:bg-muted ${isActive
-                                                    ? "text-primary font-semibold bg-primary/10"
-                                                    : "text-muted-foreground"
-                                                    }`}
-                                            >
-                                                <item.icon className="h-5 w-5" />
-                                                {item.label}
-                                            </Link>
+                                            <SheetClose key={item.href} asChild>
+                                                <Link
+                                                    href={item.href}
+                                                    className={`flex items-center gap-2 text-lg transition-colors p-2 rounded-md hover:bg-muted ${isActive
+                                                        ? "text-primary font-semibold bg-primary/10"
+                                                        : "text-muted-foreground"
+                                                        }`}
+                                                >
+                                                    <item.icon className="h-5 w-5" />
+                                                    {item.label}
+                                                </Link>
+                                            </SheetClose>
                                         );
                                     })}
                                 </nav>

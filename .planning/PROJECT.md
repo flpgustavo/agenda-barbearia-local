@@ -4,7 +4,7 @@
 
 **Inicio:** Abril 2026  
 **Stack:** Next.js, TypeScript, Tailwind CSS, Radix UI, Dexie (IndexedDB), PWA  
-**Current Version:** v3.0
+**Current Version:** v4.0
 
 ## Current Milestone: v4.0 Reformulação do Dashboard
 

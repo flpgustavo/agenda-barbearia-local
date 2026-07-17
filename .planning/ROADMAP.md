@@ -33,10 +33,10 @@
 
 ### Phases
 
-- [ ] **Phase 5: Métricas Financeiras** — Cards de receita/despesa + gráfico visual
-- [ ] **Phase 6: Rankings & Insights** — Rankings de serviços + insights de clientes
-- [ ] **Phase 7: Disponibilidade & Ocupação** — Grid semanal por serviço + taxa de ocupação
-- [ ] **Phase 8: Retenção de Clientes** — Frequência de retorno + estágios do ciclo de vida
+- [x] **Phase 5: Métricas Financeiras** — Cards de receita/despesa + gráfico visual
+- [x] **Phase 6: Rankings & Insights** — Rankings de serviços + insights de clientes
+- [~] **Phase 7: Disponibilidade & Ocupação** — Removed per user request (2026-07-17)
+- [x] **Phase 8: Retenção de Clientes** — Frequência de retorno + estágios do ciclo de vida
 
 ## Phase Details
 
@@ -62,25 +62,23 @@ Plans:
 **Depends on**: Phase 5
 **Requirements**: SERV-01, SERV-02, INSG-01, INSG-02, INSG-03
 **Success Criteria** (what must be TRUE):
-   1. User can see services ranked by appointment count in the filtered period
-   2. User can see services ranked by revenue generated in the filtered period
-   3. User can see top clients ranked by number of visits and total spending (last 12 months)
-   4. User can see clients who haven't visited in a configurable period (inactive risk), with days since last visit
-   5. User can see top services by quantity and revenue for the last 12 months (fixed period)
-**Plans**: TBD
+    1. User can see services ranked by appointment count in the filtered period
+    2. User can see services ranked by revenue generated in the filtered period
+    3. User can see top clients ranked by number of visits and total spending (last 12 months)
+    4. User can see clients who haven't visited in a configurable period (inactive risk), with days since last visit
+    5. User can see top services by quantity and revenue for the last 12 months (fixed period)
+**Plans**: 2 plans
 **UI hint**: yes
 
+Plans:
+- [x] 06-01-PLAN.md — Data layer: extend hook with 12-month and ranking computations
+- [x] 06-02-PLAN.md — UI: insight components (ServiceRankings, TopClients, InactiveClients) + dashboard integration
+**Completed:** 2026-05-21
+
 ### Phase 7: Disponibilidade & Ocupação
-**Goal**: User can view weekly availability grid by service and occupancy rates per day
-**Depends on**: Phase 6
-**Requirements**: DISP-01, DISP-02, DISP-03, OCUP-01
-**Success Criteria** (what must be TRUE):
-   1. User can select a service to view its available weekly time slots
-   2. User can see a visual grid showing weekdays with free time slots for the selected service
-   3. User can export the availability grid as an image via html-to-image
-   4. User can see occupancy percentage (scheduled vs available slots) broken down per day of week
-**Plans**: TBD
-**UI hint**: yes
+**Goal**: ~~User can view weekly availability grid by service and occupancy rates per day~~
+**Status**: REMOVED (2026-07-17) — feature deleted per user request. All code (components, hook, service method, query key) removed from codebase. Planning artifacts (PLAN, SUMMARY, VERIFICATION, HUMAN-UAT) archived for reference.
+**Requirements**: DISP-01, DISP-02, DISP-03, OCUP-01 — moved to Out of Scope
 
 ### Phase 8: Retenção de Clientes
 **Goal**: User can understand client return patterns and lifecycle stages
@@ -89,8 +87,12 @@ Plans:
 **Success Criteria** (what must be TRUE):
    1. User can see return frequency distribution (weekly, biweekly, monthly, quarterly)
    2. User can see client lifecycle stages (newcomers, testing, established, loyal) with counts per stage
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: yes
+
+Plans:
+- [x] 08-01-PLAN.md — UI: Frequency + Lifecycle progress bars (ReturnFrequencyCard, ClientLifecycleCard, RetentionSection) + page.tsx integration
+**Completed:** 2026-05-21
 
 ## Progress
 
@@ -98,7 +100,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 2. UI Mobile | v3.0 | 4/4 | Complete | 2026-04-22 |
 | 3. Filters | v3.0 | 3/3 | Complete | 2026-04-22 |
-| 5. Métricas Financeiras | v4.0 | 0/2 | Not started | - |
-| 6. Rankings & Insights | v4.0 | 0/0 | Not started | - |
-| 7. Disponibilidade & Ocupação | v4.0 | 0/0 | Not started | - |
-| 8. Retenção de Clientes | v4.0 | 0/0 | Not started | - |
+| 5. Métricas Financeiras | v4.0 | 2/2 | Complete | 2026-05-19 |
+| 6. Rankings & Insights | v4.0 | 2/2 | Complete | 2026-05-21 |
+| 7. Disponibilidade & Ocupação | v4.0 | — | Removed | 2026-07-17 |
+| 8. Retenção de Clientes | v4.0 | 1/1 | Complete | 2026-05-21 |

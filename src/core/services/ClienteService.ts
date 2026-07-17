@@ -1,5 +1,5 @@
 import { BaseService } from "./BaseService";
-import { db } from "../db";
+import { getDb } from "../db";
 import { Cliente } from "../models/Cliente";
 
 export class ClienteService extends BaseService<Cliente> {
@@ -8,7 +8,7 @@ export class ClienteService extends BaseService<Cliente> {
     }
 
     private async validarExclusao(id: string): Promise<void> {
-        const agendamentosAtivos = await db.agendamentos
+        const agendamentosAtivos = await getDb().agendamentos
             .where("clienteId")
             .equals(id)
             .filter((ag: { status: string; }) => ag.status !== "CANCELADO")

@@ -1,5 +1,5 @@
 import Dexie, { UpdateSpec } from "dexie";
-import { db } from "../db";
+import { getDb, type Database } from "../db";
 import { v4 as uuidv4 } from 'uuid';
 import { Logger } from "../utils/Logger";
 import { BaseModel } from "../models/BaseModel";
@@ -9,9 +9,9 @@ export class BaseService<T extends BaseModel> {
     protected table: Dexie.Table<T, string>;
     protected tableName: string;
 
-    constructor(tableName: keyof typeof db) {
+    constructor(tableName: keyof Database) {
         // @ts-ignore
-        this.table = db[tableName];
+        this.table = getDb()[tableName];
         this.tableName = String(tableName);
     }
 

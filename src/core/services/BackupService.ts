@@ -1,5 +1,5 @@
 import { Table } from "dexie";
-import { db } from "../db";
+import { getDb } from "../db";
 import { Crypto } from "../utils/Crypto";
 
 export const BackupService = {
@@ -10,10 +10,10 @@ export const BackupService = {
 
         try {
             const data = {
-                clientes: await db.clientes.toArray(),
-                servicos: await db.servicos.toArray(),
-                usuarios: await db.usuarios.toArray(),
-                agendamentos: await db.agendamentos.toArray(),
+                clientes: await getDb().clientes.toArray(),
+                servicos: await getDb().servicos.toArray(),
+                usuarios: await getDb().usuarios.toArray(),
+                agendamentos: await getDb().agendamentos.toArray(),
             };
 
             const encryptedBlob = await Crypto.encrypt(password, data);
@@ -68,9 +68,9 @@ export const BackupService = {
                 throw new Error("Arquivo de backup corrompido ou inválido.");
             }
 
-            await db.transaction(
+            await getDb().transaction(
                 "rw",
-                [db.clientes, db.servicos, db.usuarios, db.agendamentos],
+                [getDb().clientes, getDb().servicos, getDb().usuarios, getDb().agendamentos],
                 async () => {
                     // Definimos as chaves que existem no objeto decrypted
                     const tabelas = ["clientes", "servicos", "usuarios", "agendamentos"] as const;
@@ -100,14 +100,14 @@ export const BackupService = {
 
     async reset(): Promise<void> {
         try {
-            await db.transaction(
+            await getDb().transaction(
                 "rw", 
-                [db.clientes, db.servicos, db.usuarios, db.agendamentos], 
+                [getDb().clientes, getDb().servicos, getDb().usuarios, getDb().agendamentos], 
                 async () => {
-                    await db.clientes.clear();
-                    await db.servicos.clear();
-                    await db.usuarios.clear();
-                    await db.agendamentos.clear();
+                    await getDb().clientes.clear();
+                    await getDb().servicos.clear();
+                    await getDb().usuarios.clear();
+                    await getDb().agendamentos.clear();
                 }
             );
         } catch (error: any) {

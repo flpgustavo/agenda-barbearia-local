@@ -1,24 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { format, subDays, startOfMonth, endOfMonth } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import React, { useState } from "react";
+import { startOfMonth, endOfMonth } from "date-fns";
 import {
-    Calendar,
     RefreshCw,
     TrendingUp,
     Users,
     Clock,
     Wallet,
-    Trophy,
-    Filter
 } from "lucide-react";
 
 // Imports UI (Shadcn pattern)
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 
@@ -27,6 +22,8 @@ import { useDashboardAgendamentos, DashboardFilters } from "@/hooks/useDashboard
 import { DateRangeFilter } from "./DateRangeFilter";
 import { FinancialSummaryCards } from "./FinancialSummaryCards";
 import { IncomeVsExpenseChart } from "./IncomeVsExpenseChart";
+import { InsightsSection } from "./InsightsSection";
+import { RetentionSection } from "./RetentionSection";
 
 // Utilitário para formatar moeda
 const formatCurrency = (value: number) => {
@@ -57,6 +54,10 @@ export default function DashboardPage() {
         receitaTotal,
         despesaTotal,
         saldo,
+        servicosRanking,
+        topServices12meses,
+        topClientes12meses,
+        ultimaVisitaPorCliente,
     } = useDashboardAgendamentos(filters);
 
     // Função simples para mudar datas
@@ -71,8 +72,7 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground pb-20">
-            {/* Header Sticky */}
+        <div className="min-h-screen bg-background text-foreground">
             <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
                 <div className="container mx-auto p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -86,218 +86,140 @@ export default function DashboardPage() {
                         </Button>
                         <div>
                             <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
-                            <p className="text-xs text-muted-foreground">
-                                Visão geral do negócio
-                            </p>
+                            <p className="text-xs text-muted-foreground">Visão geral do negócio</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Barra de Filtros Rápida */}
                 <div className="container mx-auto px-4 pb-4">
                     <DateRangeFilter onFilterChange={handleFilterChange} />
                 </div>
-
             </header>
 
             <main className="container mx-auto p-4 space-y-6">
-
-                {error && (
-                    <div className="p-4 rounded bg-destructive/15 text-destructive text-sm font-medium">
-                        {error}
-                    </div>
-                )}
-
-                {/* 1. KPI Cards (Resumo) */}
-                <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                    <KPICard
-                        title="Dia Campeão"
-                        value={loading ? "..." : receitaPorDiaSemana.diaCampeao.dia}
-                        subValue={loading ? "" : formatCurrency(receitaPorDiaSemana.diaCampeao.totalReceita)}
-                        icon={<TrendingUp className="h-4 w-4 text-primary" />}
-                        loading={loading}
-                    />
-                    <KPICard
-                        title="Ticket Médio"
-                        value={loading ? "..." : formatCurrency(receitaPorDiaSemana.diaCampeao.ticketMedio)}
-                        subValue="No melhor dia"
-                        icon={<Wallet className="h-4 w-4 text-emerald-500" />}
-                        loading={loading}
-                    />
-                    <KPICard
-                        title="Retorno Médio"
-                        value={loading ? "..." : `${Math.round(frequenciaRetorno.mediaDias)} dias`}
-                        subValue="Frequência"
-                        icon={<Clock className="h-4 w-4 text-blue-500" />}
-                        loading={loading}
-                    />
-                    <KPICard
-                        title="Agendamentos"
-                        value={loading ? "..." : `${agendamentos.length}`}
-                        subValue={"Total em aberto: " + agendamentos.filter(a => a.status == "CONFIRMADO").length}
-                        icon={<Users className="h-4 w-4 text-primary" />}
-                        loading={loading}
-                    />
-                </section>
-
-                {/* Phase 5 — Métricas Financeiras */}
-                <section className="space-y-4">
-                    <Separator className="my-2" />
-                    <FinancialSummaryCards
-                        receitaTotal={receitaTotal}
-                        despesaTotal={despesaTotal}
-                        saldo={saldo}
-                        loading={loading}
-                    />
-                    <IncomeVsExpenseChart
-                        receitaTotal={receitaTotal}
-                        despesaTotal={despesaTotal}
-                        loading={loading}
-                    />
-                </section>
-
-                {/* 2. Receita Semanal (Gráfico de Barras CSS) */}
-                <Card onClick={() => setDiaSelecionado(null)}>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-base font-semibold">Receita por Dia da Semana</CardTitle>
-                        <CardDescription>Toque na barra para ver o valor</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {loading ? (
-                            <Skeleton className="h-40 w-full" />
-                        ) : (
-                            <div className="flex items-end justify-between gap-1 h-52 mt-6 px-1">
-                                {receitaPorDiaSemana.porDia.map((item) => {
-                                    const percent = (item.totalReceita / (receitaPorDiaSemana.potencialMaximoDia || 1)) * 100;
-                                    const isBest = item.dia === receitaPorDiaSemana.diaCampeao.dia;
-                                    const isSelected = diaSelecionado === item.dia;
-                                    const diaAbreviado = item.dia.substring(0, 3).toUpperCase();
-
-                                    return (
-                                        <div
-                                            key={item.dia}
-                                            className="flex flex-col items-center justify-end w-full relative h-full max-w-[45px] cursor-pointer"
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Impede de fechar pelo clique no Card
-                                                handleBarClick(item.dia);
-                                            }}
-                                        >
-                                            <div className={`absolute -top-10 text-white dark:text-black bg-accent-foreground text-sm py-1 px-2 rounded shadow-lg transition-all duration-200 pointer-events-none ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                                                }`}>
-                                                {formatCurrency(item.totalReceita)}
-                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-accent-foreground rotate-45"></div>
-                                            </div>
-
-                                            <div
-                                                className={`w-full rounded-t-sm transition-all duration-300 ${isSelected ? 'ring-1 ring-offset-1 ring-slate-400' : ''
-                                                    } ${isBest ? 'bg-primary' : 'bg-primary/25'}`}
-                                                style={{ height: `${Math.max(percent, 4)}%` }}
-                                            ></div>
-
-                                            {/* Label do Dia */}
-                                            <span className={`text-[12px] mt-2 font-bold transition-colors ${isSelected || isBest ? 'text-primary' : 'text-muted-foreground'
-                                                }`}>
-                                                {diaAbreviado}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* 3. Top Clientes (Lista Rankeada) */}
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="text-base font-semibold">Top Clientes</CardTitle>
-                            <Trophy className="h-4 w-4 text-yellow-500" />
+                    {error && (
+                        <div className="p-4 rounded bg-destructive/15 text-destructive text-sm font-medium">
+                            {error}
                         </div>
-                        <CardDescription>Quem mais investe no seu negócio</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {loading ? (
-                            Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)
-                        ) : (
-                            topClientes.slice(0, 5).map((cliente) => (
-                                <div key={cliente.clienteId} className="flex items-center justify-between border-b last:border-0 pb-3 last:pb-0">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-muted font-bold text-xs">
-                                            {cliente.badge || cliente.posicao}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium leading-none">{cliente.nome}</p>
-                                            <p className="text-xs text-muted-foreground mt-1">
-                                                {cliente.visitas} visitas • Última: {format(new Date(cliente.ultimoAtendimento), 'dd/MM')}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-bold text-primary">{formatCurrency(cliente.gastoTotal)}</p>
-                                        <p className="text-[10px] text-muted-foreground">Méd: {formatCurrency(cliente.ticketMedio)}</p>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                        {!loading && topClientes.length === 0 && (
-                            <p className="text-sm text-center text-muted-foreground py-4">Nenhum dado encontrado.</p>
-                        )}
-                    </CardContent>
-                </Card>
+                    )}
 
-                {/* 4. Métricas de Retenção (Grid) */}
+                    {/* 1. KPI Cards (Resumo) */}
+                    <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                        <KPICard
+                            title="Dia Campeão"
+                            value={loading ? "..." : receitaPorDiaSemana.diaCampeao.dia}
+                            subValue={loading ? "" : formatCurrency(receitaPorDiaSemana.diaCampeao.totalReceita)}
+                            icon={<TrendingUp className="h-4 w-4 text-primary" />}
+                            loading={loading}
+                        />
+                        <KPICard
+                            title="Ticket Médio"
+                            value={loading ? "..." : formatCurrency(receitaPorDiaSemana.diaCampeao.ticketMedio)}
+                            subValue="No melhor dia"
+                            icon={<Wallet className="h-4 w-4 text-emerald-500" />}
+                            loading={loading}
+                        />
+                        <KPICard
+                            title="Retorno Médio"
+                            value={loading ? "..." : `${Math.round(frequenciaRetorno.mediaDias)} dias`}
+                            subValue="Frequência"
+                            icon={<Clock className="h-4 w-4 text-blue-500" />}
+                            loading={loading}
+                        />
+                        <KPICard
+                            title="Agendamentos"
+                            value={loading ? "..." : `${agendamentos.length}`}
+                            subValue={"Total em aberto: " + agendamentos.filter(a => a.status === "CONFIRMADO").length}
+                            icon={<Users className="h-4 w-4 text-primary" />}
+                            loading={loading}
+                        />
+                    </section>
 
-                {/* 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
+                    {/* Phase 5 — Métricas Financeiras */}
+                    <section className="space-y-4">
+                        <Separator className="my-2" />
+                        <FinancialSummaryCards
+                            receitaTotal={receitaTotal}
+                            despesaTotal={despesaTotal}
+                            saldo={saldo}
+                            loading={loading}
+                        />
+                        <IncomeVsExpenseChart
+                            receitaTotal={receitaTotal}
+                            despesaTotal={despesaTotal}
+                            loading={loading}
+                        />
+                    </section>
+
+                    {/* 2. Receita Semanal (Gráfico de Barras CSS) */}
+                    <Card onClick={() => setDiaSelecionado(null)}>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-semibold">Ciclo de Retorno</CardTitle>
+                            <CardTitle className="text-base font-semibold">Receita por Dia da Semana</CardTitle>
+                            <CardDescription>Toque na barra para ver o valor</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                            {loading ? <Skeleton className="h-20" /> : (
-                                <>
-                                    <MetricRow label="Semanal (7-10 dias)" value={frequenciaRetorno.buckets.semanal} total={frequenciaRetorno.diffsDias.length} color="bg-green-500" />
-                                    <MetricRow label="Quinzenal (14-17 dias)" value={frequenciaRetorno.buckets.quinzenal} total={frequenciaRetorno.diffsDias.length} color="bg-blue-500" />
-                                    <MetricRow label="Mensal (28-35 dias)" value={frequenciaRetorno.buckets.mensal} total={frequenciaRetorno.diffsDias.length} color="bg-yellow-500" />
-                                    <MetricRow label="Trimestral (+80 dias)" value={frequenciaRetorno.buckets.trimestral} total={frequenciaRetorno.diffsDias.length} color="bg-red-500" />
-                                </>
+                        <CardContent>
+                            {loading ? (
+                                <Skeleton className="h-40 w-full" />
+                            ) : (
+                                <div className="flex items-end justify-between gap-1 h-52 mt-6 px-1">
+                                    {receitaPorDiaSemana.porDia.map((item) => {
+                                        const percent = (item.totalReceita / (receitaPorDiaSemana.potencialMaximoDia || 1)) * 100;
+                                        const isBest = item.dia === receitaPorDiaSemana.diaCampeao.dia;
+                                        const isSelected = diaSelecionado === item.dia;
+                                        const diaAbreviado = item.dia.substring(0, 3).toUpperCase();
+
+                                        return (
+                                            <div
+                                                key={item.dia}
+                                                className="flex flex-col items-center justify-end w-full relative h-full max-w-[45px] cursor-pointer"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleBarClick(item.dia);
+                                                }}
+                                            >
+                                                <div className={`absolute -top-10 text-white dark:text-black bg-accent-foreground text-sm py-1 px-2 rounded shadow-lg transition-all duration-200 pointer-events-none ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                                                    }`}>
+                                                    {formatCurrency(item.totalReceita)}
+                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-accent-foreground rotate-45"></div>
+                                                </div>
+
+                                                <div
+                                                    className={`w-full rounded-t-sm transition-all duration-300 ${isSelected ? 'ring-1 ring-offset-1 ring-slate-400' : ''
+                                                        } ${isBest ? 'bg-primary' : 'bg-primary/25'}`}
+                                                    style={{ height: `${Math.max(percent, 4)}%` }}
+                                                ></div>
+
+                                                <span className={`text-[12px] mt-2 font-bold transition-colors ${isSelected || isBest ? 'text-primary' : 'text-muted-foreground'
+                                                    }`}>
+                                                    {diaAbreviado}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-semibold">Estágio dos Clientes</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-4">
-                            {loading ? <Skeleton className="h-20" /> : (
-                                <div className="space-y-4">
-                                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                                        <span>Novatos</span>
-                                        <span>Leais (+1 ano)</span>
-                                    </div>
-                                    <div className="flex w-full h-4 rounded-full overflow-hidden">
-                                        <div className="bg-blue-400 h-full" style={{ width: `${lifetimeClientes.distribuicao.novatosPercent}%` }} />
-                                        <div className="bg-blue-500 h-full" style={{ width: `${lifetimeClientes.distribuicao.emTestePercent}%` }} />
-                                        <div className="bg-blue-600 h-full" style={{ width: `${lifetimeClientes.distribuicao.estabelecidosPercent}%` }} />
-                                        <div className="bg-purple-600 h-full" style={{ width: `${lifetimeClientes.distribuicao.leaisPercent}%` }} />
-                                    </div>
+                    {/* Phase 6 — Rankings & Insights */}
+                    <InsightsSection
+                        servicosRanking={servicosRanking}
+                        topServices12meses={topServices12meses}
+                        topClientes12meses={topClientes12meses}
+                        ultimaVisitaPorCliente={ultimaVisitaPorCliente}
+                        loading={loading}
+                    />
 
-                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-400"></div> Novatos ({Math.round(lifetimeClientes.distribuicao.novatosPercent)}%)</div>
-                                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500"></div> Em teste ({Math.round(lifetimeClientes.distribuicao.emTestePercent)}%)</div>
-                                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-600"></div> Estabelecidos ({Math.round(lifetimeClientes.distribuicao.estabelecidosPercent)}%)</div>
-                                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-purple-600"></div> Leais ({Math.round(lifetimeClientes.distribuicao.leaisPercent)}%)</div>
-                                    </div>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div> 
-                */}
-
-            </main>
+                    {/* Phase 8 — Retenção de Clientes */}
+                    {/* <RetentionSection
+                        buckets={frequenciaRetorno.buckets}
+                        mediaDias={frequenciaRetorno.mediaDias}
+                        distribuicao={lifetimeClientes.distribuicao}
+                        counts={lifetimeClientes.counts}
+                        tempoMedioMeses={lifetimeClientes.tempoMedioMeses}
+                        loading={loading}
+                    /> */}
+                </main>
         </div>
     );
 }
@@ -326,18 +248,5 @@ function KPICard({ title, value, subValue, icon, loading }: { title: string, val
                 )}
             </CardContent>
         </Card>
-    );
-}
-
-function MetricRow({ label, value, total, color }: { label: string, value: number, total: number, color: string }) {
-    const percent = total > 0 ? (value / total) * 100 : 0;
-    return (
-        <div>
-            <div className="flex justify-between text-xs mb-1">
-                <span className="text-muted-foreground">{label}</span>
-                <span className="font-bold">{value}</span>
-            </div>
-            <Progress value={percent} className="h-2" />
-        </div>
     );
 }

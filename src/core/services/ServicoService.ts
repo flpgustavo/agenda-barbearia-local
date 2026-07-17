@@ -1,10 +1,10 @@
 import { BaseService } from "./BaseService";
 import { Servico } from "../models/Servico";
-import { db } from "../db";
+import { getDb } from "../db";
 
 class ServicoService extends BaseService<Servico> {
     constructor() {
-        super("servicos" as keyof typeof db);
+        super("servicos");
     }
 
     private async validarServico(
@@ -40,7 +40,7 @@ class ServicoService extends BaseService<Servico> {
     }
 
     private async validarExclusao(id: string): Promise<void> {
-        const agendamentosAtivos = await db.agendamentos
+        const agendamentosAtivos = await getDb().agendamentos
             .where("servicoId")
             .equals(id)
             .filter((ag: { status: string; }) => ag.status !== "CANCELADO")

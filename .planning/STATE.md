@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: — Phases 2-3
+milestone: v4.0
+milestone_name: Reformulação do Dashboard
 status: complete
-stopped_at: Phase 05 complete — waiting for transition
-last_updated: "2026-05-19T22:30:00.000Z"
-last_activity: 2026-05-19 — Phase 05 complete
+stopped_at: Milestone v4.0 fully executed
+last_updated: "2026-07-17T00:00:00.000Z"
+last_activity: 2026-07-17 - GSD documents synced to reflect v4.0 completion
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 25
+  completed_phases: 4
+  total_plans: 7
+  completed_plans: 7
+  percent: 100
 ---
 
 ## Project Reference
@@ -19,14 +19,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-19)
 
 **Core value:** Barbearias podem gerenciar agendamentos, clientes e finanças de forma simples e offline-first
-**Current focus:** Phase 05 — m-tricas-financeiras
+**Current focus:** Milestone v4.0 — 3 phases active (Phase 7 removed)
 
 ## Current Position
 
-Phase: 05 (m-tricas-financeiras) — COMPLETE
-Plan: 2 of 2
-Status: Verified — all 5 must-haves passing
-Last activity: 2026-05-19 — Phase 05 complete
+Phase: 07 (removed)
+Plan: N/A
+Status: ⚠️ Phase 7 (Disponibilidade & Ocupação) removed per user request on 2026-07-17. Code and planning artifacts archived.
+Last activity: 2026-07-17
 
 Progress: [██████████] 100%
 
@@ -34,24 +34,23 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 7
 - Average duration: N/A
 - Total execution time: N/A
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| — | — | — | — |
+| Phase | Plans | Total | Avg/Plan | Status |
+|-------|-------|-------|----------|--------|
+| 05 — Métricas Financeiras | 2 | 2 | - | Complete |
+| 06 — Rankings & Insights | 2 | 2 | - | Complete |
+| 07 — Disponibilidade & Ocupação | — | — | — | Removed (2026-07-17) |
+| 08 — Retenção de Clientes | 1 | 1 | - | Complete |
 
 **Recent Trend:**
 
-- Last 5 plans: N/A
-- Trend: N/A
-
-*Updated after each plan completion*
-| Phase 05-m-tricas-financeiras P01 | 8min | 2 tasks | 2 files |
-| Phase 05-m-tricas-financeiras P02 | 12min | 3 tasks | 3 files |
+- Last 5 plans: All completed
+- Trend: ✅ Milestone v4.0 fully executed
 
 ## Accumulated Context
 
@@ -77,8 +76,15 @@ None yet.
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260618-j1r | gere um seeder para demonstrar todas as funções do sistema | 2026-06-18 | fa28e42 | [260618-j1r-gere-um-seeder-para-demonstrar-todas-as-](./quick/260618-j1r-gere-um-seeder-para-demonstrar-todas-as-/) |
+| 260618-jo5 | ajuste o seeder para deixar cadastrar o próprio usuário primeiro | 2026-06-18 | f3cf6c1 | [260618-jo5-ajuste-o-seeder-para-deixar-cadastrar-o-](./quick/260618-jo5-ajuste-o-seeder-para-deixar-cadastrar-o-/) |
+
 ## Session Continuity
 
-Last session: 2026-05-19T22:30:00.000Z
-Stopped at: Phase 05 complete, verified. Proceeding to next phase.
-Resume file: None
+Last session: 2026-07-17
+Stopped at: Milestone v4.0 complete
+Resume file: .planning/ROADMAP.md

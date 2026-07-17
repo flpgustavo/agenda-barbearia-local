@@ -16,6 +16,7 @@ import TourOverlay from "./TourOverlay";
 import TourTooltip from "./TourTooltip";
 import { useTourFirstVisit } from "@/hooks/useTourFirstVisit";
 import { TourConfirmationModal } from "./TourConfirmationModal";
+import { DemoDataModal } from "@/components/demo/DemoDataModal";
 
 // ─── Tipos internos ────────────────────────────────────────────────
 
@@ -126,6 +127,7 @@ export function TourProvider({
   const { getStatus, markVisited, markSkipped, markCompleted, reset } =
     useTourFirstVisit();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   // ── Verificar primeira visita ────────────────────────────────────
   useEffect(() => {
@@ -171,6 +173,23 @@ export function TourProvider({
       dispatch({ type: "SET_STEPS", steps: TOUR_STEPS });
     }
   }, []);
+
+  // ── Demo data modal trigger ───────────────────────────────────────
+  function checkAndShowDemoModal() {
+    const demoShown = localStorage.getItem("demo_data_shown");
+    if (demoShown === "false") {
+      const timer = setTimeout(() => setShowDemoModal(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }
+
+  // When tour completes or is skipped on mobile — show demo modal
+  useEffect(() => {
+    if (state.status === "completed" || state.status === "skipped") {
+      return checkAndShowDemoModal();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status]);
 
   // ── Auto-navegação entre páginas ─────────────────────────────
   useEffect(() => {
@@ -249,11 +268,17 @@ export function TourProvider({
     setIsModalOpen(false);
     markCompleted();
     dispatch({ type: "START" });
+
+    // On desktop (no tour), show demo modal immediately
+    if (!state.isMobile) {
+      checkAndShowDemoModal();
+    }
   };
 
   const handleDismissTour = () => {
     setIsModalOpen(false);
     markVisited();
+    checkAndShowDemoModal();
   };
 
   const actions: TourActions = {
@@ -312,6 +337,10 @@ export function TourProvider({
         onOpenChange={setIsModalOpen}
         onAccept={handleAcceptTour}
         onDismiss={handleDismissTour}
+      />
+      <DemoDataModal
+        open={showDemoModal}
+        onOpenChange={setShowDemoModal}
       />
     </TourContext.Provider>
   );

@@ -58,6 +58,12 @@ const dataFutura = (diasFrente: number, hora: number): string => {
 
 export async function seedDatabase(db: Database) {
   try {
+    const agendaCleared = typeof window !== "undefined" && localStorage.getItem("agenda_cleared") === "true";
+    if (agendaCleared) {
+      console.log('ℹ️  Usuário limpou os dados de demonstração. Seeder ignorado.');
+      return;
+    }
+
     const count = await db.servicos.count();
     if (count > 0) {
       console.log('ℹ️  Banco já possui dados. Seeder ignorado.');

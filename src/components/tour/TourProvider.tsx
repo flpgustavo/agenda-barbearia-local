@@ -186,7 +186,7 @@ export function TourProvider({
   // When tour completes or is skipped on mobile — show demo modal
   useEffect(() => {
     if (state.status === "completed" || state.status === "skipped") {
-      checkAndShowDemoModal();
+      return checkAndShowDemoModal();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.status]);

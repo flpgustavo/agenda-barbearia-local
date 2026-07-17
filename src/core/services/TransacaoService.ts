@@ -1,5 +1,4 @@
 import { BaseService } from "./BaseService";
-import { db } from "../db";
 import { Cliente } from "../models/Cliente";
 import { Servico } from "../models/Servico";
 import { Transacao } from "../models/Transacao";
@@ -11,7 +10,7 @@ export interface TransacaoComDetalhes extends Transacao {
 
 export class TransacaoService extends BaseService<Transacao> {
     constructor() {
-        super("transacoes" as keyof typeof db);
+        super("transacoes");
     }
 
    

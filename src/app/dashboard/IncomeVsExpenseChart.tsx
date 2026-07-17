@@ -18,6 +18,26 @@ const formatCurrency = (value: number) => {
     }).format(value);
 };
 
+interface CustomTooltipProps {
+    active?: boolean;
+    payload?: { name: string; value: number; color: string }[];
+    label?: string;
+}
+
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+    if (!active || !payload?.length) return null;
+    return (
+        <div className="bg-popover text-popover-foreground border border-border rounded-lg p-3 shadow-lg text-sm">
+            <p className="font-medium mb-1">{label}</p>
+            {payload.map((entry, index) => (
+                <p key={index} style={{ color: entry.color }}>
+                    {entry.name}: {formatCurrency(entry.value)}
+                </p>
+            ))}
+        </div>
+    );
+}
+
 export function IncomeVsExpenseChart({ receitaTotal, despesaTotal, loading }: IncomeVsExpenseChartProps) {
     const chartData = [
         { name: "Entrada", valor: receitaTotal, fill: "#22c55e" },
@@ -40,10 +60,20 @@ export function IncomeVsExpenseChart({ receitaTotal, despesaTotal, loading }: In
                 ) : (
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                            <XAxis dataKey="name" className="text-xs text-muted-foreground" />
-                            <YAxis className="text-xs text-muted-foreground" tickFormatter={(v) => `R$${v}`} />
-                            <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--muted)" />
+                            <XAxis
+                                dataKey="name"
+                                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                                axisLine={{ stroke: "var(--border)" }}
+                                tickLine={{ stroke: "var(--border)" }}
+                            />
+                            <YAxis
+                                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                                axisLine={{ stroke: "var(--border)" }}
+                                tickLine={{ stroke: "var(--border)" }}
+                                tickFormatter={(v) => `R$${v}`}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
                             <Bar dataKey="valor" radius={[4, 4, 0, 0]} barSize={60}>
                                 {chartData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.fill} />

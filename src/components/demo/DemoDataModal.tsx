@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { db } from "@/core/db";
+import { getDb } from "@/core/db";
 
 interface DemoDataModalProps {
   open: boolean;
@@ -19,14 +19,16 @@ interface DemoDataModalProps {
 
 export function DemoDataModal({ open, onOpenChange }: DemoDataModalProps) {
   async function handleClearData() {
-    await db.transaction(
+    const _db = getDb();
+    await _db.transaction(
       "rw",
-      [db.clientes, db.servicos, db.agendamentos, db.transacoes],
+      [_db.clientes, _db.servicos, _db.agendamentos, _db.transacoes],
       async () => {
-        await db.clientes.clear();
-        await db.servicos.clear();
-        await db.agendamentos.clear();
-        await db.transacoes.clear();
+
+        await _db.clientes.clear();
+        await _db.servicos.clear();
+        await _db.agendamentos.clear();
+        await _db.transacoes.clear();
       },
     );
     localStorage.setItem("demo_data_shown", "true");

@@ -33,10 +33,10 @@
 
 ### Phases
 
-- [ ] **Phase 5: Métricas Financeiras** — Cards de receita/despesa + gráfico visual
-- [ ] **Phase 6: Rankings & Insights** — Rankings de serviços + insights de clientes
-- [ ] **Phase 7: Disponibilidade & Ocupação** — Grid semanal por serviço + taxa de ocupação
-- [ ] **Phase 8: Retenção de Clientes** — Frequência de retorno + estágios do ciclo de vida
+- [x] **Phase 5: Métricas Financeiras** — Cards de receita/despesa + gráfico visual
+- [x] **Phase 6: Rankings & Insights** — Rankings de serviços + insights de clientes
+- [~] **Phase 7: Disponibilidade & Ocupação** — Removed per user request (2026-07-17)
+- [x] **Phase 8: Retenção de Clientes** — Frequência de retorno + estágios do ciclo de vida
 
 ## Phase Details
 
@@ -73,22 +73,12 @@ Plans:
 Plans:
 - [x] 06-01-PLAN.md — Data layer: extend hook with 12-month and ranking computations
 - [x] 06-02-PLAN.md — UI: insight components (ServiceRankings, TopClients, InactiveClients) + dashboard integration
+**Completed:** 2026-05-21
 
 ### Phase 7: Disponibilidade & Ocupação
-**Goal**: User can view weekly availability grid by service and occupancy rates per day
-**Depends on**: Phase 6
-**Requirements**: DISP-01, DISP-02, DISP-03, OCUP-01
-**Success Criteria** (what must be TRUE):
-    1. User can select a service to view its available weekly time slots
-    2. User can see a visual grid showing weekdays with free time slots for the selected service
-    3. User can export the availability grid as an image via html-to-image
-    4. User can see occupancy percentage (scheduled vs available slots) broken down per day of week
-**Plans**: 2 plans
-**UI hint**: yes
-
-Plans:
-- [x] 07-01-PLAN.md — Data layer: add gerarGradeSemanal method + useAvailabilityGrid hook + queryKeys
-- [x] 07-02-PLAN.md — UI: grid components (DayColumn, DisponibilidadeGrid), ServiceSelectorRow, WeekNavigator, DisponibilidadeTab, bottom tab bar in page.tsx
+**Goal**: ~~User can view weekly availability grid by service and occupancy rates per day~~
+**Status**: REMOVED (2026-07-17) — feature deleted per user request. All code (components, hook, service method, query key) removed from codebase. Planning artifacts (PLAN, SUMMARY, VERIFICATION, HUMAN-UAT) archived for reference.
+**Requirements**: DISP-01, DISP-02, DISP-03, OCUP-01 — moved to Out of Scope
 
 ### Phase 8: Retenção de Clientes
 **Goal**: User can understand client return patterns and lifecycle stages
@@ -102,6 +92,7 @@ Plans:
 
 Plans:
 - [x] 08-01-PLAN.md — UI: Frequency + Lifecycle progress bars (ReturnFrequencyCard, ClientLifecycleCard, RetentionSection) + page.tsx integration
+**Completed:** 2026-05-21
 
 ## Progress
 
@@ -110,6 +101,6 @@ Plans:
 | 2. UI Mobile | v3.0 | 4/4 | Complete | 2026-04-22 |
 | 3. Filters | v3.0 | 3/3 | Complete | 2026-04-22 |
 | 5. Métricas Financeiras | v4.0 | 2/2 | Complete | 2026-05-19 |
-| 6. Rankings & Insights | v4.0 | 0/2 | Planned | - |
-| 7. Disponibilidade & Ocupação | v4.0 | 0/2 | Planned | - |
-| 8. Retenção de Clientes | v4.0 | 0/1 | Planned | - |
+| 6. Rankings & Insights | v4.0 | 2/2 | Complete | 2026-05-21 |
+| 7. Disponibilidade & Ocupação | v4.0 | — | Removed | 2026-07-17 |
+| 8. Retenção de Clientes | v4.0 | 1/1 | Complete | 2026-05-21 |

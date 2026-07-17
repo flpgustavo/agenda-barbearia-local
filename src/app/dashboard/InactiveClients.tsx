@@ -12,9 +12,8 @@ interface InactiveClientsProps {
 export function InactiveClients({ ultimaVisitaPorCliente, loading }: InactiveClientsProps) {
     const [threshold, setThreshold] = useState(30);
 
-    const hoje = useMemo(() => new Date(), []);
-
     const clientesInativos = useMemo(() => {
+        const hoje = new Date();
         const entries = Object.entries(ultimaVisitaPorCliente)
             .map(([id, data]) => {
                 const ultima = new Date(data.ultimaData);
@@ -52,7 +51,9 @@ export function InactiveClients({ ultimaVisitaPorCliente, loading }: InactiveCli
                     <Skeleton className="h-40 w-full" />
                 ) : clientesInativos.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
-                        Nenhum cliente inativo.
+                        {Object.keys(ultimaVisitaPorCliente).length > 0
+                            ? `Todos os clientes visitaram nos últimos ${threshold} dias.`
+                            : "Nenhum dado de cliente disponível."}
                     </p>
                 ) : (
                     <div className="space-y-2">

@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "Gerenciamento de agendamentos offline para barbearias.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{

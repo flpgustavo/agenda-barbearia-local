@@ -4,7 +4,6 @@ import { Servico } from "../models/Servico";
 import { Usuario } from "../models/Usuario";
 import { Agendamento } from "../models/Agendamento";
 import { Transacao } from "../models/Transacao";
-import { seedDatabase } from "./seeder";
 
 export class Database extends Dexie {
     clientes!: Table<Cliente, string>;
@@ -23,18 +22,23 @@ export class Database extends Dexie {
             agendamentos: "id, clienteId, servicoId, dataHora, status, createdAt, updatedAt",
             transacoes: "id, agendamentoId, dataHora, status, createdAt, updatedAt",
         });
-
     }
 }
 
-export const db = new Database();
+let _db: Database | null = null;
 
-if (typeof window !== "undefined") {
-    db.on("ready", async () => {
-        await seedDatabase(db);
-    });
-    
-    db.open().catch((err) => {
-        console.error("Falha ao abrir o banco de dados:", err.stack || err);
-    });
+export function getDb(): Database {
+    if (!_db) {
+        _db = new Database();
+        if (typeof window !== "undefined") {
+            _db.on("ready", async () => {
+                const { seedDatabase } = await import("./seeder");
+                await seedDatabase(_db!);
+            });
+            _db.open().catch((err) => {
+                console.error("Falha ao abrir o banco de dados:", err.stack || err);
+            });
+        }
+    }
+    return _db;
 }

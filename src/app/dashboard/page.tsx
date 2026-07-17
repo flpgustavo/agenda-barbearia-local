@@ -8,8 +8,6 @@ import {
     Users,
     Clock,
     Wallet,
-    CalendarDays,
-    BarChart3,
 } from "lucide-react";
 
 // Imports UI (Shadcn pattern)
@@ -26,7 +24,6 @@ import { FinancialSummaryCards } from "./FinancialSummaryCards";
 import { IncomeVsExpenseChart } from "./IncomeVsExpenseChart";
 import { InsightsSection } from "./InsightsSection";
 import { RetentionSection } from "./RetentionSection";
-import { DisponibilidadeTab } from "./DisponibilidadeTab";
 
 // Utilitário para formatar moeda
 const formatCurrency = (value: number) => {
@@ -38,7 +35,6 @@ const formatCurrency = (value: number) => {
 
 export default function DashboardPage() {
     const [diaSelecionado, setDiaSelecionado] = useState(null);
-    const [activeTab, setActiveTab] = useState<"dashboard" | "disponibilidade">("dashboard");
 
     // Estado inicial dos filtros: Mês atual
     const [filters, setFilters] = useState<DashboardFilters>({
@@ -76,8 +72,7 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground pb-24">
-            {/* Header — sempre visível, mesmo na aba Disponibilidade */}
+        <div className="min-h-screen bg-background text-foreground">
             <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
                 <div className="container mx-auto p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -91,26 +86,17 @@ export default function DashboardPage() {
                         </Button>
                         <div>
                             <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
-                            <p className="text-xs text-muted-foreground">
-                                {activeTab === "dashboard"
-                                    ? "Visão geral do negócio"
-                                    : "Disponibilidade semanal"}
-                            </p>
+                            <p className="text-xs text-muted-foreground">Visão geral do negócio</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Barra de Filtros — só aparece na aba Dashboard */}
-                {activeTab === "dashboard" && (
-                    <div className="container mx-auto px-4 pb-4">
-                        <DateRangeFilter onFilterChange={handleFilterChange} />
-                    </div>
-                )}
+                <div className="container mx-auto px-4 pb-4">
+                    <DateRangeFilter onFilterChange={handleFilterChange} />
+                </div>
             </header>
 
-            {/* Conteúdo condicional */}
-            {activeTab === "dashboard" ? (
-                <main className="container mx-auto p-4 space-y-6">
+            <main className="container mx-auto p-4 space-y-6">
                     {error && (
                         <div className="p-4 rounded bg-destructive/15 text-destructive text-sm font-medium">
                             {error}
@@ -143,7 +129,7 @@ export default function DashboardPage() {
                         <KPICard
                             title="Agendamentos"
                             value={loading ? "..." : `${agendamentos.length}`}
-                            subValue={"Total em aberto: " + agendamentos.filter(a => a.status == "CONFIRMADO").length}
+                            subValue={"Total em aberto: " + agendamentos.filter(a => a.status === "CONFIRMADO").length}
                             icon={<Users className="h-4 w-4 text-primary" />}
                             loading={loading}
                         />
@@ -225,46 +211,15 @@ export default function DashboardPage() {
                     />
 
                     {/* Phase 8 — Retenção de Clientes */}
-                    <RetentionSection
+                    {/* <RetentionSection
                         buckets={frequenciaRetorno.buckets}
                         mediaDias={frequenciaRetorno.mediaDias}
                         distribuicao={lifetimeClientes.distribuicao}
                         counts={lifetimeClientes.counts}
                         tempoMedioMeses={lifetimeClientes.tempoMedioMeses}
                         loading={loading}
-                    />
+                    /> */}
                 </main>
-            ) : (
-                <DisponibilidadeTab />
-            )}
-
-            {/* Bottom Tab Bar */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background">
-                <div className="container mx-auto flex justify-around py-2">
-                    <button
-                        onClick={() => setActiveTab("dashboard")}
-                        className={`flex flex-col items-center gap-1 px-6 py-1 text-xs transition-colors ${
-                            activeTab === "dashboard"
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                        }`}
-                    >
-                        <BarChart3 className="h-5 w-5" />
-                        <span>Dashboard</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("disponibilidade")}
-                        className={`flex flex-col items-center gap-1 px-6 py-1 text-xs transition-colors ${
-                            activeTab === "disponibilidade"
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                        }`}
-                    >
-                        <CalendarDays className="h-5 w-5" />
-                        <span>Disponibilidade</span>
-                    </button>
-                </div>
-            </div>
         </div>
     );
 }

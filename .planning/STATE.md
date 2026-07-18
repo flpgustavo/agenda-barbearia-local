@@ -82,6 +82,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260618-j1r | gere um seeder para demonstrar todas as funções do sistema | 2026-06-18 | fa28e42 | [260618-j1r-gere-um-seeder-para-demonstrar-todas-as-](./quick/260618-j1r-gere-um-seeder-para-demonstrar-todas-as-/) |
 | 260618-jo5 | ajuste o seeder para deixar cadastrar o próprio usuário primeiro | 2026-06-18 | f3cf6c1 | [260618-jo5-ajuste-o-seeder-para-deixar-cadastrar-o-](./quick/260618-jo5-ajuste-o-seeder-para-deixar-cadastrar-o-/) |
+| 260718-ajuste-botao-apagar-dados | ajuste o botão de apagar dados para apagar tudo menos o perfil | 2026-07-18 | 41f9820 | [260718-ajuste-botao-apagar-dados](./quick/20260718-ajuste-botao-apagar-dados/) |
 
 ## Session Continuity
 

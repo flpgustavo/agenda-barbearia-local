@@ -102,12 +102,12 @@ export const BackupService = {
         try {
             await getDb().transaction(
                 "rw", 
-                [getDb().clientes, getDb().servicos, getDb().usuarios, getDb().agendamentos], 
+                [getDb().clientes, getDb().servicos, getDb().agendamentos, getDb().transacoes], 
                 async () => {
                     await getDb().clientes.clear();
                     await getDb().servicos.clear();
-                    await getDb().usuarios.clear();
                     await getDb().agendamentos.clear();
+                    await getDb().transacoes.clear();
                 }
             );
         } catch (error: any) {

@@ -71,7 +71,7 @@ export default function MeusDadosPage() {
         try {
             await BackupService.reset();
             setIsResetOpen(false);
-            toast.success("Banco de dados limpo com sucesso!");
+            toast.success("Dados da barbearia limpos! Seu perfil foi preservado.");
             setTimeout(() => window.location.reload(), 1000);
         } catch (error: any) {
             toast.error(error.message || "Erro ao limpar banco de dados");
@@ -177,15 +177,15 @@ export default function MeusDadosPage() {
                         Zona de Perigo
                     </CardTitle>
                     <CardDescription>
-                        Ações irreversíveis que afetam todos os seus dados.
+                        Ações irreversíveis. Seu perfil de usuário não é afetado.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col items-center justify-between p-4 border border-red-100 dark:border-red-900/30 rounded-lg bg-red-50/50 dark:bg-red-900/10">
                         <div className="space-y-1">
-                            <p className="font-medium text-red-900 dark:text-red-200">Apagar todos os dados</p>
+                            <p className="font-medium text-red-900 dark:text-red-200">Apagar dados da barbearia</p>
                             <p className="text-sm text-red-700/80 dark:text-red-300/70">
-                                Remove permanentemente todos os clientes, agendamentos e configurações.
+                                Remove clientes, serviços, agendamentos e transações. Seu perfil permanece intacto.
                             </p>
                         </div>
                         <Button 
@@ -287,10 +287,10 @@ export default function MeusDadosPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2 text-red-600">
                             <AlertTriangle className="h-5 w-5" />
-                            Tem certeza absoluta?
+                            Apagar dados da barbearia?
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-left">
-                            Essa ação não pode ser desfeita. Isso excluirá permanentemente todos os dados.
+                            Essa ação não pode ser desfeita. Excluirá todos os dados operacionais (clientes, serviços, agendamentos e transações), mas seu perfil será mantido.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

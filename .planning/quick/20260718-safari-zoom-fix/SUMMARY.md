@@ -11,4 +11,4 @@ Adicionado `font-size: 16px` para `input`, `select` e `textarea` em `src/app/glo
 
 ## Commits
 
-- `fc10433` — fix: previne zoom no Safari ao focar inputs, selects e textarea
+- `1727b9b` — fix: previne zoom no Safari ao focar inputs, selects e textarea
